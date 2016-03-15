@@ -20,3 +20,9 @@ tests/split.js
 
 # python metadata in tests
 tests/*.pyc
+
+# git ignore output of the paper generation
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.pdf
