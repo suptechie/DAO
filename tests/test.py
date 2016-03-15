@@ -10,11 +10,10 @@ import shutil
 import sys
 from datetime import datetime
 from string import Template
-import re
 import random
 from utils import (
     constrained_sum_sample_pos, rm_file, determine_binary, ts_now,
-    seconds_in_future, create_votes_array, arr_str, eval_test, write_js,
+    create_votes_array, arr_str, eval_test, write_js,
     count_token_votes, create_genesis, calculate_reward, tokens_after_split,
     calculate_closing_time, extract_test_dict, edit_dao_source
 )

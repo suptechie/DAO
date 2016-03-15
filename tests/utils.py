@@ -4,7 +4,6 @@ import random
 import os
 import json
 import sys
-import math
 from datetime import datetime
 from jsutils import js_common_intro
 
