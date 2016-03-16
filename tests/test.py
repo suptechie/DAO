@@ -186,7 +186,7 @@ class TestContext():
         print("Creating {}.js".format(name))
         scenario_dir = os.path.join(self.tests_dir, "scenarios", name)
         with open(
-                os.path.join(scenario_dir, '{}.template.js'.format(name)),
+                os.path.join(scenario_dir, 'template.js'),
                 'r'
         ) as f:
             data = f.read()
