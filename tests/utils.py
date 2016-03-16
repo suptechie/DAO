@@ -208,18 +208,6 @@ def count_token_votes(amounts, votes):
             nay += amount
     return yay, nay
 
-
-def calculate_reward(tokens, total_tokens, total_rewards):
-    result = (tokens * float(total_rewards)) / float(total_tokens)
-    return result
-
-
-def calculate_closing_time(obj, script_name, substitutions):
-    obj.closing_time = seconds_in_future(obj.args.closing_time)
-    substitutions['closing_time'] = obj.closing_time
-    return substitutions
-
-
 def edit_dao_source(contracts_dir, keep_limits):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
@@ -283,59 +271,3 @@ def edit_dao_source(contracts_dir, keep_limits):
         f.write(contents)
 
     return new_path
-
-
-def tokens_after_split(votes, original_balance, dao_balance, reward_tokens):
-    """
-    Create expected token and reward token results after the split scenario
-        Parameters
-        ----------
-        votes : array of booleans
-        The votes array of what each user voted
-
-        original_balance : array of ints
-        The original amount of tokens each user had before the split
-
-        dao_balance : int
-        The balance of ether left in the DAO before the scenario started
-
-        reward_tokens : float
-        Amount of reward tokens generated in the DAO before the scenario.
-
-        Returns
-        ----------
-        old_dao_balance : array of ints
-        The balance of tokens left in the old dao.
-
-        new_dao_balance : array of ints
-        The balance of tokens left in the new dao.
-
-        old_reward_tokens : float
-        The amount of reward tokens left in the old dao.
-
-        new_reward_tokens : float
-        The amount of reward tokens left in the new dao.
-    """
-
-    old_dao_balance = []
-    new_dao_balance = []
-    totalSupply = sum(original_balance)
-    old_reward_tokens = reward_tokens
-    new_reward_tokens = 0
-
-    for vote, orig in zip(votes, original_balance):
-        if vote:
-            new_dao_balance.append(orig * dao_balance / totalSupply)
-            old_dao_balance.append(0)
-            rewardToMove = float(orig) * reward_tokens / float(totalSupply)
-            old_reward_tokens -= float(rewardToMove)
-            new_reward_tokens += float(rewardToMove)
-        else:
-            old_dao_balance.append(orig)
-            new_dao_balance.append(0)
-    return (
-        old_dao_balance,
-        new_dao_balance,
-        old_reward_tokens,
-        new_reward_tokens
-    )
