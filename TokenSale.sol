@@ -100,6 +100,7 @@ contract TokenSale is TokenSaleInterface, Token {
                 Refund(msg.sender, weiGiven[msg.sender]);
                 totalSupply -= balances[msg.sender];
                 balances[msg.sender] = 0;
+                weiGiven[msg.sender] = 0;
             }
         }
     }
