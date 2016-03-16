@@ -53,8 +53,7 @@ def run(framework):
         "Notice: Debate period is {} seconds so the test will wait "
         "as much".format(debate_secs)
     )
-    output = framework.run_script('proposal.js')
-    eval_test('proposal', output, {
+    framework.execute('proposal', {
         "dao_proposals_number": "1",
         "proposal_passed": True,
         "proposal_yay": yay,

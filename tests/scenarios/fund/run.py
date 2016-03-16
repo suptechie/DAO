@@ -44,8 +44,7 @@ def run(framework):
         "Notice: Funding period is {} seconds so the test will wait "
         "as much".format(sale_secs)
     )
-    output = framework.run_script('fund.js')
-    eval_test('fund', output, {
+    framework.execute('fund', {
         "dao_funded": True,
         "total_supply": framework.total_supply,
         "balances": framework.token_amounts,

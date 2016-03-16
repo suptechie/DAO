@@ -11,7 +11,8 @@ import sys
 import importlib
 from string import Template
 from utils import (
-    rm_file, determine_binary, write_js, create_genesis, edit_dao_source
+    rm_file, determine_binary, write_js,
+    create_genesis, edit_dao_source, eval_test
 )
 from args import test_args
 
@@ -194,6 +195,10 @@ class TestContext():
             substitutions = cb_before_creation(self, name, substitutions)
         s = tmpl.substitute(substitutions)
         write_js("{}.js".format(name), s, len(self.accounts))
+
+    def execute(self, name, expected):
+        output = self.run_script('{}.js'.format(name))
+        return eval_test(name, output, expected)
 
     def run_scenario(self, name):
         if name == 'None':

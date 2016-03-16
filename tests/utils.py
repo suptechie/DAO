@@ -208,6 +208,7 @@ def count_token_votes(amounts, votes):
             nay += amount
     return yay, nay
 
+
 def edit_dao_source(contracts_dir, keep_limits):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()

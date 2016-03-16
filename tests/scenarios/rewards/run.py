@@ -35,8 +35,7 @@ def run(framework):
         "Notice: Debate period is {} seconds so the test will wait "
         "as much".format(debate_secs)
     )
-    output = framework.run_script('rewards.js')
-    results = eval_test('rewards', output, {
+    results = framework.execute('rewards', {
         "provider_reward_portion": calculate_reward(
             framework.token_amounts[0],
             framework.total_supply,
