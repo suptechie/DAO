@@ -44,7 +44,12 @@ def run(framework):
         "Notice: Funding period is {} seconds so the test will wait "
         "as much".format(sale_secs)
     )
+<<<<<<< 613f71c70f5341865f226f5d970820c0ed9f4325
     framework.execute('fund', {
+=======
+    output = framework.run_script('fund.js')
+    eval_test('fund', output, {
+>>>>>>> Each DAO scenario is now in its own directory
         "dao_funded": True,
         "total_supply": framework.total_supply,
         "balances": framework.token_amounts,

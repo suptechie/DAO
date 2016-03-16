@@ -91,7 +91,12 @@ def prepare_test_split(framework, split_gas):
         "Notice: Debate period is {} seconds so the test will wait "
         "as much".format(debate_secs)
     )
+<<<<<<< 613f71c70f5341865f226f5d970820c0ed9f4325
     return votes
+=======
+    output = framework.run_script('split.js')
+    return votes, output
+>>>>>>> Each DAO scenario is now in its own directory
 
 
 def run(framework):
@@ -101,14 +106,22 @@ def run(framework):
     # This should happen with the latest homestead changes:
     # https://github.com/ethereum/EIPs/blob/master/EIPS/eip-2.mediawiki#specification
     split_gas = 4000000
+<<<<<<< 613f71c70f5341865f226f5d970820c0ed9f4325
     votes = prepare_test_split(framework, split_gas)
+=======
+    votes, output = prepare_test_split(framework, split_gas)
+>>>>>>> Each DAO scenario is now in its own directory
     oldBalance, newBalance, oldDAORewards, newDAORewards = tokens_after_split(
         votes,
         framework.token_amounts,
         framework.dao_balance_after_rewards,
         framework.dao_rewardToken_after_rewards
     )
+<<<<<<< 613f71c70f5341865f226f5d970820c0ed9f4325
     framework.execute('split', {
+=======
+    eval_test('split', output, {
+>>>>>>> Each DAO scenario is now in its own directory
         # default deposit,a simple way to test new DAO contract got created
         "newDAOProposalDeposit": 20,
         "oldDAOBalance": oldBalance,
