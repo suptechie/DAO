@@ -11,12 +11,9 @@ import sys
 import importlib
 from string import Template
 from utils import (
-<<<<<<< 613f71c70f5341865f226f5d970820c0ed9f4325
     rm_file, determine_binary, write_js,
-    create_genesis, edit_dao_source, eval_test
-=======
+    create_genesis, edit_dao_source, eval_test,
     rm_file, determine_binary, write_js, create_genesis, edit_dao_source
->>>>>>> Each DAO scenario is now in its own directory
 )
 from args import test_args
 
@@ -190,11 +187,7 @@ class TestContext():
         print("Creating {}.js".format(name))
         scenario_dir = os.path.join(self.tests_dir, "scenarios", name)
         with open(
-<<<<<<< 613f71c70f5341865f226f5d970820c0ed9f4325
                 os.path.join(scenario_dir, 'template.js'),
-=======
-                os.path.join(scenario_dir, '{}.template.js'.format(name)),
->>>>>>> Each DAO scenario is now in its own directory
                 'r'
         ) as f:
             data = f.read()
@@ -204,13 +197,10 @@ class TestContext():
         s = tmpl.substitute(substitutions)
         write_js("{}.js".format(name), s, len(self.accounts))
 
-<<<<<<< 613f71c70f5341865f226f5d970820c0ed9f4325
     def execute(self, name, expected):
         output = self.run_script('{}.js'.format(name))
         return eval_test(name, output, expected)
 
-=======
->>>>>>> Each DAO scenario is now in its own directory
     def run_scenario(self, name):
         if name == 'None':
             print("Asked to run no scenario. Quitting ...")

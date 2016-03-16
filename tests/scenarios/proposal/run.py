@@ -53,12 +53,8 @@ def run(framework):
         "Notice: Debate period is {} seconds so the test will wait "
         "as much".format(debate_secs)
     )
-<<<<<<< 613f71c70f5341865f226f5d970820c0ed9f4325
+
     framework.execute('proposal', {
-=======
-    output = framework.run_script('proposal.js')
-    eval_test('proposal', output, {
->>>>>>> Each DAO scenario is now in its own directory
         "dao_proposals_number": "1",
         "proposal_passed": True,
         "proposal_yay": yay,

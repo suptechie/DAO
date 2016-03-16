@@ -35,12 +35,8 @@ def run(framework):
         "Notice: Debate period is {} seconds so the test will wait "
         "as much".format(debate_secs)
     )
-<<<<<<< 613f71c70f5341865f226f5d970820c0ed9f4325
+
     results = framework.execute('rewards', {
-=======
-    output = framework.run_script('rewards.js')
-    results = eval_test('rewards', output, {
->>>>>>> Each DAO scenario is now in its own directory
         "provider_reward_portion": calculate_reward(
             framework.token_amounts[0],
             framework.total_supply,

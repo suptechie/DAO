@@ -208,10 +208,7 @@ def count_token_votes(amounts, votes):
             nay += amount
     return yay, nay
 
-<<<<<<< 613f71c70f5341865f226f5d970820c0ed9f4325
 
-=======
->>>>>>> Each DAO scenario is now in its own directory
 def edit_dao_source(contracts_dir, keep_limits):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
