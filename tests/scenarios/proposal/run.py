@@ -53,6 +53,7 @@ def run(framework):
         "Notice: Debate period is {} seconds so the test will wait "
         "as much".format(debate_secs)
     )
+
     framework.execute('proposal', {
         "dao_proposals_number": "1",
         "proposal_passed": True,

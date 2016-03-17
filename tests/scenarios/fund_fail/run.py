@@ -16,7 +16,7 @@ def run(framework):
         framework.run_scenario('deploy')
     else:
         print(
-            "WARNING: Running the funding scenario with a pre-deployed "
+            "WARNING: Running the failed funding scenario with a pre-deployed "
             "DAO contract. Closing time is {} which is approximately {} "
             "seconds from now.".format(
                 datetime.fromtimestamp(framework.closing_time).strftime(
@@ -26,13 +26,14 @@ def run(framework):
             )
         )
 
+    accounts_num = len(framework.accounts)
     sale_secs = framework.closing_time - ts_now()
-    framework.total_supply = framework.min_value + random.randint(1, 100)
+    framework.total_supply = random.randint(5, framework.min_value - 4)
     framework.token_amounts = constrained_sum_sample_pos(
-        len(framework.accounts), framework.total_supply
+        accounts_num, framework.total_supply
     )
     framework.create_js_file(
-        'fund',
+        'fund_fail',
         {
             "dao_abi": framework.dao_abi,
             "dao_address": framework.dao_addr,
@@ -44,10 +45,8 @@ def run(framework):
         "Notice: Funding period is {} seconds so the test will wait "
         "as much".format(sale_secs)
     )
-
-    framework.execute('fund', {
-        "dao_funded": True,
+    framework.execute('fund_fail', {
+        "dao_funded": False,
         "total_supply": framework.total_supply,
-        "balances": framework.token_amounts,
-        "user0_after": framework.token_amounts[0],
+        "refund": framework.token_amounts[0:2]
     })

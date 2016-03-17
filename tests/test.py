@@ -12,7 +12,8 @@ import importlib
 from string import Template
 from utils import (
     rm_file, determine_binary, write_js,
-    create_genesis, edit_dao_source, eval_test
+    create_genesis, edit_dao_source, eval_test,
+    rm_file, determine_binary, write_js, create_genesis, edit_dao_source
 )
 from args import test_args
 

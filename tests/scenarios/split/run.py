@@ -101,6 +101,7 @@ def run(framework):
     # This should happen with the latest homestead changes:
     # https://github.com/ethereum/EIPs/blob/master/EIPS/eip-2.mediawiki#specification
     split_gas = 4000000
+
     votes = prepare_test_split(framework, split_gas)
     oldBalance, newBalance, oldDAORewards, newDAORewards = tokens_after_split(
         votes,
@@ -108,6 +109,7 @@ def run(framework):
         framework.dao_balance_after_rewards,
         framework.dao_rewardToken_after_rewards
     )
+
     framework.execute('split', {
         # default deposit,a simple way to test new DAO contract got created
         "newDAOProposalDeposit": 20,
