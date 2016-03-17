@@ -15,18 +15,14 @@ checkWork();
 
 setTimeout(function() {
     miner.stop(0);
+    addToTest('dao_minValue', dao.minValue());
     addToTest('dao_funded', dao.isFunded());
     addToTest('total_supply', parseInt(web3.fromWei(dao.totalSupply())));
-    var balances = [];
-    for (i = 0; i < eth.accounts.length; i++) {
-        balances.push(parseInt(web3.fromWei(dao.balanceOf(eth.accounts[i]))));
-    }
-    addToTest('balances', balances);
 
     // since funding failed let's get a refund (only first 2 users for now)
     var eth_balance_before_refund = [];
     for (i = 0; i < 2; i++) {
-        eth_balance_before_refund.push(parseInt(web3.fromWei(eth.getBalance(eth.accounts[i]))));
+        eth_balance_before_refund.push(web3.fromWei(eth.getBalance(eth.accounts[i])));
     }
     addToTest('eth_balance_before_refund', eth_balance_before_refund);
     
@@ -47,16 +43,16 @@ setTimeout(function() {
     checkWork();
     var eth_balance_after_refund = [];
     for (i = 0; i < 2; i++) {
-        eth_balance_after_refund.push(parseInt(web3.fromWei(eth.getBalance(eth.accounts[i]))));
+        eth_balance_after_refund.push(web3.fromWei(eth.getBalance(eth.accounts[i])));
     }
     addToTest('eth_balance_after_refund', eth_balance_after_refund);
 
     var refund = [];
     for (i = 0; i < 2; i++) {
-        refund.push(bigDiffRound(
+        refund.push((bigDiffRound(
             testMap['eth_balance_after_refund'][i],
             testMap['eth_balance_before_refund'][i]
-        ));
+        )));
     }
     addToTest('refund', refund);
 

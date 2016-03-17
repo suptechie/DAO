@@ -28,7 +28,7 @@ def run(framework):
 
     accounts_num = len(framework.accounts)
     sale_secs = framework.closing_time - ts_now()
-    framework.total_supply = random.randint(5, framework.min_value - 2)
+    framework.total_supply = random.randint(5, framework.min_value - 4)
     framework.token_amounts = constrained_sum_sample_pos(
         accounts_num, framework.total_supply
     )
@@ -48,6 +48,5 @@ def run(framework):
     framework.execute('fund_fail', {
         "dao_funded": False,
         "total_supply": framework.total_supply,
-        "balances": [0] * accounts_num,
-        "refund": framework.token_amounts[0:1]
+        "refund": framework.token_amounts[0:2]
     })

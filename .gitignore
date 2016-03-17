@@ -13,6 +13,7 @@ tests/out.log.geth
 # Ignore created javascript files
 tests/deploy.js
 tests/fund.js
+tests/fund_fail.js
 tests/proposal.js
 tests/accounts.js
 tests/rewards.js
