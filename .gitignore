@@ -19,7 +19,7 @@ tests/rewards.js
 tests/split.js
 
 # python metadata in tests
-tests/*.pyc
+*.pyc
 
 # git ignore output of the paper generation
 paper/*.aux

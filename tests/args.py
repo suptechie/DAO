@@ -1,6 +1,13 @@
 #!/usr/bin/python2
 import argparse
 import sys
+import os
+
+
+def available_scenarios():
+    dir = "scenarios"
+    return [name for name in os.listdir(dir)
+            if os.path.isdir(os.path.join(dir, name))]
 
 
 def test_args():
@@ -86,15 +93,7 @@ def test_args():
     )
     p.add_argument(
         '--scenario',
-        choices=[
-            'none',
-            'deploy',
-            'fund',
-            'proposal',
-            'rewards',
-            'split',
-            'split-insufficient-gas'
-        ],
+        choices=['none'] + available_scenarios(),
         default='none',
         help='Test scenario to play out'
     )
