@@ -1,13 +1,5 @@
-import inspect
-import os
 import sys
 import json
-currentdir = os.path.dirname(
-    os.path.abspath(inspect.getfile(inspect.currentframe()))
-)
-scenario_name = os.path.basename(currentdir)
-parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, parentdir)
 from utils import extract_test_dict, seconds_in_future
 
 
@@ -19,7 +11,6 @@ def calculate_closing_time(obj, script_name, substitutions):
 
 def run(framework):
     print("Running the Deploy Test Scenario")
-    framework.running_scenario = scenario_name
     framework.create_js_file(substitutions={
             "dao_abi": framework.dao_abi,
             "dao_bin": framework.dao_bin,

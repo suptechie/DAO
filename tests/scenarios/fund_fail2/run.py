@@ -1,14 +1,6 @@
-import inspect
-import os
 import sys
 from datetime import datetime
-currentdir = os.path.dirname(
-    os.path.abspath(inspect.getfile(inspect.currentframe()))
-)
-scenario_name = os.path.basename(currentdir)
-parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, parentdir)
-from utils import constrained_sum_sample_pos, arr_str, ts_now
+from utils import constrained_sum_sample_pos, arr_str
 
 
 def run(framework):
@@ -23,17 +15,16 @@ def run(framework):
                 datetime.fromtimestamp(framework.closing_time).strftime(
                     '%Y-%m-%d %H:%M:%S'
                 ),
-                framework.closing_time - ts_now()
+                framework.remaining_time()
             )
         )
 
-    framework.running_scenario = scenario_name
     accounts_num = len(framework.accounts)
     if accounts_num * 2 >= framework.min_value - 4:
         print("Please increase the minimum funding goal for the scenario.")
         sys.exit(1)
 
-    sale_secs = framework.closing_time - ts_now()
+    sale_secs = framework.remaining_time()
     # total_supply = random.randint(accounts_num*2, framework.min_value - 4)
     total_supply = framework.min_value - 4
     proxy_amounts = constrained_sum_sample_pos(

@@ -1,11 +1,3 @@
-import inspect
-import os
-currentdir = os.path.dirname(
-    os.path.abspath(inspect.getfile(inspect.currentframe()))
-)
-scenario_name = os.path.basename(currentdir)
-
-
 def calculate_reward(tokens, total_tokens, total_rewards):
     result = (tokens * float(total_rewards)) / float(total_tokens)
     return result
@@ -16,7 +8,6 @@ def run(framework):
         # run the proposal scenario first
         framework.run_scenario('proposal')
 
-    framework.running_scenario = scenario_name
     debate_secs = 15
     framework.create_js_file(substitutions={
             "dao_abi": framework.dao_abi,

@@ -1,12 +1,4 @@
-import inspect
-import os
 import random
-currentdir = os.path.dirname(
-    os.path.abspath(inspect.getfile(inspect.currentframe()))
-)
-scenario_name = os.path.basename(currentdir)
-parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, parentdir)
 from utils import arr_str, create_votes_array
 
 
@@ -27,7 +19,6 @@ def run(framework):
         # run the funding scenario first
         framework.run_scenario('fund')
 
-    framework.running_scenario = scenario_name
     debate_secs = 20
     minamount = 2  # is determined by the total costs + one time costs
     amount = random.randint(minamount, sum(framework.token_amounts))

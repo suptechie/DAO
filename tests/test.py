@@ -9,9 +9,10 @@ import subprocess
 import shutil
 import sys
 import importlib
+import inspect
 from string import Template
 from utils import (
-    rm_file, determine_binary, write_js,
+    rm_file, determine_binary, write_js, ts_now,
     create_genesis, edit_dao_source, eval_test,
     rm_file, determine_binary, write_js, create_genesis, edit_dao_source
 )
@@ -20,6 +21,7 @@ from args import test_args
 
 class TestContext():
     def __init__(self, args):
+        self.running_scenarios = []
         self.args = args
         self.tests_ok = True
         self.dao_addr = None  # check to determine if DAO is deployed
@@ -61,6 +63,9 @@ class TestContext():
     def next_proposal_id(self):
         self.prop_id += 1
         return self.prop_id
+
+    def remaining_time(self):
+        return self.closing_time - ts_now()
 
     def attemptLoad(self):
         """
@@ -184,7 +189,7 @@ class TestContext():
         (test_framework_object, name_of_js_file, substitutions_dict)
         and it returns the edited substitutions map
         """
-        name = self.running_scenario
+        name = self.running_scenario()
         print("Creating {}.js".format(name))
         scenario_dir = os.path.join(self.tests_dir, "scenarios", name)
         with open(
@@ -199,15 +204,21 @@ class TestContext():
         write_js("{}.js".format(name), s, len(self.accounts))
 
     def execute(self, expected):
-        output = self.run_script('{}.js'.format(self.running_scenario))
-        return eval_test(self.running_scenario, output, expected)
+        output = self.run_script('{}.js'.format(self.running_scenario()))
+        return eval_test(self.running_scenario(), output, expected)
+
+    def running_scenario(self):
+        """Get the currently running scenario name"""
+        return self.running_scenarios[-1]
 
     def run_scenario(self, name):
         if name == 'None':
             print("Asked to run no scenario. Quitting ...")
             return
+        self.running_scenarios.append(name)
         scenario = importlib.import_module("scenarios.{}.run".format(name))
         scenario.run(self)
+        self.running_scenarios.pop()
 
     def run_test(self, args):
         if not self.geth:
@@ -218,6 +229,10 @@ class TestContext():
         self.run_scenario(self.args.scenario)
 
 if __name__ == "__main__":
+    currentdir = os.path.dirname(
+        os.path.abspath(inspect.getfile(inspect.currentframe()))
+    )
+    os.sys.path.insert(0, currentdir)
     args = test_args()
     ctx = TestContext(args)
     ctx.run_test(args)

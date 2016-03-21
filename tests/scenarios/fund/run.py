@@ -1,14 +1,6 @@
-import inspect
-import os
 import random
 from datetime import datetime
-currentdir = os.path.dirname(
-    os.path.abspath(inspect.getfile(inspect.currentframe()))
-)
-scenario_name = os.path.basename(currentdir)
-parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, parentdir)
-from utils import eval_test, constrained_sum_sample_pos, arr_str, ts_now
+from utils import constrained_sum_sample_pos, arr_str
 
 
 def run(framework):
@@ -23,12 +15,11 @@ def run(framework):
                 datetime.fromtimestamp(framework.closing_time).strftime(
                     '%Y-%m-%d %H:%M:%S'
                 ),
-                framework.closing_time - ts_now()
+                framework.remaining_time()
             )
         )
 
-    framework.running_scenario = scenario_name
-    sale_secs = framework.closing_time - ts_now()
+    sale_secs = framework.remaining_time()
     framework.total_supply = framework.min_value + random.randint(1, 100)
     framework.token_amounts = constrained_sum_sample_pos(
         len(framework.accounts), framework.total_supply

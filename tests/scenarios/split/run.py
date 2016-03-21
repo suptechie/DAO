@@ -1,11 +1,3 @@
-import inspect
-import os
-currentdir = os.path.dirname(
-    os.path.abspath(inspect.getfile(inspect.currentframe()))
-)
-scenario_name = os.path.basename(currentdir)
-parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, parentdir)
 from utils import arr_str, create_votes_array
 
 
@@ -70,7 +62,6 @@ def prepare_test_split(framework, split_gas):
         # run the rewards scenario first
         framework.run_scenario('rewards')
 
-    framework.running_scenario = scenario_name
     debate_secs = 15
     votes = create_votes_array(
         framework.token_amounts,
