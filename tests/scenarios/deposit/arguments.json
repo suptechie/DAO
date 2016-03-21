@@ -1,0 +1,9 @@
+[{
+    "name": "debate_seconds",
+    "default": 15,
+    "description": "Number of seconds that the deposit change proposal should be open for voting"
+}, {
+    "name": "new_value",
+    "default": 0,
+    "description": "The proposed new deposit value."
+}]

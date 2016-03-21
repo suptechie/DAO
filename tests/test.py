@@ -60,7 +60,10 @@ class TestContext():
         print("Done!")
 
     def next_proposal_id(self):
-        self.prop_id += 1
+        if not self.prop_id:
+            self.prop_id = 1
+        else:
+            self.prop_id += 1
         return self.prop_id
 
     def remaining_time(self):
