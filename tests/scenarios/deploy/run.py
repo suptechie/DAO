@@ -5,6 +5,7 @@ import json
 currentdir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe()))
 )
+scenario_name = os.path.basename(currentdir)
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
 from utils import extract_test_dict, seconds_in_future
@@ -18,9 +19,8 @@ def calculate_closing_time(obj, script_name, substitutions):
 
 def run(framework):
     print("Running the Deploy Test Scenario")
-    framework.create_js_file(
-        'deploy',
-        {
+    framework.running_scenario = scenario_name
+    framework.create_js_file(substitutions={
             "dao_abi": framework.dao_abi,
             "dao_bin": framework.dao_bin,
             "creator_abi": framework.creator_abi,
@@ -31,7 +31,7 @@ def run(framework):
             "offer_total": framework.args.offer_total_costs,
             "min_value": framework.min_value,
         },
-        calculate_closing_time
+        cb_before_creation=calculate_closing_time
     )
     output = framework.run_script('deploy.js')
     results = extract_test_dict('deploy', output)

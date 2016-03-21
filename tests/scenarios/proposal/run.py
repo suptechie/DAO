@@ -4,9 +4,10 @@ import random
 currentdir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe()))
 )
+scenario_name = os.path.basename(currentdir)
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, parentdir)
-from utils import eval_test, arr_str, create_votes_array
+from utils import arr_str, create_votes_array
 
 
 def count_token_votes(amounts, votes):
@@ -26,6 +27,7 @@ def run(framework):
         # run the funding scenario first
         framework.run_scenario('fund')
 
+    framework.running_scenario = scenario_name
     debate_secs = 20
     minamount = 2  # is determined by the total costs + one time costs
     amount = random.randint(minamount, sum(framework.token_amounts))
@@ -34,9 +36,7 @@ def run(framework):
         not framework.args.proposal_fail
     )
     yay, nay = count_token_votes(framework.token_amounts, votes)
-    framework.create_js_file(
-        'proposal',
-        {
+    framework.create_js_file(substitutions={
             "dao_abi": framework.dao_abi,
             "dao_address": framework.dao_addr,
             "offer_abi": framework.offer_abi,
@@ -54,7 +54,7 @@ def run(framework):
         "as much".format(debate_secs)
     )
 
-    framework.execute('proposal', {
+    framework.execute(expected={
         "dao_proposals_number": "1",
         "proposal_passed": True,
         "proposal_yay": yay,

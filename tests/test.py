@@ -165,7 +165,7 @@ class TestContext():
         rm_file(os.path.join(self.contracts_dir, "DAOcopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "TokenSaleCopy.sol"))
 
-    def create_js_file(self, name, substitutions, cb_before_creation=None):
+    def create_js_file(self, substitutions, cb_before_creation=None):
         """
         Creates a js file from a template
 
@@ -184,6 +184,7 @@ class TestContext():
         (test_framework_object, name_of_js_file, substitutions_dict)
         and it returns the edited substitutions map
         """
+        name = self.running_scenario
         print("Creating {}.js".format(name))
         scenario_dir = os.path.join(self.tests_dir, "scenarios", name)
         with open(
@@ -197,9 +198,9 @@ class TestContext():
         s = tmpl.substitute(substitutions)
         write_js("{}.js".format(name), s, len(self.accounts))
 
-    def execute(self, name, expected):
-        output = self.run_script('{}.js'.format(name))
-        return eval_test(name, output, expected)
+    def execute(self, expected):
+        output = self.run_script('{}.js'.format(self.running_scenario))
+        return eval_test(self.running_scenario, output, expected)
 
     def run_scenario(self, name):
         if name == 'None':

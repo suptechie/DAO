@@ -3,9 +3,7 @@ import os
 currentdir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe()))
 )
-parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, parentdir)
-from utils import eval_test, arr_str, create_votes_array
+scenario_name = os.path.basename(currentdir)
 
 
 def calculate_reward(tokens, total_tokens, total_rewards):
@@ -18,10 +16,9 @@ def run(framework):
         # run the proposal scenario first
         framework.run_scenario('proposal')
 
+    framework.running_scenario = scenario_name
     debate_secs = 15
-    framework.create_js_file(
-        'rewards',
-        {
+    framework.create_js_file(substitutions={
             "dao_abi": framework.dao_abi,
             "dao_address": framework.dao_addr,
             "total_rewards": framework.args.total_rewards,
@@ -36,7 +33,7 @@ def run(framework):
         "as much".format(debate_secs)
     )
 
-    results = framework.execute('rewards', {
+    results = framework.execute(expected={
         "provider_reward_portion": calculate_reward(
             framework.token_amounts[0],
             framework.total_supply,
