@@ -37,7 +37,7 @@ contract DAOTokenSaleProxyTransferer {
         sendValues();
     }
 
-    // default-function called when values are send.
+    // default-function called when values are sent.
     function () {
        sendValues();
     }
