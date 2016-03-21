@@ -43,8 +43,15 @@ contract TokenSaleInterface {
     /// end of the Token Sale
     /// @param _minValue Token Sale minimum funding goal
     /// @param _closingTime Date (in Unix time) of the end of the Token Sale
+    /// @param _privateSale Zero means that the sale is public.  A non-zero
+    /// address represents the only address that can buy Tokens (the address
+    /// can also buy Tokens on behalf of other accounts)
     // This is the constructor: it can not be overloaded so it is commented out
-    //  function TokenSale(uint _minValue, uint _closingTime);
+    //  function TokenSale(
+        //  uint _minValue,
+        //  uint _closingTime,
+        //  address _privateSale
+    //  );
 
     /// @notice Buy Token with `_tokenHolder` as the initial owner of the Token
     /// @param _tokenHolder The address of the Tokens's recipient
