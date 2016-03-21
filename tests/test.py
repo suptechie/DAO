@@ -35,7 +35,6 @@ class TestContext():
         self.solc = determine_binary(args.solc, 'solc')
         self.geth = determine_binary(args.geth, 'geth')
 
-        self.min_value = args.min_value
         # keep this at end since any data loaded should override constructor
         if args.clean_chain:
             self.clean_blockchain()

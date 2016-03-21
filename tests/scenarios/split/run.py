@@ -62,7 +62,6 @@ def prepare_test_split(framework, split_gas):
         # run the rewards scenario first
         framework.run_scenario('rewards')
 
-    debate_secs = 15
     votes = create_votes_array(
         framework.token_amounts,
         not framework.args.proposal_fail
@@ -70,7 +69,7 @@ def prepare_test_split(framework, split_gas):
     framework.create_js_file(substitutions={
             "dao_abi": framework.dao_abi,
             "dao_address": framework.dao_addr,
-            "debating_period": debate_secs,
+            "debating_period": framework.args.split_debate_seconds,
             "split_gas": split_gas,
             "votes": arr_str(votes),
             "prop_id": framework.next_proposal_id()
@@ -78,7 +77,7 @@ def prepare_test_split(framework, split_gas):
     )
     print(
         "Notice: Debate period is {} seconds so the test will wait "
-        "as much".format(debate_secs)
+        "as much".format(framework.args.split_debate_seconds)
     )
     return votes
 

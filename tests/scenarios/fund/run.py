@@ -20,7 +20,7 @@ def run(framework):
         )
 
     sale_secs = framework.remaining_time()
-    framework.total_supply = framework.min_value + random.randint(1, 100)
+    framework.total_supply = framework.args.deploy_min_value + random.randint(1, 100)
     framework.token_amounts = constrained_sum_sample_pos(
         len(framework.accounts), framework.total_supply
     )

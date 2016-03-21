@@ -19,7 +19,6 @@ def run(framework):
         # run the funding scenario first
         framework.run_scenario('fund')
 
-    debate_secs = 20
     minamount = 2  # is determined by the total costs + one time costs
     amount = random.randint(minamount, sum(framework.token_amounts))
     votes = create_votes_array(
@@ -36,13 +35,13 @@ def run(framework):
             "offer_desc": 'Test Proposal',
             "proposal_deposit": framework.args.proposal_deposit,
             "transaction_bytecode": '0x2ca15122',  # solc --hashes SampleOffer.sol
-            "debating_period": debate_secs,
+            "debating_period": framework.args.proposal_debate_seconds,
             "votes": arr_str(votes)
         }
     )
     print(
         "Notice: Debate period is {} seconds so the test will wait "
-        "as much".format(debate_secs)
+        "as much".format(framework.args.proposal_debate_seconds)
     )
 
     framework.execute(expected={
@@ -51,7 +50,7 @@ def run(framework):
         "proposal_yay": yay,
         "proposal_nay": nay,
         "calculated_deposit": framework.args.proposal_deposit,
-        "onetime_costs": framework.args.offer_onetime_costs,
+        "onetime_costs": framework.args.deploy_onetime_costs,
         "deposit_returned": True,
         "offer_promise_valid": True
     })

@@ -2,6 +2,7 @@
 import argparse
 import sys
 import os
+import json
 
 
 def available_scenarios():
@@ -10,9 +11,28 @@ def available_scenarios():
             if os.path.isdir(os.path.join(dir, name))]
 
 
+def read_scenario_options(args):
+    """ Iterate scenarios and load all argument options """
+    dir = "scenarios"
+    for name in os.listdir(dir):
+        argfile = os.path.join(dir, name, "arguments.json")
+        if os.path.isfile(argfile):
+            with open(argfile, 'r') as f:
+                data = json.loads(f.read())
+
+            for arg in data:
+                args.add_argument(
+                    "--{}-{}".format(name, arg['name']).replace("_", "-"),
+                    help=arg['description'],
+                    default=arg['default']
+                )
+
+
 def test_args():
     """ Parse the test arguments and create and return the arguments object"""
     p = argparse.ArgumentParser(description='DAO contracts test framework')
+    read_scenario_options(p)
+
     p.add_argument(
         '--solc',
         help='Full path to the solc binary to use'
@@ -43,39 +63,9 @@ def test_args():
         help='If given then all test checks are printed in the console'
     )
     p.add_argument(
-        '--closing-time',
-        type=int,
-        help='Number of seconds from now when the newly created DAO sale ends',
-        default=35
-    )
-    p.add_argument(
-        '--min-value',
-        type=int,
-        help='Minimum value in Ether to consider the DAO crowdfunded',
-        default=20
-    )
-    p.add_argument(
         '--proposal-fail',
         action='store_true',
         help='If given, then in the proposal scenario the voting will fail'
-    )
-    p.add_argument(
-        '--proposal-deposit',
-        type=int,
-        help='The proposal deposit. Has to be more than 20 ether',
-        default=22
-    )
-    p.add_argument(
-        '--offer-onetime-costs',
-        type=int,
-        help='The one time costs (in ether) in the offer to the DAO',
-        default=5
-    )
-    p.add_argument(
-        '--offer-total-costs',
-        type=int,
-        help='The total costs (in ether) in the offer to the DAO',
-        default=10
     )
     p.add_argument(
         '--users-num',
@@ -83,13 +73,6 @@ def test_args():
         help='The number of user accounts to create for the scenarios.'
         'Should be at least 3',
         default=5
-    )
-    p.add_argument(
-        '--total-rewards',
-        type=int,
-        help='Amount of ether a kind soul will donate to the DAO'
-        ' for the rewards scenario.',
-        default=78
     )
     p.add_argument(
         '--scenario',

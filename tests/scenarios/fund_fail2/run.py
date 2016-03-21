@@ -20,13 +20,12 @@ def run(framework):
         )
 
     accounts_num = len(framework.accounts)
-    if accounts_num * 2 >= framework.min_value - 4:
+    if accounts_num * 2 >= framework.args.deploy_min_value - 4:
         print("Please increase the minimum funding goal for the scenario.")
         sys.exit(1)
 
     sale_secs = framework.remaining_time()
-    # total_supply = random.randint(accounts_num*2, framework.min_value - 4)
-    total_supply = framework.min_value - 4
+    total_supply = framework.args.deploy_min_value - 4
     proxy_amounts = constrained_sum_sample_pos(
         accounts_num, total_supply / 2
     )

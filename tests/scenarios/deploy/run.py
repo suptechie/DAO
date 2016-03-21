@@ -4,7 +4,7 @@ from utils import extract_test_dict, seconds_in_future
 
 
 def calculate_closing_time(obj, script_name, substitutions):
-    obj.closing_time = seconds_in_future(obj.args.closing_time)
+    obj.closing_time = seconds_in_future(obj.args.deploy_sale_seconds)
     substitutions['closing_time'] = obj.closing_time
     return substitutions
 
@@ -18,9 +18,9 @@ def run(framework):
             "creator_bin": framework.creator_bin,
             "offer_abi": framework.offer_abi,
             "offer_bin": framework.offer_bin,
-            "offer_onetime": framework.args.offer_onetime_costs,
-            "offer_total": framework.args.offer_total_costs,
-            "min_value": framework.min_value,
+            "offer_onetime": framework.args.deploy_onetime_costs,
+            "offer_total": framework.args.deploy_total_costs,
+            "min_value": framework.args.deploy_min_value,
         },
         cb_before_creation=calculate_closing_time
     )
