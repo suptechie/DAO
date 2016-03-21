@@ -48,6 +48,7 @@ contract TokenSaleInterface {
 
     /// @notice Buy Token with `_tokenHolder` as the initial owner of the Token
     /// @param _tokenHolder The address of the Tokens's recipient
+    /// @return Whether the purchase was successful
     function buyTokenProxy(address _tokenHolder) returns (bool success);
 
     /// @notice Refund `msg.sender` in the case the Token Sale didn't reach its

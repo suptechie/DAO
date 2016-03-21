@@ -48,7 +48,7 @@ contract TokenInterface {
 
     /// @notice Send `_amount` tokens to `_to` from `_from` on the condition it
     /// is approved by `_from`
-    /// @param _from The address of the sender
+    /// @param _from The address of the origin of the transfer
     /// @param _to The address of the recipient
     /// @param _amount The amount of tokens to be transferred
     /// @return Whether the transfer was successful or not

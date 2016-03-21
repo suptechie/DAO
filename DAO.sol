@@ -72,7 +72,7 @@ contract DAOInterface {
     struct Proposal {
         // The address where the `amount` will go to if the proposal is accepted
         // or if `newServiceProvider` is true, the proposed service provider of
-        //the new DAO).
+        // the new DAO).
         address recipient;
         // The amount to transfer to `recipient` if the proposal is accepted.
         uint amount;
@@ -94,9 +94,9 @@ contract DAOInterface {
         bool newServiceProvider;
         // Data needed for splitting the DAO
         SplitData[] splitData;
-        // Number of tokens in favour of the proposal
+        // Number of Tokens in favour of the proposal
         uint yea;
-        // Number of tokens opposed to the proposal
+        // Number of Tokens opposed to the proposal
         uint nay;
         // Simple mapping to check if a shareholder has voted for it
         mapping (address => bool) votedYes;
@@ -117,7 +117,8 @@ contract DAOInterface {
         // The new DAO contract created at the time of split.
         DAO newDAO;
     }
-    // Used to restrict acces to certain functions to only DAO Token Holders
+
+    // Used to restrict access to certain functions to only DAO Token Holders
     modifier onlyTokenholders {}
 
     /// @dev Constructor setting the default service provider and the address
@@ -136,9 +137,10 @@ contract DAOInterface {
         //  uint _minValue,
         //  uint _closingTime,
         //  address _privateSale
-    //  )
+    //  );
 
     /// @notice Buy Token with `msg.sender` as the beneficiary
+    /// @return Whether the purchase was successful
     function () returns (bool success);
 
     /// @dev Function used by the products of the DAO (e.g. Slocks) to send
@@ -153,9 +155,9 @@ contract DAOInterface {
     function receiveEther() returns(bool);
 
     /// @notice `msg.sender` creates a proposal to send `_amount` Wei to
-    ///  `_recipient` with the transaction data `_transactionData`. If
+    /// `_recipient` with the transaction data `_transactionData`. If
     /// `_newServiceProvider` is true, then this is a proposal that splits the
-    /// DAO and sets `_recipient` as the new DAO's new service provider.
+    /// DAO and sets `_recipient` as the new DAO's service provider.
     /// @param _recipient Address of the recipient of the proposed transaction
     /// @param _amount Amount of wei to be sent with the proposed transaction
     /// @param _description String describing the proposal
@@ -241,8 +243,8 @@ contract DAOInterface {
     /// @return Whether the call was successful
     function getMyReward() returns(bool _success);
 
-    /// @notice Withdraw `account`'s portion of the reward from `rewardAccount`,
-    /// to `account`'s balance
+    /// @notice Withdraw `_account`'s portion of the reward from `rewardAccount`
+    /// to `_account`'s balance
     /// @return Whether the call was successful
     function withdrawRewardFor(address _account) returns(bool _success);
 
