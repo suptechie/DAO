@@ -79,7 +79,7 @@ contract TokenSale is TokenSaleInterface, Token {
             extraBalance.call.value(msg.value - token)();
             balances[_tokenHolder] += token;
             totalSupply += token;
-            weiGiven[msg.sender] += msg.value;
+            weiGiven[_tokenHolder] += msg.value;
             SoldToken(_tokenHolder, token);
             if (totalSupply >= minValue && !isFunded) {
                 isFunded = true;
