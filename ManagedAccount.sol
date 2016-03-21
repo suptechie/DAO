@@ -26,9 +26,9 @@ contract ManagedAccountInterface {
     // The sum of ether (in wei) which has been sent to this contract
     uint public accumulatedInput;
 
-    /// @notice Sends _amount of wei to _recipient
-    /// @param _amount The amount of wei to send to _recipient
-    /// @param _recipient The address to receive _amount of wei
+    /// @notice Sends `_amount` of wei to _recipient
+    /// @param _amount The amount of wei to send to `_recipient`
+    /// @param _recipient The address to receive `_amount` of wei
     /// @return True if the send completed
     function payOut(address _recipient, uint _amount) returns (bool);
 
