@@ -1,13 +1,23 @@
-var amounts = $amounts;
+var proxy_amounts = $proxy_amounts;
+var normal_amounts = $normal_amounts;
 
 var dao = web3.eth.contract($dao_abi).at('$dao_address');
 console.log("Buying DAO tokens");
+for (i = 0; i < eth.accounts.length; i++) {
+    dao.buyTokenProxy.sendTransaction(
+        eth.accounts[eth.accounts.length - 1 - i],
+        {
+        from:eth.accounts[i],
+        gas:200000,
+        value:web3.toWei(proxy_amounts[i], "ether")
+    });
+}
 for (i = 0; i < eth.accounts.length; i++) {
     web3.eth.sendTransaction({
         from:eth.accounts[i],
         to: dao.address,
         gas:200000,
-        value:web3.toWei(amounts[i], "ether")
+        value:web3.toWei(normal_amounts[i], "ether")
     });
 }
 
@@ -25,12 +35,12 @@ setTimeout(function() {
         eth_balance_before_refund.push(web3.fromWei(eth.getBalance(eth.accounts[i])));
     }
     addToTest('eth_balance_before_refund', eth_balance_before_refund);
-    
+
     for (i = 0; i < eth.accounts.length; i++) {
         dao.refund.sendTransaction({
             from:eth.accounts[i],
             gas:200000
-        }); 
+        });
     }
     checkWork();
     // try to ask for a refund again and see if we get more (we shouldn't)
@@ -38,7 +48,7 @@ setTimeout(function() {
         dao.refund.sendTransaction({
             from:eth.accounts[i],
             gas:200000
-        }); 
+        });
     }
     checkWork();
     var eth_balance_after_refund = [];
