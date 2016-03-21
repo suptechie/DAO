@@ -6,11 +6,12 @@ def js_common_intro(accounts_num):
     s = "console.log('unlocking accounts');\n"
     for i in range(0, accounts_num):
         s += "personal.unlockAccount(eth.accounts[{}], '123');\n".format(i)
-    s += """// set coinbase to something other than service provider and proposal creator
-web3.miner.setEtherbase(eth.accounts[2]);
-
+    s += """// set the basic accounts, coinbase should be random so mining rewards don't pollute results
 var serviceProvider = eth.accounts[0];
 var proposalCreator = eth.accounts[1];
+var etherBase = '0x9999999999999999999999999999999999999999';
+web3.miner.setEtherbase(etherBase);
+
 var testMap = {};
 
 function checkWork() {

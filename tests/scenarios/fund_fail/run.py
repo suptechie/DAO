@@ -48,5 +48,5 @@ def run(framework):
     framework.execute('fund_fail', {
         "dao_funded": False,
         "total_supply": framework.total_supply,
-        "refund": framework.token_amounts[0:2]
+        "refund": framework.token_amounts
     })
