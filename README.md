@@ -46,7 +46,7 @@ Generic contract for a Decentralized Autonomous Organisation (DAO) to manage a t
 ### Token.sol: 
 Defines the functions to check token balances, send tokens, send tokens on behalf of a 3rd party and its corresponding approval process.
 
-#### TokenSale.sol: 
+### TokenSale.sol: 
 Token Sale contract, used by the DAO to raise its funding goal
 
 ### SampleOffer.sol
