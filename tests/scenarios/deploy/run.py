@@ -1,37 +1,28 @@
-import inspect
-import os
 import sys
 import json
-currentdir = os.path.dirname(
-    os.path.abspath(inspect.getfile(inspect.currentframe()))
-)
-parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, parentdir)
 from utils import extract_test_dict, seconds_in_future
 
 
 def calculate_closing_time(obj, script_name, substitutions):
-    obj.closing_time = seconds_in_future(obj.args.closing_time)
+    obj.closing_time = seconds_in_future(obj.args.deploy_sale_seconds)
     substitutions['closing_time'] = obj.closing_time
     return substitutions
 
 
 def run(framework):
     print("Running the Deploy Test Scenario")
-    framework.create_js_file(
-        'deploy',
-        {
+    framework.create_js_file(substitutions={
             "dao_abi": framework.dao_abi,
             "dao_bin": framework.dao_bin,
             "creator_abi": framework.creator_abi,
             "creator_bin": framework.creator_bin,
             "offer_abi": framework.offer_abi,
             "offer_bin": framework.offer_bin,
-            "offer_onetime": framework.args.offer_onetime_costs,
-            "offer_total": framework.args.offer_total_costs,
-            "min_value": framework.min_value,
+            "offer_onetime": framework.args.deploy_onetime_costs,
+            "offer_total": framework.args.deploy_total_costs,
+            "min_value": framework.args.deploy_min_value,
         },
-        calculate_closing_time
+        cb_before_creation=calculate_closing_time
     )
     output = framework.run_script('deploy.js')
     results = extract_test_dict('deploy', output)

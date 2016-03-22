@@ -1,0 +1,9 @@
+[{
+    "name": "debate_seconds",
+    "default": 20,
+    "description": "Number of seconds that a proposal should be open for voting"
+}, {
+    "name": "deposit",
+    "default": 25,
+    "description": "The proposal deposit. Has to be more than 20 ether"
+}]

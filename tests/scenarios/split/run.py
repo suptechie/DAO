@@ -1,13 +1,4 @@
-import inspect
-import os
-import random
-from datetime import datetime
-currentdir = os.path.dirname(
-    os.path.abspath(inspect.getfile(inspect.currentframe()))
-)
-parentdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, parentdir)
-from utils import eval_test, arr_str, create_votes_array
+from utils import arr_str, create_votes_array
 
 
 def tokens_after_split(votes, original_balance, dao_balance, reward_tokens):
@@ -71,17 +62,14 @@ def prepare_test_split(framework, split_gas):
         # run the rewards scenario first
         framework.run_scenario('rewards')
 
-    debate_secs = 15
     votes = create_votes_array(
         framework.token_amounts,
         not framework.args.proposal_fail
     )
-    framework.create_js_file(
-        'split',
-        {
+    framework.create_js_file(substitutions={
             "dao_abi": framework.dao_abi,
             "dao_address": framework.dao_addr,
-            "debating_period": debate_secs,
+            "debating_period": framework.args.split_debate_seconds,
             "split_gas": split_gas,
             "votes": arr_str(votes),
             "prop_id": framework.next_proposal_id()
@@ -89,7 +77,7 @@ def prepare_test_split(framework, split_gas):
     )
     print(
         "Notice: Debate period is {} seconds so the test will wait "
-        "as much".format(debate_secs)
+        "as much".format(framework.args.split_debate_seconds)
     )
     return votes
 
@@ -110,7 +98,7 @@ def run(framework):
         framework.dao_rewardToken_after_rewards
     )
 
-    framework.execute('split', {
+    framework.execute(expected={
         # default deposit,a simple way to test new DAO contract got created
         "newDAOProposalDeposit": 20,
         "oldDAOBalance": oldBalance,
