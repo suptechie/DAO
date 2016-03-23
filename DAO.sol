@@ -687,7 +687,8 @@ contract DAO is DAOInterface, Token, TokenSale {
 
     function minQuorum(uint _value) internal returns (uint _minQuorum) {
         // minimum of 20% and maximum of 53.33%
-        return totalSupply / minQuorumDivisor + _value / 3;
+        return totalSupply / minQuorumDivisor +
+            (_value * totalSupply) / (3 * (this.balance + totalRewardToken));
     }
 
 
