@@ -1,22 +1,22 @@
-def run(framework):
-    if not framework.token_amounts:
+def run(ctx):
+    if not ctx.token_amounts:
         # run the funding scenario first
-        framework.run_scenario('fund')
+        ctx.run_scenario('fund')
 
-    framework.create_js_file(substitutions={
-        "dao_abi": framework.dao_abi,
-        "dao_address": framework.dao_addr,
-        "proposal_deposit": framework.args.proposal_deposit,
+    ctx.create_js_file(substitutions={
+        "dao_abi": ctx.dao_abi,
+        "dao_address": ctx.dao_addr,
+        "proposal_deposit": ctx.args.proposal_deposit,
         "split_gas": 4000000,
-        "debating_period": framework.args.proposal_debate_seconds,
-        "prop_id": framework.next_proposal_id()
+        "debating_period": ctx.args.proposal_debate_seconds,
+        "prop_id": ctx.next_proposal_id()
     })
     print(
         "Notice: Debate period is {} seconds so the test will wait "
-        "as much".format(framework.args.proposal_debate_seconds)
+        "as much".format(ctx.args.proposal_debate_seconds)
     )
 
-    framework.execute(expected={
+    ctx.execute(expected={
         "newdao_proposals_num": 1,
-        "angry_user_profit": framework.token_amounts[1] + framework.args.proposal_deposit
+        "angry_user_profit": ctx.token_amounts[1] + ctx.args.proposal_deposit
     })

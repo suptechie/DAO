@@ -7,27 +7,27 @@ def calculate_bytecode(new_deposit):
     return "{0}{1:0{2}x}".format('0xe33734fd', new_deposit, 64)
 
 
-def run(framework):
-    if not framework.token_amounts:
+def run(ctx):
+    if not ctx.token_amounts:
         # run the funding scenario first
-        framework.run_scenario('fund')
+        ctx.run_scenario('fund')
 
-    bytecode = calculate_bytecode(framework.args.deposit_new_value)
-    framework.create_js_file(substitutions={
-            "dao_abi": framework.dao_abi,
-            "dao_address": framework.dao_addr,
-            "proposal_deposit": framework.args.proposal_deposit,
+    bytecode = calculate_bytecode(ctx.args.deposit_new_value)
+    ctx.create_js_file(substitutions={
+            "dao_abi": ctx.dao_abi,
+            "dao_address": ctx.dao_addr,
+            "proposal_deposit": ctx.args.proposal_deposit,
             "transaction_bytecode": bytecode,
-            "debating_period": framework.args.deposit_debate_seconds,
-            "prop_id": framework.next_proposal_id()
+            "debating_period": ctx.args.deposit_debate_seconds,
+            "prop_id": ctx.next_proposal_id()
         }
     )
     print(
         "Notice: Debate period is {} seconds so the test will wait "
-        "as much".format(framework.args.proposal_debate_seconds)
+        "as much".format(ctx.args.proposal_debate_seconds)
     )
 
-    framework.execute(expected={
+    ctx.execute(expected={
         "proposal_passed": True,
-        "deposit_after_vote": framework.args.deposit_new_value
+        "deposit_after_vote": ctx.args.deposit_new_value
     })
