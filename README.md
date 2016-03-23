@@ -5,7 +5,7 @@ A generic DAO (Decentralized Autonomous Organization) written in Solidity to run
 Simple, decentralized and 100% secure.
 Feel free to reuse to create your own Decentralized organization.
 
-• **Scientific Reference:** *"Decentralized autonomous organization to manage a trust" -* [White Paper (Draft)](https://github.com/slockit/DAO/tree/master/paper)
+**Reference:** *"Decentralized autonomous organization to manage a trust" -* [White Paper (Draft)](https://download.slock.it/public/DAO/WhitePaper.pdf)
 
 ## How it works
 
