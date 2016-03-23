@@ -329,7 +329,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         if (now < closingTime + 40 days)
             return buyTokenProxy(msg.sender);
         else
-            return receiveEther();
+            return payDAO();
     }
 
 
