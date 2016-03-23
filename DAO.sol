@@ -39,7 +39,7 @@ contract DAOInterface {
     // Address of the service provider
     address public serviceProvider;
     // The whitelist: List of addresses the DAO is allowed to send money to
-    address[] public allowedRecipients;
+    mapping (address => bool) public allowedRecipients;
 
     // Tracks the addresses that own Reward Tokens. Those addresses can only be
     // DAOs that have split from the original DAO. Conceptually, Reward Tokens
@@ -314,11 +314,15 @@ contract DAO is DAOInterface, Token, TokenSale {
         daoCreator = _daoCreator;
         proposalDeposit = 20 ether;
         rewardAccount = new ManagedAccount(address(this));
+        if (address(rewardAccount) == 0)
+            throw;
         lastTimeMinQuorumMet = now;
         minQuorumDivisor = 5; // sets the minimal quorum to 20%
         proposals.length++; // avoids a proposal with ID 0 because it is used
-        if (address(rewardAccount) == 0)
-            throw;
+
+        allowedRecipients[address(this)] = true;
+        allowedRecipients[serviceProvider] = true;
+        allowedRecipients[address(rewardAccount)] = true;
     }
 
     function () returns (bool success) {
@@ -662,26 +666,20 @@ contract DAO is DAOInterface, Token, TokenSale {
     function addAllowedAddress(address _recipient) noEther external returns (bool _success) {
         if (msg.sender != serviceProvider)
             throw;
-        allowedRecipients.push(_recipient);
+        allowedRecipients[_recipient] = true;
         return true;
     }
 
 
     function isRecipientAllowed(address _recipient) internal returns (bool _isAllowed) {
-        if (_recipient == serviceProvider
-            || _recipient == address(rewardAccount)
-            || _recipient == address(this)
+        if (allowedRecipients[_recipient]
             || (_recipient == address(extraBalance)
                 // only allowed when at least the amount held in the
                 // extraBalance account has been spent from the DAO
                 && totalRewardToken > extraBalance.accumulatedInput()))
             return true;
-
-        for (uint i = 0; i < allowedRecipients.length; ++i) {
-            if (_recipient == allowedRecipients[i])
-                return true;
-        }
-        return false;
+        else
+            return false;
     }
 
 
