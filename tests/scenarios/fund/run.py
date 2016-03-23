@@ -3,32 +3,32 @@ from datetime import datetime
 from utils import constrained_sum_sample_pos, arr_str
 
 
-def run(framework):
+def run(ctx):
     # if deployment did not already happen do it now
-    if not framework.dao_addr:
-        framework.run_scenario('deploy')
+    if not ctx.dao_addr:
+        ctx.run_scenario('deploy')
     else:
         print(
             "WARNING: Running the funding scenario with a pre-deployed "
             "DAO contract. Closing time is {} which is approximately {} "
             "seconds from now.".format(
-                datetime.fromtimestamp(framework.closing_time).strftime(
+                datetime.fromtimestamp(ctx.closing_time).strftime(
                     '%Y-%m-%d %H:%M:%S'
                 ),
-                framework.remaining_time()
+                ctx.remaining_time()
             )
         )
 
-    sale_secs = framework.remaining_time()
-    framework.total_supply = framework.args.deploy_min_value + random.randint(1, 100)
-    framework.token_amounts = constrained_sum_sample_pos(
-        len(framework.accounts), framework.total_supply
+    sale_secs = ctx.remaining_time()
+    ctx.total_supply = ctx.args.deploy_min_value + random.randint(1, 100)
+    ctx.token_amounts = constrained_sum_sample_pos(
+        len(ctx.accounts), ctx.total_supply
     )
-    framework.create_js_file(substitutions={
-            "dao_abi": framework.dao_abi,
-            "dao_address": framework.dao_addr,
+    ctx.create_js_file(substitutions={
+            "dao_abi": ctx.dao_abi,
+            "dao_address": ctx.dao_addr,
             "wait_ms": (sale_secs-3)*1000,
-            "amounts": arr_str(framework.token_amounts)
+            "amounts": arr_str(ctx.token_amounts)
         }
     )
     print(
@@ -36,9 +36,9 @@ def run(framework):
         "as much".format(sale_secs)
     )
 
-    framework.execute(expected={
+    ctx.execute(expected={
         "dao_funded": True,
-        "total_supply": framework.total_supply,
-        "balances": framework.token_amounts,
-        "user0_after": framework.token_amounts[0],
+        "total_supply": ctx.total_supply,
+        "balances": ctx.token_amounts,
+        "user0_after": ctx.token_amounts[0],
     })

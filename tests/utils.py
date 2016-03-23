@@ -118,6 +118,10 @@ def compare_values(a, b):
         return False
     if isinstance(a, float):
         return abs(a - b) <= 0.01
+    elif isinstance(a, basestring) and isinstance(b, int):
+        return int(a) == b
+    elif isinstance(b, basestring) and isinstance(a, int):
+        return a == int(b)
     else:
         return a == b
 
@@ -219,6 +223,10 @@ def edit_dao_source(contracts_dir, keep_limits):
         contents = contents.replace(" || (_debatingPeriod < 2 weeks)", "")
         contents = contents.replace("|| now > p.votingDeadline + 41 days", "")
         contents = contents.replace("now < closingTime + 40 days", "true")
+        contents = contents.replace(
+            "daoCreator.createDAO(_newServiceProvider, 0, now + 42 days);",
+            "daoCreator.createDAO(_newServiceProvider, 0, now + 20);"
+        )
 
     # add test query functions
     contents = contents.replace(
