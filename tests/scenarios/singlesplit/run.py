@@ -1,3 +1,12 @@
+scenario_description = (
+    " An 'angry' user decides to get out of the DAO and take his money with "
+    "him. He creates a proposal to split into an one-member DAO with himself "
+    "as the Service Provider. Then he makes a proposal to this new DAO to "
+    "transfer all of the money to himself. Assert that the money he gets back "
+    "in the end is equal to the money he put in the original DAO."
+)
+
+
 def run(ctx):
     ctx.assert_scenario_ran('fund')
 

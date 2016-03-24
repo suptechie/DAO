@@ -2,6 +2,13 @@ import random
 from utils import constrained_sum_sample_pos, arr_str
 
 
+scenario_description = (
+    "During the funding period of the DAO, send enough ether from all "
+    "accounts to purchase tokens and then assert that the user's balance is "
+    "indeed correct and that the minimum funding goal has been reached"
+)
+
+
 def run(ctx):
     ctx.assert_scenario_ran('deploy')
 

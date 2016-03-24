@@ -2,6 +2,14 @@ import sys
 from utils import constrained_sum_sample_pos, arr_str
 
 
+scenario_description = (
+    "During the funding period of the DAO, buy DAO tokens from all accounts "
+    "with both normal buying and with buyTokenProxy(). When the funding goal "
+    "is not reached make sure that the refunds when having used buyTokenProxy "
+    "are distributed back to the users correctly"
+)
+
+
 def run(ctx):
     ctx.assert_scenario_ran('deploy')
 

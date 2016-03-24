@@ -3,12 +3,7 @@ import argparse
 import sys
 import os
 import json
-
-
-def available_scenarios():
-    dir = "scenarios"
-    return [name for name in os.listdir(dir)
-            if os.path.isdir(os.path.join(dir, name))]
+from utils import available_scenarios
 
 
 def read_scenario_options(args):
@@ -78,7 +73,12 @@ def test_args():
         '--scenario',
         choices=['none'] + available_scenarios(),
         default='none',
-        help='Test scenario to play out'
+        help='Available test scenario to play out'
+    )
+    p.add_argument(
+        '--describe-scenarios',
+        action='store_true',
+        help='Print the description of all scenarios and then quit'
     )
     args = p.parse_args()
 

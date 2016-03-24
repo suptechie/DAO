@@ -8,11 +8,12 @@ import json
 import subprocess
 import shutil
 import sys
+import textwrap
 import importlib
 import inspect
 from string import Template
 from utils import (
-    rm_file, determine_binary, ts_now, write_js,
+    rm_file, determine_binary, ts_now, write_js, available_scenarios,
     create_genesis, edit_dao_source, eval_test,
 )
 from args import test_args
@@ -24,16 +25,20 @@ class TestContext():
         self.ran_scenarios = []
         self.args = args
         self.tests_ok = True
-        self.dao_addr = None  # check to determine if DAO is deployed
-        self.offer_addr = None  # check to determine if offer is deployed
-        self.token_amounts = None  # check to determine if funding happened
-        self.prop_id = None  # check to if we have ran proposal scenario
+        self.dao_addr = None
+        self.offer_addr = None
+        self.token_amounts = None
+        self.prop_id = None
         self.tests_dir = os.path.dirname(os.path.realpath(__file__))
         self.save_file = os.path.join(self.tests_dir, "data", "saved")
         self.templates_dir = os.path.join(self.tests_dir, 'templates')
         self.contracts_dir = os.path.dirname(self.tests_dir)
         self.solc = determine_binary(args.solc, 'solc')
         self.geth = determine_binary(args.geth, 'geth')
+
+        if args.describe_scenarios:
+            self.describe_scenarios()
+            sys.exit(0)
 
         # keep this at end since any data loaded should override constructor
         if args.clean_chain:
@@ -212,6 +217,18 @@ class TestContext():
     def running_scenario(self):
         """Get the currently running scenario name"""
         return self.running_scenarios[-1]
+
+    def describe_scenarios(self):
+        """Get all scenario descriptions and print them in the screen"""
+        print("Available scenarios for DAO testing.")
+        for name in available_scenarios():
+            scenario = importlib.import_module(
+                "scenarios.{}.run".format(name)
+            )
+            print("== {} ==\n{}.\n".format(
+                name,
+                textwrap.fill(scenario.scenario_description)
+            ))
 
     def assert_scenario_ran(self, name):
         if name not in self.ran_scenarios:

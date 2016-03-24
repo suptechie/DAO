@@ -1,3 +1,11 @@
+scenario_description = (
+    " A kind soul donates to the DAO so the DAO has rewards for distribution. "
+    "Create a proposal to send the rewards to the RewardsAccount, vote and "
+    "execute it. Subsequently claim rewards and assert that they are "
+    "proportional to the tokens held by the account claiming the reward."
+)
+
+
 def calculate_reward(tokens, total_tokens, total_rewards):
     result = (tokens * float(total_rewards)) / float(total_tokens)
     return result

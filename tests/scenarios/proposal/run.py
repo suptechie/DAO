@@ -1,6 +1,13 @@
 import random
 from utils import arr_str, create_votes_array
 
+scenario_description = (
+    "Create a proposal to send an amount of ether to the SampleOffer contract."
+    " Vote on that proposal, wait for the debating period and then execute it."
+    " Assert that the proposal deposit is returned to its creator, and that "
+    "the amount is sent to the SampleOffer and the promise is valid"
+)
+
 
 def count_token_votes(amounts, votes):
     """Returns how many tokens votes yay and how many voted nay"""

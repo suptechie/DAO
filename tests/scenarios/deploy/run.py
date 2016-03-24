@@ -3,6 +3,12 @@ import json
 from utils import extract_test_dict, seconds_in_future
 
 
+scenario_description = (
+    "Deploying of the DAO, DAOcreator and SampleOffer contracts in the "
+    "blockchain and noting down of their addresses"
+)
+
+
 def calculate_closing_time(obj, script_name, substitutions):
     obj.closing_time = seconds_in_future(obj.args.deploy_sale_seconds)
     substitutions['closing_time'] = obj.closing_time
@@ -10,7 +16,6 @@ def calculate_closing_time(obj, script_name, substitutions):
 
 
 def run(ctx):
-    print("Running the Deploy Test Scenario")
     ctx.create_js_file(substitutions={
             "dao_abi": ctx.dao_abi,
             "dao_bin": ctx.dao_bin,

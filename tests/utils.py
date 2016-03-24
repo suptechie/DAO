@@ -280,3 +280,9 @@ def edit_dao_source(contracts_dir, keep_limits):
         f.write(contents)
 
     return new_path
+
+
+def available_scenarios():
+    dir = "scenarios"
+    return [name for name in os.listdir(dir)
+            if os.path.isdir(os.path.join(dir, name))]

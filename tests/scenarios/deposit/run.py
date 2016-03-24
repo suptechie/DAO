@@ -1,3 +1,9 @@
+scenario_description = (
+    "Make a proposal to change the default proposal deposit, vote for it and "
+    "then assure that the DAO's proposal deposit did indeed change"
+)
+
+
 def calculate_bytecode(new_deposit):
     """
     Create the bytecode for calling dao.changeProposalDeposit() as defined
