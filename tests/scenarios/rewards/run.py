@@ -4,9 +4,7 @@ def calculate_reward(tokens, total_tokens, total_rewards):
 
 
 def run(ctx):
-    if not ctx.prop_id:
-        # run the proposal scenario first
-        ctx.run_scenario('proposal')
+    ctx.assert_scenario_ran('proposal')
 
     ctx.create_js_file(substitutions={
             "dao_abi": ctx.dao_abi,

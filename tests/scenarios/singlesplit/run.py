@@ -1,7 +1,5 @@
 def run(ctx):
-    if not ctx.token_amounts:
-        # run the funding scenario first
-        ctx.run_scenario('fund')
+    ctx.assert_scenario_ran('fund')
 
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,

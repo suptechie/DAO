@@ -1,23 +1,9 @@
 import random
-from datetime import datetime
 from utils import constrained_sum_sample_pos, arr_str
 
 
 def run(ctx):
-    # if deployment did not already happen do it now
-    if not ctx.dao_addr:
-        ctx.run_scenario('deploy')
-    else:
-        print(
-            "WARNING: Running the funding scenario with a pre-deployed "
-            "DAO contract. Closing time is {} which is approximately {} "
-            "seconds from now.".format(
-                datetime.fromtimestamp(ctx.closing_time).strftime(
-                    '%Y-%m-%d %H:%M:%S'
-                ),
-                ctx.remaining_time()
-            )
-        )
+    ctx.assert_scenario_ran('deploy')
 
     sale_secs = ctx.remaining_time()
     ctx.total_supply = ctx.args.deploy_min_value + random.randint(1, 100)

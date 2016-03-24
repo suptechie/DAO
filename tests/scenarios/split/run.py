@@ -58,9 +58,7 @@ def tokens_after_split(votes, original_balance, dao_balance, reward_tokens):
 
 
 def prepare_test_split(ctx, split_gas):
-    if ctx.prop_id != 2:
-        # run the rewards scenario first
-        ctx.run_scenario('rewards')
+    ctx.assert_scenario_ran('rewards')
 
     votes = create_votes_array(
         ctx.token_amounts,

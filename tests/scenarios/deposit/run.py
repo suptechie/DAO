@@ -8,9 +8,7 @@ def calculate_bytecode(new_deposit):
 
 
 def run(ctx):
-    if not ctx.token_amounts:
-        # run the funding scenario first
-        ctx.run_scenario('fund')
+    ctx.assert_scenario_ran('fund')
 
     bytecode = calculate_bytecode(ctx.args.deposit_new_value)
     ctx.create_js_file(substitutions={

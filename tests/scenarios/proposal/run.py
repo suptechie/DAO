@@ -15,9 +15,7 @@ def count_token_votes(amounts, votes):
 
 
 def run(ctx):
-    if not ctx.token_amounts:
-        # run the funding scenario first
-        ctx.run_scenario('fund')
+    ctx.assert_scenario_ran('fund')
 
     minamount = 2  # is determined by the total costs + one time costs
     amount = random.randint(minamount, sum(ctx.token_amounts))

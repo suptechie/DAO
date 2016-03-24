@@ -12,9 +12,8 @@ import importlib
 import inspect
 from string import Template
 from utils import (
-    rm_file, determine_binary, write_js, ts_now,
+    rm_file, determine_binary, ts_now, write_js,
     create_genesis, edit_dao_source, eval_test,
-    rm_file, determine_binary, write_js, create_genesis, edit_dao_source
 )
 from args import test_args
 
@@ -22,6 +21,7 @@ from args import test_args
 class TestContext():
     def __init__(self, args):
         self.running_scenarios = []
+        self.ran_scenarios = []
         self.args = args
         self.tests_ok = True
         self.dao_addr = None  # check to determine if DAO is deployed
@@ -213,6 +213,12 @@ class TestContext():
         """Get the currently running scenario name"""
         return self.running_scenarios[-1]
 
+    def assert_scenario_ran(self, name):
+        if name not in self.ran_scenarios:
+            self.run_scenario(name)
+            return False
+        return True
+
     def run_scenario(self, name):
         if name == 'None':
             print("Asked to run no scenario. Quitting ...")
@@ -221,6 +227,7 @@ class TestContext():
         scenario = importlib.import_module("scenarios.{}.run".format(name))
         scenario.run(self)
         self.running_scenarios.pop()
+        self.ran_scenarios.append(name)
 
     def run_test(self, args):
         if not self.geth:
