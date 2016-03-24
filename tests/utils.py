@@ -213,7 +213,7 @@ def count_token_votes(amounts, votes):
     return yay, nay
 
 
-def edit_dao_source(contracts_dir, keep_limits):
+def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
 
@@ -226,6 +226,12 @@ def edit_dao_source(contracts_dir, keep_limits):
         contents = contents.replace(
             "daoCreator.createDAO(_newServiceProvider, 0, now + 42 days);",
             "daoCreator.createDAO(_newServiceProvider, 0, now + 20);"
+        )
+
+    if halve_minquorum:  # if we are testing halve_minquorum remove year limit
+        contents = contents.replace(
+            "if (lastTimeMinQuorumMet < (now - 52 weeks)) {",
+            "if (lastTimeMinQuorumMet < now) {"
         )
 
     # add test query functions

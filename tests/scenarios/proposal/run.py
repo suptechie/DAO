@@ -32,18 +32,18 @@ def run(ctx):
     )
     yay, nay = count_token_votes(ctx.token_amounts, votes)
     ctx.create_js_file(substitutions={
-            "dao_abi": ctx.dao_abi,
-            "dao_address": ctx.dao_addr,
-            "offer_abi": ctx.offer_abi,
-            "offer_address": ctx.offer_addr,
-            "offer_amount": amount,
-            "offer_desc": 'Test Proposal',
-            "proposal_deposit": ctx.args.proposal_deposit,
-            "transaction_bytecode": '0x2ca15122',  # solc --hashes SampleOffer.sol
-            "debating_period": ctx.args.proposal_debate_seconds,
-            "votes": arr_str(votes)
-        }
-    )
+        "dao_abi": ctx.dao_abi,
+        "dao_address": ctx.dao_addr,
+        "offer_abi": ctx.offer_abi,
+        "offer_address": ctx.offer_addr,
+        "offer_amount": amount,
+        "offer_desc": 'Test Proposal',
+        "proposal_deposit": ctx.args.proposal_deposit,
+        "transaction_bytecode": '0x2ca15122',  # solc --hashes SampleOffer.sol
+        "debating_period": ctx.args.proposal_debate_seconds,
+        "votes": arr_str(votes),
+        "should_halve_minquorum": str(ctx.args.proposal_halveminquorum).lower()
+    })
     print(
         "Notice: Debate period is {} seconds so the test will wait "
         "as much".format(ctx.args.proposal_debate_seconds)

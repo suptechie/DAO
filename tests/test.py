@@ -157,7 +157,8 @@ class TestContext():
             sys.exit(1)
         dao_contract = edit_dao_source(
             self.contracts_dir,
-            keep_limits
+            keep_limits,
+            self.args.proposal_halveminquorum
         )
 
         res = self.compile_contract(dao_contract)
