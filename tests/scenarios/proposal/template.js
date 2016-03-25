@@ -5,6 +5,11 @@ console.log("Add offer contract as allowed recipient");
 dao.addAllowedAddress.sendTransaction('$offer_address', {from: serviceProvider, gas: 1000000});
 checkWork();
 
+if ($should_halve_minquorum) {
+    console.log("Calling dao.halveMinQuorum()");
+    dao.halveMinQuorum.sendTransaction({from: eth.accounts[0], gas: 1000000});
+}
+
 addToTest('creator_balance_before', web3.fromWei(eth.getBalance(proposalCreator)));
 console.log("Creating a new proposal for $offer_amount ether.");
 var tx_hash = null;
