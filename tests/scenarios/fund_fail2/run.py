@@ -1,23 +1,17 @@
 import sys
-from datetime import datetime
 from utils import constrained_sum_sample_pos, arr_str
 
 
+scenario_description = (
+    "During the funding period of the DAO, buy DAO tokens from all accounts "
+    "with both normal buying and with buyTokenProxy(). When the funding goal "
+    "is not reached make sure that the refunds when having used buyTokenProxy "
+    "are distributed back to the users correctly"
+)
+
+
 def run(ctx):
-    # if deployment did not already happen do it now
-    if not ctx.dao_addr:
-        ctx.run_scenario('deploy')
-    else:
-        print(
-            "WARNING: Running the failed funding 2 scenario with a "
-            "pre-deployed DAO contract. Closing time is {} which is "
-            "approximately {} seconds from now.".format(
-                datetime.fromtimestamp(ctx.closing_time).strftime(
-                    '%Y-%m-%d %H:%M:%S'
-                ),
-                ctx.remaining_time()
-            )
-        )
+    ctx.assert_scenario_ran('deploy')
 
     accounts_num = len(ctx.accounts)
     if accounts_num * 2 >= ctx.args.deploy_min_value - 4:

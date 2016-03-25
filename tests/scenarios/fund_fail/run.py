@@ -1,23 +1,16 @@
 import random
-from datetime import datetime
 from utils import constrained_sum_sample_pos, arr_str
 
 
+scenario_description = (
+    "During the funding period of the DAO, send insufficient ether "
+    "and assert that the DAO is not funded. Then assert that each user can "
+    "get a full refund"
+)
+
+
 def run(ctx):
-    # if deployment did not already happen do it now
-    if not ctx.dao_addr:
-        ctx.run_scenario('deploy')
-    else:
-        print(
-            "WARNING: Running the failed funding scenario with a pre-deployed "
-            "DAO contract. Closing time is {} which is approximately {} "
-            "seconds from now.".format(
-                datetime.fromtimestamp(ctx.closing_time).strftime(
-                    '%Y-%m-%d %H:%M:%S'
-                ),
-                ctx.remaining_time()
-            )
-        )
+    ctx.assert_scenario_ran('deploy')
 
     accounts_num = len(ctx.accounts)
     sale_secs = ctx.remaining_time()

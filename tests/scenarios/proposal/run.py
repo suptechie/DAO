@@ -1,6 +1,13 @@
 import random
 from utils import arr_str, create_votes_array
 
+scenario_description = (
+    "Create a proposal to send an amount of ether to the SampleOffer contract."
+    " Vote on that proposal, wait for the debating period and then execute it."
+    " Assert that the proposal deposit is returned to its creator, and that "
+    "the amount is sent to the SampleOffer and the promise is valid"
+)
+
 
 def count_token_votes(amounts, votes):
     """Returns how many tokens votes yay and how many voted nay"""
@@ -15,9 +22,7 @@ def count_token_votes(amounts, votes):
 
 
 def run(ctx):
-    if not ctx.token_amounts:
-        # run the funding scenario first
-        ctx.run_scenario('fund')
+    ctx.assert_scenario_ran('fund')
 
     minamount = 2  # is determined by the total costs + one time costs
     amount = random.randint(minamount, sum(ctx.token_amounts))
@@ -27,18 +32,18 @@ def run(ctx):
     )
     yay, nay = count_token_votes(ctx.token_amounts, votes)
     ctx.create_js_file(substitutions={
-            "dao_abi": ctx.dao_abi,
-            "dao_address": ctx.dao_addr,
-            "offer_abi": ctx.offer_abi,
-            "offer_address": ctx.offer_addr,
-            "offer_amount": amount,
-            "offer_desc": 'Test Proposal',
-            "proposal_deposit": ctx.args.proposal_deposit,
-            "transaction_bytecode": '0x2ca15122',  # solc --hashes SampleOffer.sol
-            "debating_period": ctx.args.proposal_debate_seconds,
-            "votes": arr_str(votes)
-        }
-    )
+        "dao_abi": ctx.dao_abi,
+        "dao_address": ctx.dao_addr,
+        "offer_abi": ctx.offer_abi,
+        "offer_address": ctx.offer_addr,
+        "offer_amount": amount,
+        "offer_desc": 'Test Proposal',
+        "proposal_deposit": ctx.args.proposal_deposit,
+        "transaction_bytecode": '0x2ca15122',  # solc --hashes SampleOffer.sol
+        "debating_period": ctx.args.proposal_debate_seconds,
+        "votes": arr_str(votes),
+        "should_halve_minquorum": str(ctx.args.proposal_halveminquorum).lower()
+    })
     print(
         "Notice: Debate period is {} seconds so the test will wait "
         "as much".format(ctx.args.proposal_debate_seconds)

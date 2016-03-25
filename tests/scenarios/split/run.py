@@ -1,6 +1,15 @@
 from utils import arr_str, create_votes_array
 
 
+scenario_description = (
+    " Testing an equal split, with a new SP. Half of the token holders vote "
+    "for a split to a new DAO and half vote to stay with the old one. Assert "
+    "that the split happens, a new DAO is created and that the tokens are "
+    "burned from the old DAO and moved to the new DAO succesfully. Also "
+    "assert that the reward tokens are succesfully transferred"
+)
+
+
 def tokens_after_split(votes, original_balance, dao_balance, reward_tokens):
     """
     Create expected token and reward token results after the split scenario
@@ -58,9 +67,7 @@ def tokens_after_split(votes, original_balance, dao_balance, reward_tokens):
 
 
 def prepare_test_split(ctx, split_gas):
-    if ctx.prop_id != 2:
-        # run the rewards scenario first
-        ctx.run_scenario('rewards')
+    ctx.assert_scenario_ran('rewards')
 
     votes = create_votes_array(
         ctx.token_amounts,
