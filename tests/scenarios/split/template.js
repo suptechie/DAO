@@ -1,7 +1,6 @@
 var dao = web3.eth.contract($dao_abi).at('$dao_address');
 var newServiceProvider = eth.accounts[1];
 
-// create a new proposal for sending this whole donation to the rewardAccount
 console.log("Creating proposal to change SP...");
 var tx_hash = null;
 dao.newProposal.sendTransaction(

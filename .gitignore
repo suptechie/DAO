@@ -20,6 +20,7 @@ tests/proposal.js
 tests/accounts.js
 tests/rewards.js
 tests/split.js
+tests/singlesplit.js
 
 # python metadata in tests
 *.pyc

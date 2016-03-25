@@ -118,6 +118,10 @@ def compare_values(a, b):
         return False
     if isinstance(a, float):
         return abs(a - b) <= 0.01
+    elif isinstance(a, basestring) and isinstance(b, int):
+        return int(a) == b
+    elif isinstance(b, basestring) and isinstance(a, int):
+        return a == int(b)
     else:
         return a == b
 
@@ -209,7 +213,7 @@ def count_token_votes(amounts, votes):
     return yay, nay
 
 
-def edit_dao_source(contracts_dir, keep_limits):
+def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
 
@@ -219,6 +223,16 @@ def edit_dao_source(contracts_dir, keep_limits):
         contents = contents.replace(" || (_debatingPeriod < 2 weeks)", "")
         contents = contents.replace("|| now > p.votingDeadline + 41 days", "")
         contents = contents.replace("now < closingTime + 40 days", "true")
+        contents = contents.replace(
+            "daoCreator.createDAO(_newServiceProvider, 0, now + 42 days);",
+            "daoCreator.createDAO(_newServiceProvider, 0, now + 20);"
+        )
+
+    if halve_minquorum:  # if we are testing halve_minquorum remove year limit
+        contents = contents.replace(
+            "if (lastTimeMinQuorumMet < (now - 52 weeks)) {",
+            "if (lastTimeMinQuorumMet < now) {"
+        )
 
     # add test query functions
     contents = contents.replace(
@@ -272,3 +286,9 @@ def edit_dao_source(contracts_dir, keep_limits):
         f.write(contents)
 
     return new_path
+
+
+def available_scenarios():
+    dir = "scenarios"
+    return [name for name in os.listdir(dir)
+            if os.path.isdir(os.path.join(dir, name))]
