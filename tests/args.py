@@ -6,6 +6,21 @@ import json
 from utils import available_scenarios
 
 
+def make_bool(val):
+    if isinstance(val, basestring):
+        if val.lower() in ["false", "0", "no"]:
+            return False
+        elif val.lower() in ["true", "1", "yes"]:
+            return True
+        else:
+            print(
+                "ERROR: Given string '{}' can not be converted to bool".format(
+                    val
+                ))
+            sys.exit(1)
+    else:
+        return bool(val)
+
 def read_scenario_options(args):
     """ Iterate scenarios and load all argument options """
     dir = "scenarios"
@@ -16,11 +31,34 @@ def read_scenario_options(args):
                 data = json.loads(f.read())
 
             for arg in data:
-                args.add_argument(
-                    "--{}-{}".format(name, arg['name']).replace("_", "-"),
-                    help=arg['description'],
-                    default=arg['default']
-                )
+                arg_type = None  # interpret as simple string
+                if 'type' in arg:
+                    if arg['type'] == "int":
+                        arg_type = int
+                    elif arg['type'] == "float":
+                        arg_type = float
+                    elif arg['type'] == "bool":
+                        arg_type = make_bool
+                    else:
+                        print(
+                            "ERROR: Unrecognized type '{}' given for argument"
+                            "'{}'".format(arg['type'], arg['name'])
+                        )
+                        sys.exit(1)
+
+                if 'type' in arg:
+                    args.add_argument(
+                        "--{}-{}".format(name, arg['name']).replace("_", "-"),
+                        help=arg['description'],
+                        default=arg['default'],
+                        type=arg_type
+                    )
+                else:
+                    args.add_argument(
+                        "--{}-{}".format(name, arg['name']).replace("_", "-"),
+                        help=arg['description'],
+                        default=arg['default']
+                    )
 
 
 def test_args():

@@ -1,5 +1,6 @@
 [{
     "name": "debate_seconds",
     "default": 15,
-    "description":"Number of seconds to debate the split proposal"
+    "description":"Number of seconds to debate the split proposal",
+    "type": "int"
 }]

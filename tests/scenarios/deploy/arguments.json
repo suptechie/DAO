@@ -1,17 +1,21 @@
 [{
     "name": "sale_seconds",
     "default": 35,
-    "description":"Number of seconds from now when the newly created DAO sale ends"
+    "description":"Number of seconds from now when the newly created DAO sale ends",
+    "type":"int"
 }, {
     "name": "min_value",
     "default": 40,
-    "description": "Minimum value in Ether to consider the DAO crowdfunded"
+    "description": "Minimum value in Ether to consider the DAO crowdfunded",
+    "type": "int"
 },{
     "name": "onetime_costs",
     "default": 5,
-    "description": "The one time costs (in ether) in the offer to the DAO"
+    "description": "The one time costs (in ether) in the offer to the DAO",
+    "type":"int"
 }, {
     "name": "total_costs",
     "default": 10,
-    "description": "The total costs (in ether) in the offer to the DAO"
+    "description": "The total costs (in ether) in the offer to the DAO",
+    "type":"int"
 }]

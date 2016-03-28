@@ -1,5 +1,6 @@
 [{
     "name": "total_amount",
     "default": 78,
-    "description": "Amount of ether a kind soul will donate to the DAO in the rewards scenario."
+    "description": "Amount of ether a kind soul will donate to the DAO in the rewards scenario.",
+    "type": "int"
 }]
