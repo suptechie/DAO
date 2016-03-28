@@ -30,7 +30,8 @@ class TestContext():
         self.token_amounts = None
         self.prop_id = None
         self.tests_dir = os.path.dirname(os.path.realpath(__file__))
-        self.save_file = os.path.join(self.tests_dir, "data", "saved")
+        datadir = os.path.join(self.tests_dir, "data")
+        self.save_file = os.path.join(datadir, "saved")
         self.templates_dir = os.path.join(self.tests_dir, 'templates')
         self.contracts_dir = os.path.dirname(self.tests_dir)
         self.solc = determine_binary(args.solc, 'solc')
@@ -41,7 +42,7 @@ class TestContext():
             sys.exit(0)
 
         # keep this at end since any data loaded should override constructor
-        if args.clean_chain:
+        if not os.path.isdir(datadir) or args.clean_chain:
             self.clean_blockchain()
             self.create_accounts(args.users_num)
         else:
