@@ -227,6 +227,13 @@ contract DAOInterface {
         address _newServiceProvider
     ) returns (bool _success);
 
+    /// @dev can only be called by the DAO itself through a proposal
+    /// updates the contract of the DAO by sending all funds and rewardTokens
+    /// to the new DAO. The new DAO needs to be approved by the service provider
+    /// @param _newContract the address of the new contract
+    function newContract(address _newContract);
+
+
     /// @notice Add a new possible recipient `_recipient` to the whitelist so
     /// that the DAO can send transactions to them (using proposals)
     /// @param _recipient New recipient address
@@ -571,6 +578,16 @@ contract DAO is DAOInterface, Token, TokenSale {
         paidOut[msg.sender] = 0;
 
         return true;
+    }
+
+    function newContract(address _newContract){
+        if (msg.sender != address(this) || !allowedRecipients[_newContract]) return;
+        // move all funds
+        _newContract.call.value(address(this).balance)();
+
+        //move all reward tokens
+        rewardToken[_newContract] += rewardToken[address(this)];
+        rewardToken[address(this)] = 0;
     }
 
 
