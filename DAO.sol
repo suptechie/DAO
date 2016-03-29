@@ -227,8 +227,8 @@ contract DAOInterface {
         address _newServiceProvider
     ) returns (bool _success);
 
-    /// @dev can only be called by the DAO itself through an proposal
-    /// updates the contract of the DAO by sending all funds and rewardToken
+    /// @dev can only be called by the DAO itself through a proposal
+    /// updates the contract of the DAO by sending all funds and rewardTokens
     /// to the new DAO. The new DAO needs to be approved by the service provider
     /// @param _newContract the address of the new contract
     function newContract(address _newContract);
