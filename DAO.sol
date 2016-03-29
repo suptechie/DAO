@@ -253,7 +253,7 @@ contract DAOInterface {
     /// @notice Withdraw `_account`'s portion of the reward from `rewardAccount`
     /// to `_account`'s balance
     /// @return Whether the call was successful
-    function withdrawRewardFor(address _account) returns(bool _success);
+    function withdrawRewardFor(address _account) internal returns (bool _success);
 
     /// @notice Send `_amount` tokens to `_to` from `msg.sender`. Prior to this
     /// getMyReward() is called.
@@ -596,7 +596,7 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
 
-    function withdrawRewardFor(address _account) noEther returns (bool _success) {
+    function withdrawRewardFor(address _account) noEther internal returns (bool _success) {
         // The account's portion of Reward Tokens of this DAO
         uint portionOfTheReward =
             (balanceOf(_account) * rewardToken[address(this)]) /
@@ -700,7 +700,7 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
 
-    function minQuorum(uint _value) internal returns (uint _minQuorum) {
+    function minQuorum(uint _value) internal constant returns (uint _minQuorum) {
         // minimum of 20% and maximum of 53.33%
         return totalSupply / minQuorumDivisor +
             (_value * totalSupply) / (3 * (this.balance + totalRewardToken));
