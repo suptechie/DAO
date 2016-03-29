@@ -103,13 +103,13 @@ contract SampleOffer {
     }
 
     function setRewardDivisor(uint _rewardDivisor) callingRestriction {
-        if (_rewardDivisor < 50 && msg.sender != address(client))
+        if (_rewardDivisor < 50)
             throw; // 2% is the default max reward
         rewardDivisor = _rewardDivisor;
     }
 
     function setDeploymentFee(uint _deploymentReward) callingRestriction {
-        if (deploymentReward > 10 ether && msg.sender != address(client))
+        if (deploymentReward > 10 ether)
             throw; // TODO, set a max defined by service provider, or ideally oracle (set in euro)
         deploymentReward = _deploymentReward;
     }
