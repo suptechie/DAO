@@ -179,6 +179,9 @@ def write_js(name, contents, accounts_num):
 def create_genesis(accounts):
     """Create a genesis block with ether allocation for the given accounts"""
     genesis = {}
+    config = {}
+    config["homesteadBlock"] = "0"
+    genesis["config"] = config
     genesis["nonce"] = "0xdeadbeefdeadbeef"
     genesis["timestamp"] = "0x0"
     # Start after homesteam
