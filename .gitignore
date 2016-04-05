@@ -24,6 +24,7 @@ tests/singlesplit.js
 
 # Ignore deployment related file
 deploy/code.js
+deploy/prepare.js
 
 # python metadata in tests
 *.pyc

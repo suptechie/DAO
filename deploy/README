@@ -1,7 +1,6 @@
-The basis for geth scripts that make deploying trivial. 
+Some scripts that make deploying in geth trivial.
 
-`python compile.py` compiles `DAO.sol` in the parent directory. It then saves the bin and abi to variables in `code.js`
+`prepare.py` compiles `DAO.sol` and populates some helper variables inside `prepare.js`
 
-`loadScript("code.js")` loads these variables into geth. 
-
-`loadScript("depoly.js")` deploys. 
+1. `loadScript("prepare.js")` loads these variables into geth.
+2. `loadScript("deploy.js")` deploys them.

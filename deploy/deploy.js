@@ -1,5 +1,6 @@
-//first run code.js to import the compiled source code
-//before you do that run compile.py to compile the latest version of the software in DAO
+// first run prepare.js to import the compiled source code and some other helper variables
+// before you do that run prepare.py to compile the latest version of the software in DAO
+// and populate the helper variables
 
 personal.unlockAccount(eth.accounts[0]);
 var _defaultServiceProvider = web3.eth.accounts[0];
