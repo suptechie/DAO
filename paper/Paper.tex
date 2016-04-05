@@ -97,7 +97,7 @@ After $t_p$ has passed, any token holder can call a function in the DAO contract
  \label{minQuorum}
 \end{equation}
 Where $d$ is the \verb|minQuorumDivisor|. This parameter's default value is $5$, but it will double in the case the quorum has not been met for over a year.
-$\Xi_{DAO}$ is the amount of ether owned by the DAO and $R_{\text{total}}$ is the total amount of reward token as explained in section \ref{RewardToken} (also see \verb|totalRewardToken| in \ref{app:DAO}). The sum $\Xi_{DAO} + R_{\text{total}}$ is equal to the amount of ether raised plus the rewards received.
+$\Xi_{DAO}$ is the amount of ether owned by the DAO and $R_{\text{total}}$ is the total amount of reward tokens ever generated as explained in section \ref{RewardToken} (also see \verb|totalRewardToken| in \ref{app:DAO}). The sum $\Xi_{DAO} + R_{\text{total}}$ is equal to the amount of ether raised plus the rewards received or said another way, the total amount of ether the DAO has ever received.
 
 This means, initially, a quorum of  $20\%$ of all tokens is required for any proposal to pass. In the event $\Xi_{\text{transfer}}$ equals the amount of ether raised during the funding period plus the rewards received, then a quorum of $53.33\%$ is required.
 
