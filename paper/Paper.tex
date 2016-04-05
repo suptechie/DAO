@@ -141,7 +141,7 @@ Here $t$ is the unix time in seconds, $t_c$ is the closing time of the funding p
 Hence the number of tokens (in it’s base unit) each buyer receives is calculated as: $P(t) \cdot \Xi_c$. Here $\Xi_c$ stands for the amount of ether payed, denoted in wei.
 This results in a constant price in the beginning, until $2$ weeks before the end of the token sale. At this time the price increased daily by $0.005 \: \Xi_c$ per base unit of DAO token. Until $4$ days before the closing time when there will be a constant price of $0.015 \: \Xi_c$ per base unit of DAO token.
 
-This price increase leads to a situation where a single contributor, who has bought tokens during the initial price, can split the DAO right after the end of the sale and would get more ether out than they put in due to other contributors paying a higher price (\cite{GriffDiscussion}).
+Price increases during the initial funding period could lead to a situation where a single contributor, having bought tokens during the initial price, could split the DAO immediately after the sale ends, thereby receiving more ether than they put in due to other contributors paying a higher price (\cite{GriffDiscussion}).
 In order to avoid that possibility, all ether that is payed above the initial price of the token, will be sent to an extra account. Denoted as \verb|extraBalance| in \ref{app:TokenSale}. This money can be sent back to the DAO through a proposal after the DAO has spent at least this amount of ether.
 This rule is implemented in the internal function \verb|isRecipientAllowed| in section \ref{DAO}.
 
