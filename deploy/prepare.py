@@ -38,11 +38,16 @@ if __name__ == "__main__":
         default=60,
         help='Deployed DAO sale duration in minutes'
     )
+    p.add_argument(
+        '--service-provider',
+        default="0x08144824954c65b12f68b75072488e634ac4e67a",  # Griff testnet
+        help='Account to set as service provider'
+    )
     args = p.parse_args()
     solc = determine_binary(args.solc, 'solc')
     comp = compile_contract(solc, "../DAO.sol")
 
-    with open("code.js", "w") as f:
+    with open("prepare.js", "w") as f:
         f.write("dao_abi = {};\n".format(comp['contracts']['DAO']['abi']))
         f.write("dao_bin = '{}';\n".format(comp['contracts']['DAO']['bin']))
         f.write("creator_abi = {};\n".format(
@@ -54,3 +59,4 @@ if __name__ == "__main__":
         f.write("seconds_from_now = {};\n".format(
           args.sale_duration_mins * 60)
         )
+        f.write("service_provider = {};\n".format(args.service_provider))

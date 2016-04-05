@@ -3,7 +3,6 @@
 // and populate the helper variables
 
 personal.unlockAccount(eth.accounts[0]);
-var _defaultServiceProvider = web3.eth.accounts[0];
 var daoContract = web3.eth.contract(dao_abi);
 var min_value = 1;
 var closing_time = new Date().getTime() + seconds_from_now;
@@ -21,7 +20,7 @@ var _daoCreatorContract = creatorContract.new(
 	    } else if (typeof contract.address != 'undefined') {
             console.log("Reached actual DAO creation");
             var dao = daoContract.new(
-	            _defaultServiceProvider,
+	            service_provider,
 	            contract.address,
 	            web3.toWei(min_value, "ether"),
                 closing_time,
