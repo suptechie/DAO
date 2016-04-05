@@ -32,6 +32,12 @@ if __name__ == "__main__":
         '--solc',
         help='Full path to the solc binary to use'
     )
+    p.add_argument(
+        '--sale-duration-mins',
+        type=int,
+        default=60,
+        help='Deployed DAO sale duration in minutes'
+    )
     args = p.parse_args()
     solc = determine_binary(args.solc, 'solc')
     comp = compile_contract(solc, "../DAO.sol")
@@ -44,4 +50,7 @@ if __name__ == "__main__":
         )
         f.write("creator_bin = '{}';\n".format(
           comp['contracts']['DAO_Creator']['bin'])
+        )
+        f.write("seconds_from_now = {};\n".format(
+          args.sale_duration_mins * 60)
         )
