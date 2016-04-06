@@ -59,4 +59,4 @@ if __name__ == "__main__":
         f.write("seconds_from_now = {};\n".format(
           args.sale_duration_mins * 60)
         )
-        f.write("service_provider = {};\n".format(args.service_provider))
+        f.write("service_provider = \"{}\";\n".format(args.service_provider))
