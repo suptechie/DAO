@@ -5,7 +5,7 @@
 personal.unlockAccount(eth.accounts[0]);
 var daoContract = web3.eth.contract(dao_abi);
 var min_value = 1;
-var closing_time = new Date().getTime() + seconds_from_now;
+var closing_time = Math.floor(Date.now() / 1000) + seconds_from_now;
 
 var creatorContract = web3.eth.contract(creator_abi);
 console.log("Creating DAOCreator Contract");
