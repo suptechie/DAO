@@ -578,16 +578,22 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
 
-    function retrieveDAOReward() noEther returns (bool _success) {
+    function retrieveDAOReward(bool _toMembers) noEther returns (bool _success) {
         DAO dao = DAO(msg.sender);
         uint reward =
             (rewardToken[msg.sender] * DAOrewardAccount.accumulatedInput()) /
             totalRewardToken - DAOpaidOut[msg.sender];
-        if (!DAOrewardAccount.payOut(dao.rewardAccount(), reward))
-            throw;
+        if(_toMembers) {
+            if (!DAOrewardAccount.payOut(dao.rewardAccount(), reward))
+                throw;
+            }
+        else {
+            if (!DAOrewardAccount.payOut(dao, reward))
+                throw;
+        }
         DAOpaidOut[msg.sender] += reward;
         return true;
-	}
+    }
 
     function getMyReward() noEther returns (bool _success) {
         return withdrawRewardFor(msg.sender);
