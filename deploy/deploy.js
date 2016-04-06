@@ -18,7 +18,7 @@ var _daoCreatorContract = creatorContract.new(
 	    if (e) {
             console.log(e+ " at DAOCreator creation!");
 	    } else if (typeof contract.address != 'undefined') {
-            console.log("Reached actual DAO creation");
+            console.log("Creating the actual DAO");
             var dao = daoContract.new(
 	            service_provider,
 	            contract.address,
