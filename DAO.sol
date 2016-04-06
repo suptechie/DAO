@@ -33,9 +33,7 @@ contract DAOInterface {
     uint minQuorumDivisor;
     // The unix time of the last time quorum was reached on a proposal
     uint lastTimeMinQuorumMet;
-    // The total amount of wei received as reward that has not been sent to
-    // the rewardAccount
-    uint public rewards;
+
     // Address of the service provider
     address public serviceProvider;
     // The whitelist: List of addresses the DAO is allowed to send money to
@@ -50,8 +48,16 @@ contract DAOInterface {
     uint public totalRewardToken;
 
     // The account used to manage the rewards which are to be distributed to the
-    // DAO Token Holders of any DAO that holds Reward Tokens
+    // DAO Token Holders of this DAO
     ManagedAccount public rewardAccount;
+
+    // The account used to manage the rewards which are to be distributed to
+    // any DAO that holds Reward Tokens
+    ManagedAccount public DAOrewardAccount;
+
+    // Amount of rewards (in wei) already paid out to a certain DAO
+    mapping (address => uint) public DAOpaidOut;
+
     // Amount of rewards (in wei) already paid out to a certain address
     mapping (address => uint) public paidOut;
     // Map of addresses blocked during a vote (not allowed to transfer DAO
@@ -143,10 +149,6 @@ contract DAOInterface {
     /// @return Whether the purchase was successful
     function () returns (bool success);
 
-    /// @dev Function used by the products of the DAO (e.g. Slocks) to send
-    /// rewards to the DAO
-    /// @return Whether the call to this function was successful or not
-    function payDAO() returns(bool);
 
     /// @dev This function is used by the service provider to send money back
     /// to the DAO, it can also be used to receive payments that should not be
@@ -321,6 +323,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         daoCreator = _daoCreator;
         proposalDeposit = 20 ether;
         rewardAccount = new ManagedAccount(address(this));
+        DAOrewardAccount = new ManagedAccount(address(this));
         if (address(rewardAccount) == 0)
             throw;
         lastTimeMinQuorumMet = now;
@@ -329,21 +332,15 @@ contract DAO is DAOInterface, Token, TokenSale {
 
         allowedRecipients[address(this)] = true;
         allowedRecipients[serviceProvider] = true;
-        allowedRecipients[address(rewardAccount)] = true;
     }
 
     function () returns (bool success) {
         if (now < closingTime + 40 days)
             return buyTokenProxy(msg.sender);
         else
-            return payDAO();
+            return receiveEther();
     }
 
-
-    function payDAO() returns (bool) {
-        rewards += msg.value;
-        return true;
-    }
 
     function receiveEther() returns (bool) {
         return true;
@@ -380,9 +377,6 @@ contract DAO is DAOInterface, Token, TokenSale {
 
             throw;
         }
-
-        if (_recipient == address(rewardAccount) && _amount > rewards)
-            throw;
 
         if (now + _debatingPeriod < now) // prevents overflow
             throw;
@@ -489,16 +483,8 @@ contract DAO is DAOInterface, Token, TokenSale {
             p.proposalPassed = true;
             _success = true;
             lastTimeMinQuorumMet = now;
-            if (p.recipient == address(rewardAccount)) {
-                // This happens when multiple similar proposals are created and
-                // both are passed at the same time.
-                if (rewards < p.amount)
-                    throw;
-                rewards -= p.amount;
-            } else {
-                rewardToken[address(this)] += p.amount;
-                totalRewardToken += p.amount;
-            }
+            rewardToken[address(this)] += p.amount;
+            totalRewardToken += p.amount;
         } else if (quorum >= minQuorum(p.amount) && p.nay >= p.yea) {
             if (!p.creator.send(p.proposalDeposit))
                 throw;
@@ -572,6 +558,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
         // Burn DAO Tokens
         Transfer(msg.sender, 0, balances[msg.sender]);
+        withdrawRewardFor(msg.sender); // be nice, and get his rewards
         totalSupply -= balances[msg.sender];
         balances[msg.sender] = 0;
         paidOut[address(p.splitData[0].newDAO)] += paidOut[msg.sender];
@@ -591,19 +578,25 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
 
+    function retrieveDAOReward() noEther returns (bool _success) {
+        DAO dao = DAO(msg.sender);
+        uint reward =
+            (rewardToken[msg.sender] * DAOrewardAccount.accumulatedInput()) /
+            totalRewardToken - DAOpaidOut[msg.sender];
+        if (!DAOrewardAccount.payOut(dao.rewardAccount(), reward))
+            throw;
+        DAOpaidOut[msg.sender] += reward;
+        return true;
+	}
+
     function getMyReward() noEther returns (bool _success) {
         return withdrawRewardFor(msg.sender);
     }
 
 
     function withdrawRewardFor(address _account) noEther internal returns (bool _success) {
-        // The account's portion of Reward Tokens of this DAO
-        uint portionOfTheReward =
-            (balanceOf(_account) * rewardToken[address(this)]) /
-            totalSupply + rewardToken[_account];
         uint reward =
-            (portionOfTheReward * rewardAccount.accumulatedInput()) /
-            totalRewardToken - paidOut[_account];
+            (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply - paidOut[_account];
         if (!rewardAccount.payOut(_account, reward))
             throw;
         paidOut[_account] += reward;
