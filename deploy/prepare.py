@@ -78,7 +78,7 @@ if __name__ == "__main__":
         '--default-proposal-deposit',
         type=int,
         default=10,
-        help='The default proposal deposit for every proposal of the DAO'
+        help='The proposal deposit (in ether) for every proposal of the DAO'
     )
     args = p.parse_args()
     ctx = TestDeployContext(args)
