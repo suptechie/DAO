@@ -22,6 +22,7 @@ var _daoCreatorContract = creatorContract.new(
             var dao = daoContract.new(
 	            service_provider,
 	            contract.address,
+                default_proposal_deposit,
 	            web3.toWei(min_value, "ether"),
                 closing_time,
                 0,
