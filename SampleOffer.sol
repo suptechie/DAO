@@ -136,7 +136,7 @@ contract SampleOffer {
     // pay reward
     function payReward() returns(bool) {
         if (promiseValid) {
-			if (client.DAOrewardAccount().call.value(msg.value)()) {
+            if (client.DAOrewardAccount().call.value(msg.value)()) {
                 return true;
             } else {
                 throw;
