@@ -326,6 +326,8 @@ contract DAO is DAOInterface, Token, TokenSale {
         DAOrewardAccount = new ManagedAccount(address(this));
         if (address(rewardAccount) == 0)
             throw;
+        if (address(DAOrewardAccount) == 0)
+            throw;
         lastTimeMinQuorumMet = now;
         minQuorumDivisor = 5; // sets the minimal quorum to 20%
         proposals.length++; // avoids a proposal with ID 0 because it is used
