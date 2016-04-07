@@ -126,6 +126,7 @@ contract DAOInterface {
     /// for the DAO Token Sale
     /// @param _defaultServiceProvider The default service provider
     /// @param _daoCreator The contract able to (re)create this DAO
+    /// @param _proposalDeposit The deposit to be paid for a regular proposal
     /// @param _minValue Minimal value for a successful DAO Token Sale
     /// @param _closingTime Date (in unix time) of the end of the DAO Token Sale
     /// @param _privateSale If zero the DAO Token Sale is open to public, a
@@ -134,6 +135,7 @@ contract DAOInterface {
     //  function DAO(
         //  address _defaultServiceProvider,
         //  DAO_Creator _daoCreator,
+        //  uint _proposalDeposit,
         //  uint _minValue,
         //  uint _closingTime,
         //  address _privateSale
@@ -312,6 +314,7 @@ contract DAO is DAOInterface, Token, TokenSale {
     function DAO(
         address _defaultServiceProvider,
         DAO_Creator _daoCreator,
+        uint _proposalDeposit,
         uint _minValue,
         uint _closingTime,
         address _privateSale
@@ -319,7 +322,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
         serviceProvider = _defaultServiceProvider;
         daoCreator = _daoCreator;
-        proposalDeposit = 20 ether;
+        proposalDeposit = _proposalDeposit;
         rewardAccount = new ManagedAccount(address(this));
         if (address(rewardAccount) == 0)
             throw;
@@ -720,7 +723,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
     function createNewDAO(address _newServiceProvider) internal returns (DAO _newDAO) {
         NewServiceProvider(_newServiceProvider);
-        return daoCreator.createDAO(_newServiceProvider, 0, now + 42 days);
+        return daoCreator.createDAO(_newServiceProvider, 0, 0, now + 42 days);
     }
 
 
@@ -746,6 +749,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 contract DAO_Creator {
     function createDAO(
         address _defaultServiceProvider,
+        uint _proposalDeposit,
         uint _minValue,
         uint _closingTime
     ) returns (DAO _newDAO) {
@@ -753,6 +757,7 @@ contract DAO_Creator {
         return new DAO(
             _defaultServiceProvider,
             DAO_Creator(this),
+            _proposalDeposit,
             _minValue,
             _closingTime,
             msg.sender
