@@ -2,10 +2,11 @@ var dao = web3.eth.contract($dao_abi).at('$dao_address');
 
 // some kind soul makes a donation to the DAO, so rewards get populated
 console.log("Donating to DAO...");
-dao.payDAO.sendTransaction({
-    from: eth.accounts[1],
-    value: web3.toWei($total_rewards, "ether"),
-    gas: 100000
+eth.sendTransaction({
+    from:eth.accounts[1],
+    to: dao.DAOrewardAccount(),
+    gas: 210000,
+    value: web3.toWei($total_rewards, "ether")
 });
 checkWork();
 
@@ -13,15 +14,15 @@ checkWork();
 console.log("Creating proposal to send to rewardAccount...");
 var tx_hash = null;
 dao.newProposal.sendTransaction(
-    dao.rewardAccount(),
-    web3.toWei($total_rewards, "ether"),
-    'Send money to the reward account',
-    '$transaction_bytecode', // bytecode, not needed here, calling the fallback function
+    '$dao_address',
+    0,
+    'Ask the DAO to retrieveDAOReward()',
+    '$transaction_bytecode',
     $debating_period,
     false,
     {
         from: proposalCreator,
-        value: web3.toWei($proposal_deposit, "ether"),
+        value: web3.toWei($proposal_deposit + 1, "ether"),
         gas: 1000000
     }
     , function (e, res) {

@@ -1,22 +1,15 @@
+from utils import calculate_bytecode
+
 scenario_description = (
     "Make a proposal to change the default proposal deposit, vote for it and "
     "then assure that the DAO's proposal deposit did indeed change"
 )
 
 
-def calculate_bytecode(new_deposit):
-    """
-    Create the bytecode for calling dao.changeProposalDeposit() as defined
-    here:
-    https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI#examples
-    """
-    return "{0}{1:0{2}x}".format('0xe33734fd', new_deposit, 64)
-
-
 def run(ctx):
     ctx.assert_scenario_ran('fund')
 
-    bytecode = calculate_bytecode(ctx.args.deposit_new_value)
+    bytecode = calculate_bytecode('0xe33734fd', ctx.args.deposit_new_value)
     ctx.create_js_file(substitutions={
             "dao_abi": ctx.dao_abi,
             "dao_address": ctx.dao_addr,

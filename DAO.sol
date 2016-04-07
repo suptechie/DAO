@@ -248,6 +248,12 @@ contract DAOInterface {
     /// recipient being this DAO itself)
     function changeProposalDeposit(uint _proposalDeposit) external;
 
+    /// @notice Move rewards from the DAORewards managed account
+    /// @param _toMembers If true rewards are move to the actual reward account
+    ///                   for the DAO. If not then it's moved to the DAO itself
+    /// @return Whether the call was successful
+    function retrieveDAOReward(bool _toMembers) external returns (bool _success);
+
     /// @notice Get my portion of the reward that was sent to `rewardAccount`
     /// @return Whether the call was successful
     function getMyReward() returns(bool _success);
@@ -325,6 +331,8 @@ contract DAO is DAOInterface, Token, TokenSale {
         rewardAccount = new ManagedAccount(address(this));
         DAOrewardAccount = new ManagedAccount(address(this));
         if (address(rewardAccount) == 0)
+            throw;
+        if (address(DAOrewardAccount) == 0)
             throw;
         lastTimeMinQuorumMet = now;
         minQuorumDivisor = 5; // sets the minimal quorum to 20%
@@ -578,7 +586,7 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
 
-    function retrieveDAOReward(bool _toMembers) noEther returns (bool _success) {
+    function retrieveDAOReward(bool _toMembers) external noEther returns (bool _success) {
         DAO dao = DAO(msg.sender);
         uint reward =
             (rewardToken[msg.sender] * DAOrewardAccount.accumulatedInput()) /
