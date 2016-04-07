@@ -583,6 +583,8 @@ contract DAO is DAOInterface, Token, TokenSale {
         //move all reward tokens
         rewardToken[_newContract] += rewardToken[address(this)];
         rewardToken[address(this)] = 0;
+        DAOpaidOut[_newContract] += DAOpaidOut[address(this)];
+        DAOpaidOut[address(this)] = 0;
     }
 
 
