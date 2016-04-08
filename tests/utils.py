@@ -291,6 +291,37 @@ def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
     return new_path
 
 
+def calculate_bytecode(function_hash, value):
+    """
+    Create the bytecode for calling function with `function_hash` and the
+    given argument value as defined here:
+    https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI#examples
+
+        Parameters
+        ----------
+        function_hash : string
+        The first 4 bytes of the hash of the function signature.
+
+        value : anything
+        The value to encode. Encoding depends on the value's type
+
+        Returns
+        ----------
+        results : string
+        The encoded ABI for the function call with the given argument
+    """
+    value_type = type(value)
+    if value_type is bool:
+        value_type = int
+        value = 1 if value is True else 0
+
+    if value_type is int:
+        return "{0}{1:0{2}x}".format(function_hash, value, 64)
+    else:
+        print("Error: Invalid value type at 'calculate_bytecode()`")
+        sys.exit(1)
+
+
 def available_scenarios():
     dir = "scenarios"
     return [name for name in os.listdir(dir)

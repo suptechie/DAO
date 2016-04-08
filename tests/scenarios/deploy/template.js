@@ -6,7 +6,7 @@ var _daoCreatorContract = creatorContract.new(
     {
 	from: web3.eth.accounts[0],
 	data: '$creator_bin',
-	gas: 3000000
+	gas: 4000000
     }, function (e, contract){
 	if (e) {
             console.log(e+" at DAOCreator creation!");
