@@ -34,8 +34,8 @@ contract DAOInterface {
     // The unix time of the last time quorum was reached on a proposal
     uint lastTimeMinQuorumMet;
 
-    // Address of the service provider
-    address public serviceProvider;
+    // Address of the guardian
+    address public guardian;
     // The whitelist: List of addresses the DAO is allowed to send money to
     mapping (address => bool) public allowedRecipients;
 
@@ -320,7 +320,7 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
     function DAO(
-        address _defaultServiceProvider,
+        address _defaultGuardian,
         DAO_Creator _daoCreator,
         uint _proposalDeposit,
         uint _minValue,
@@ -328,7 +328,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         address _privateSale
     ) TokenSale(_minValue, _closingTime, _privateSale) {
 
-        serviceProvider = _defaultServiceProvider;
+        guardian = _defaultGuardian;
         daoCreator = _daoCreator;
         proposalDeposit = _proposalDeposit;
         rewardAccount = new ManagedAccount(address(this));
@@ -342,7 +342,6 @@ contract DAO is DAOInterface, Token, TokenSale {
         proposals.length++; // avoids a proposal with ID 0 because it is used
 
         allowedRecipients[address(this)] = true;
-        allowedRecipients[serviceProvider] = true;
     }
 
     function () returns (bool success) {
@@ -371,7 +370,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         if (_newServiceProvider && (
             _amount != 0
             || _transactionData.length != 0
-            || _recipient == serviceProvider
+            || _recipient == guardian
             || msg.value > 0
             || _debatingPeriod < 1 weeks)) {
             throw;
@@ -693,7 +692,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function addAllowedAddress(address _recipient) noEther external returns (bool _success) {
-        if (msg.sender != serviceProvider)
+        if (msg.sender != guardian)
             throw;
         allowedRecipients[_recipient] = true;
         return true;
