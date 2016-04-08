@@ -106,8 +106,7 @@ def run(ctx):
     )
 
     ctx.execute(expected={
-        # default deposit,a simple way to test new DAO contract got created
-        "newDAOProposalDeposit": 20,
+        "newDAOProposalDeposit": 0,
         "oldDAOBalance": oldBalance,
         "newDAOBalance": newBalance,
         "oldDaoRewardTokens": oldDAORewards,
