@@ -68,6 +68,9 @@ contract DAOInterface {
     // requesting a new service provider (no deposit is required for splits)
     uint public proposalDeposit;
 
+    // the accumulated sum of all current proposal deposits
+    uint sumOfProposalDeposits;
+
     // Contract that is able to create a new DAO (with the same code as
     // this one), used for splits
     DAO_Creator public daoCreator;
@@ -410,6 +413,9 @@ contract DAO is DAOInterface, Token, TokenSale {
             p.splitData.length++;
         p.creator = msg.sender;
         p.proposalDeposit = msg.value;
+
+        sumOfProposalDeposits += msg.value;
+
         ProposalAdded(
             _proposalID,
             _recipient,
@@ -506,6 +512,8 @@ contract DAO is DAOInterface, Token, TokenSale {
             lastTimeMinQuorumMet = now;
         }
 
+        sumOfProposalDeposits -= p.proposalDeposit;
+
         // Since the voting deadline is over, close the proposal
         p.open = false;
 
@@ -548,7 +556,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             // p.proposalDeposit should be zero here
             if (this.balance < p.proposalDeposit)
                 throw;
-            p.splitData[0].splitBalance = this.balance - p.proposalDeposit;
+            p.splitData[0].splitBalance = this.balance - sumOfProposalDeposits;
             p.splitData[0].rewardToken = rewardToken[address(this)];
             p.splitData[0].totalSupply = totalSupply;
             p.proposalPassed = true;
