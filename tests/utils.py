@@ -216,29 +216,50 @@ def count_token_votes(amounts, votes):
     return yay, nay
 
 
+def str_replace_or_die(string, old, new):
+    if old not in string:
+        print(
+            "ERROR: Could not find '{}' during DAO's source "
+            "code editing for the tests.".format(old)
+        )
+        sys.exit(1)
+    return string.replace(old, new)
+
+
 def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
 
     # remove all limits that would make testing impossible
     if not keep_limits:
-        contents = contents.replace(" || _debatingPeriod < 1 weeks", "")
-        contents = contents.replace(" || (_debatingPeriod < 2 weeks)", "")
-        contents = contents.replace("|| now > p.votingDeadline + 41 days", "")
-        contents = contents.replace("now < closingTime + 40 days", "true")
-        contents = contents.replace(
-            "daoCreator.createDAO(_newServiceProvider, 0, now + 42 days);",
-            "daoCreator.createDAO(_newServiceProvider, 0, now + 20);"
+        contents = str_replace_or_die(
+            contents, " || _debatingPeriod < 1 weeks", ""
+        )
+        contents = str_replace_or_die(
+            contents, " || (_debatingPeriod < 2 weeks)", ""
+        )
+        contents = str_replace_or_die(
+            contents, "|| now > p.votingDeadline + 41 days", ""
+        )
+        contents = str_replace_or_die(
+            contents, "now < closingTime + 40 days", "true"
+        )
+        contents = str_replace_or_die(
+            contents,
+            "daoCreator.createDAO(_newServiceProvider, 0, 0, now + 42 days);",
+            "daoCreator.createDAO(_newServiceProvider, 0, 0, now + 20);"
         )
 
     if halve_minquorum:  # if we are testing halve_minquorum remove year limit
-        contents = contents.replace(
+        contents = str_replace_or_die(
+            contents,
             "if (lastTimeMinQuorumMet < (now - 52 weeks)) {",
             "if (lastTimeMinQuorumMet < now) {"
         )
 
     # add test query functions
-    contents = contents.replace(
+    contents = str_replace_or_die(
+        contents,
         "contract DAO is DAOInterface, Token, TokenSale {",
         """contract DAO is DAOInterface, Token, TokenSale {
 
@@ -271,7 +292,8 @@ def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
         }
 """
     )
-    contents = contents.replace(
+    contents = str_replace_or_die(
+        contents,
         'import "./TokenSale.sol";',
         'import "./TokenSaleCopy.sol";'
     )
@@ -284,7 +306,9 @@ def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
     with open(os.path.join(contracts_dir, 'TokenSale.sol'), 'r') as f:
         contents = f.read()
     if not keep_limits:
-        contents = contents.replace('closingTime - 2 weeks > now', 'true')
+        contents = str_replace_or_die(
+            contents, 'closingTime - 2 weeks > now', 'true'
+        )
     with open(os.path.join(contracts_dir, 'TokenSaleCopy.sol'), "w") as f:
         f.write(contents)
 

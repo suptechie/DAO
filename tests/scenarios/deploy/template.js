@@ -14,10 +14,11 @@ var _daoCreatorContract = creatorContract.new(
         addToTest('dao_creator_address', contract.address);
         checkWork();
         var dao = daoContract.new(
-	    _defaultServiceProvider,
-	    contract.address,
-	    web3.toWei($min_value, "ether"),
-	    $closing_time,
+	        _defaultServiceProvider,
+	        contract.address,
+            $default_proposal_deposit,
+	        web3.toWei($min_value, "ether"),
+	        $closing_time,
             0,
 		    {
 		        from: web3.eth.accounts[0],

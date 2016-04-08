@@ -74,6 +74,12 @@ if __name__ == "__main__":
         default="0x08144824954c65b12f68b75072488e634ac4e67a",  # Griff testnet
         help='Account to set as service provider'
     )
+    p.add_argument(
+        '--default-proposal-deposit',
+        type=int,
+        default=10,
+        help='The proposal deposit (in ether) for every proposal of the DAO'
+    )
     args = p.parse_args()
     ctx = TestDeployContext(args)
     comp = ctx.compile_contract("DAO.sol")
@@ -91,5 +97,8 @@ if __name__ == "__main__":
           args.sale_duration_mins * 60)
         )
         f.write("service_provider = \"{}\";\n".format(args.service_provider))
+        f.write("default_proposal_deposit = {};\n".format(
+            args.default_proposal_deposit)
+        )
 
     ctx.cleanup()
