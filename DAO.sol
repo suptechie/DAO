@@ -292,6 +292,11 @@ contract DAOInterface {
     /// @return total number of proposals ever created
     function numberOfProposals() constant returns (uint _numberOfProposals);
 
+    /// @param _proposalID Id of the new guardian proposal
+    /// @return Address of the new DAO
+    function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO);
+
+
     /// @param _account The address of the account which is checked.
     /// @return Whether the account is blocked (not allowed to transfer tokens) or not.
     function isBlocked(address _account) returns (bool);
@@ -738,6 +743,10 @@ contract DAO is DAOInterface, Token, TokenSale {
     function numberOfProposals() constant returns (uint _numberOfProposals) {
         // Don't count index 0. It's used by isBlocked() and exists from start
         return proposals.length - 1;
+    }
+
+	function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO) {
+        return proposals[_proposalID].splitData[0].newDAO;
     }
 
 
