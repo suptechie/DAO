@@ -78,7 +78,7 @@ A word of caution, at the outset:  the legal status of DAOs remains the subject 
 
 DAO code is written in the ``Solidity'' programming language. A DAO is activated by deployment on the Ethereum blockchain. 
 
-Once deployed, the DAO code requires ``ether'' to engage in transactions on Ethereum. Ether is the digital fuel that powers the Ethereum network. Without ether, a DAO can not do very much and a DAO's first order of business is to receive ether. After the DAO code is deployed, ether may be sent to the DAO?s smart contract address during an initial funding period which is defined in the DAO code. 
+Once deployed, the DAO code requires ``ether'' to engage in transactions on Ethereum. Ether is the digital fuel that powers the Ethereum network. Without ether, a DAO can not do very much and a DAO's first order of business is to receive ether. After the DAO code is deployed, ether may be sent to the DAO's smart contract address during an initial funding period which is defined in the DAO code. 
 
 In exchange for ether, the DAO code creates tokens that are then assigned to the account of the person who sent the ether. A token grants its holder voting and ownership rights. The number of tokens created is proportional to the amount of ether transferred. Token price varies over time (see section \ref{TokenPrice}). Token ownership is freely transferable on the Ethereum blockchain, when the funding period is over.
 
@@ -86,7 +86,7 @@ A minimum DAO funding goal and funding time-period are set as parameters in the 
 
 The DAO stores ether and transmits it based on the DAO code. It does not do much else. It cannot build a product, write code or develop hardware. It requires what we have called a ``Service Provider'' to accomplish these and other goals. The DAO engages a Service Provider by accepting a Service Provider proposal. 
 
-DAO token holders may also submit proposals to use the DAO's ether, denoted by $\Xi_{\text{transfer}}$, for a variety of purposes. If a proposal is approved, the DAO tranmits ether to a smart contract representing the proposed project. Such smart contracts can be parameterized and enable the DAO to interact with and influence the project being funded.
+DAO token holders may also submit proposals to use the DAO's ether, denoted by $\Xi_{\text{transfer}}$, for a variety of purposes. If a proposal is approved, the DAO transmits ether to a smart contract representing the proposed project. Such smart contracts can be parameterized and enable the DAO to interact with and influence the project being funded.
 An example of such an agreement between the DAO and a project to be funded can be found in the appendix (\ref{app:SampleOffer}).
 
 Members of the DAO cast votes weighted by the amount of tokens they control. Tokens are divisible, indistinguishable, fungible and can easily be transferred between accounts. Within the contracts, the individual actions of members, cannot be directly determined. There is a set timeframe $t_p$ to debate and vote on any given proposal. In our example, this timeframe is set by the creator of the proposal, and is required to be at least two weeks for a regular proposal.
@@ -109,7 +109,7 @@ Similarly, DAO tokens are denoted with $T$ and always represent the amount of DA
 \section{Majority robs minority attack}
 Minority owner rights can be a problem in any corporate form. Minority rights may be protected or addressed by provisions in corporate governance documents or by statute or judge-made law. But many of these solutions fail because minority owners may lack voting rights or the ability to ``vote with their feet" and easily retrieve their capital. We present a solution to this problem in the DAO code. 
 
-A problem every that DAO has to mitigate is the ability for the majority to rob the minority by changing governance and ownership rules after DAO formation. For example, an attacker with $51\%$ of the tokens, acquired either during the funding period or purchased afterwards, could make a proposal to send all the funds to themselves. Since they would hold the majority of the tokens, they would always be able to pass their proposals.
+A problem every DAO has to mitigate is the ability for the majority to rob the minority by changing governance and ownership rules after DAO formation. For example, an attacker with $51\%$ of the tokens, acquired either during the funding period or purchased afterwards, could make a proposal to send all the funds to themselves. Since they would hold the majority of the tokens, they would always be able to pass their proposals.
 
 To prevent this, the minority must always have the ability to retrieve their portion of the funds. Our solution is to allow the DAO to split into two. If an individual, or a group of token holders, disagree with a proposal and want to retrieve their portion of the funds before the proposal gets executed, they can submit a special type of proposal to form a new DAO. The minority can then vote to move their funds to this new DAO, leaving the majority alone only able to spend their own money.
 This idea originates from a blog post by Vitalik Buterin (\cite{Vitalik2015subjectivity}). 
@@ -139,7 +139,7 @@ with the multiplier $m$ defined as:
 \end{equation}
 Here $t$ is the unix time in seconds, $t_c$ is the closing time of the funding period (see \ref{app:TokenSale} \verb|closingTime|), $w$ is a week in seconds and $d$ a day in seconds.
 Hence the number of tokens (in it’s base unit) each buyer receives is calculated as: $P(t) \cdot \Xi_c$. Here $\Xi_c$ stands for the amount of ether payed, denoted in wei.
-This results in a constant price in the beginning, until $2$ weeks before the end of the token sale. At this time the price increased daily by $0.005 \: \Xi_c$ per base unit of DAO token. Until $4$ days before the closing time when there will be a constant price of $0.015 \: \Xi_c$ per base unit of DAO token.
+This results in a constant price in the beginning, until $2$ weeks before the end of the token sale. At this time the price increased daily by $0.0005 \: \Xi_c$ per base unit of DAO token. Until $4$ days before the closing time when there will be a constant price of $0.015 \: \Xi_c$ per base unit of DAO token.
 
 Price increases during the initial funding period could lead to a situation where a single contributor, having bought tokens during the initial price, could split the DAO immediately after the sale ends, thereby receiving more ether than they put in due to other contributors paying a higher price (\cite{GriffDiscussion}).
 In order to avoid that possibility, all ether that is payed above the initial price of the token, will be sent to an extra account. Denoted as \verb|extraBalance| in \ref{app:TokenSale}. This money can be sent back to the DAO through a proposal after the DAO has spent at least this amount of ether.
@@ -230,7 +230,7 @@ The map \verb|weiGiven| stores the amount of wei given by each contributor durin
 
 The constructor \verb|TokenSale| initiates the token sale with the arguments \verb|minValue|, \verb|closingtime| and \verb|privateSale|, which will be set in the constructor of the DAO contract (\ref{app:DAO}) which is only executed once, when the DAO is deployed. 
 
-The function \verb|buyTokenProxy| creates one unit of the DAO token’s minimum denomination for every wei sent. The price is calculated as $$\Xi_c \cdot 20 / \text{divisor}$$ Here $\Xi_c$ is the amount of wei given in order to purchase tokens, and \verb|divisor| is calculated depending on the time as described in section \ref{TokenPrice}.
+The function \verb|buyTokenProxy| creates one unit of the DAO token’s minimum denomination for every wei sent. The price is calculated as $$\Xi_c \cdot 20 / \text{divisor}$$ Here $\Xi_c$ is the amount of wei given in order to purchase tokens, and \verb|divisor| is calculated depending on the time: $P(t) \cdot 200$ , as described in section \ref{TokenPrice}.
 
 The parameter \verb|tokenHolder| defines the receiver of the newly minted tokens. 
 
