@@ -560,7 +560,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             // Call depth limit reached, etc.
             if (address(p.splitData[0].newDAO) == 0)
                 throw;
-            // p.proposalDeposit should be zero here
+            // should never happen
             if (this.balance < sumOfProposalDeposits)
                 throw;
             p.splitData[0].splitBalance = this.balance - sumOfProposalDeposits;
