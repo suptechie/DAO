@@ -491,6 +491,9 @@ contract DAO is DAOInterface, Token, TokenSale {
             return;
         }
 
+        if (p.amount > this.balance - sumOfProposalDeposits)
+            throw;
+
         uint quorum = p.yea + p.nay;
 
         // Execute result
@@ -554,7 +557,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             if (address(p.splitData[0].newDAO) == 0)
                 throw;
             // p.proposalDeposit should be zero here
-            if (this.balance < p.proposalDeposit)
+            if (this.balance < sumOfProposalDeposits)
                 throw;
             p.splitData[0].splitBalance = this.balance - sumOfProposalDeposits;
             p.splitData[0].rewardToken = rewardToken[address(this)];
