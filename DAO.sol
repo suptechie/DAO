@@ -399,6 +399,10 @@ contract DAO is DAOInterface, Token, TokenSale {
         if (now + _debatingPeriod < now) // prevents overflow
             throw;
 
+        // to prevent a 51% attacker to convert the ether into deposit
+        if (msg.sender == address(this))
+            throw;
+
         _proposalID = proposals.length++;
         Proposal p = proposals[_proposalID];
         p.recipient = _recipient;
