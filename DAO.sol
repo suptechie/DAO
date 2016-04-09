@@ -566,19 +566,26 @@ contract DAO is DAOInterface, Token, TokenSale {
         uint rewardTokenToBeMoved =
             (balances[msg.sender] * p.splitData[0].rewardToken) /
             p.splitData[0].totalSupply;
+
+        uint paidOutToBeMoved = DAOpaidOut[address(this)] * rewardTokenToBeMoved /
+            rewardToken[address(this)];
+
         rewardToken[address(p.splitData[0].newDAO)] += rewardTokenToBeMoved;
         if (rewardToken[address(this)] < rewardTokenToBeMoved)
             throw;
         rewardToken[address(this)] -= rewardTokenToBeMoved;
+
+        DAOpaidOut[address(p.splitData[0].newDAO)] += paidOutToBeMoved;
+        if (DAOpaidOut[address(this)] < paidOutToBeMoved)
+            throw;
+        DAOpaidOut[address(this)] -= paidOutToBeMoved;
 
         // Burn DAO Tokens
         Transfer(msg.sender, 0, balances[msg.sender]);
         withdrawRewardFor(msg.sender); // be nice, and get his rewards
         totalSupply -= balances[msg.sender];
         balances[msg.sender] = 0;
-        paidOut[address(p.splitData[0].newDAO)] += paidOut[msg.sender];
         paidOut[msg.sender] = 0;
-
         return true;
     }
 
@@ -597,6 +604,11 @@ contract DAO is DAOInterface, Token, TokenSale {
 
     function retrieveDAOReward(bool _toMembers) external noEther returns (bool _success) {
         DAO dao = DAO(msg.sender);
+
+        if ((rewardToken[msg.sender] * DAOrewardAccount.accumulatedInput()) /
+            totalRewardToken < DAOpaidOut[msg.sender])
+            throw;
+
         uint reward =
             (rewardToken[msg.sender] * DAOrewardAccount.accumulatedInput()) /
             totalRewardToken - DAOpaidOut[msg.sender];
@@ -618,6 +630,9 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function withdrawRewardFor(address _account) noEther internal returns (bool _success) {
+        if ((balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply < paidOut[_account])
+            throw;
+
         uint reward =
             (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply - paidOut[_account];
         if (!rewardAccount.payOut(_account, reward))
@@ -745,7 +760,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         return proposals.length - 1;
     }
 
-	function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO) {
+    function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO) {
         return proposals[_proposalID].splitData[0].newDAO;
     }
 
