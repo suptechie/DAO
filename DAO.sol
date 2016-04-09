@@ -495,7 +495,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             return;
         }
 
-        if (p.amount > this.balance - sumOfProposalDeposits)
+        if (p.amount > actualBalance())
             throw;
 
         uint quorum = p.yea + p.nay;
@@ -563,7 +563,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             // should never happen
             if (this.balance < sumOfProposalDeposits)
                 throw;
-            p.splitData[0].splitBalance = this.balance - sumOfProposalDeposits;
+            p.splitData[0].splitBalance = actualBalance();
             p.splitData[0].rewardToken = rewardToken[address(this)];
             p.splitData[0].totalSupply = totalSupply;
             p.proposalPassed = true;
@@ -705,7 +705,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function changeProposalDeposit(uint _proposalDeposit) noEther external {
-        if (msg.sender != address(this) || _proposalDeposit > this.balance / 10)
+        if (msg.sender != address(this) || _proposalDeposit > actualBalance() / 10)
             throw;
         proposalDeposit = _proposalDeposit;
     }
@@ -730,11 +730,15 @@ contract DAO is DAOInterface, Token, TokenSale {
             return false;
     }
 
+    function actualBalance() internal constant returns (uint _actualBalance) {
+        return this.balance - sumOfProposalDeposits;
+    }
+
 
     function minQuorum(uint _value) internal constant returns (uint _minQuorum) {
         // minimum of 20% and maximum of 53.33%
         return totalSupply / minQuorumDivisor +
-            (_value * totalSupply) / (3 * (this.balance + totalRewardToken));
+            (_value * totalSupply) / (3 * (actualBalance() + totalRewardToken));
     }
 
 
