@@ -64,7 +64,7 @@ contract DAOInterface {
     mapping (address => uint) public blocked;
 
     // The minimum deposit (in wei) required to submit any proposal that is not
-    // requesting a new service provider (no deposit is required for splits)
+    // requesting a new Curator (no deposit is required for splits)
     uint public proposalDeposit;
 
     // the accumulated sum of all current proposal deposits
@@ -79,7 +79,7 @@ contract DAOInterface {
     // A proposal with `newCurators == true` represents a DAO split
     struct Proposal {
         // The address where the `amount` will go to if the proposal is accepted
-        // or if `newCurators` is true, the proposed service provider of
+        // or if `newCurators` is true, the proposed Curator of
         // the new DAO).
         address recipient;
         // The amount to transfer to `recipient` if the proposal is accepted.
@@ -98,11 +98,11 @@ contract DAOInterface {
         // Deposit in wei the creator added when submitting their proposal. It
         // is taken from the msg.value of a newProposal call.
         uint proposalDeposit;
-        // True if this proposal is to assign a new service provider
+        // True if this proposal is to assign a new Curator
         bool newCurators;
         // Data needed for splitting the DAO
         SplitData[] splitData;
-        // Number of Tokens in favour of the proposal
+        // Number of Tokens in favor of the proposal
         uint yea;
         // Number of Tokens opposed to the proposal
         uint nay;
@@ -114,7 +114,7 @@ contract DAOInterface {
         address creator;
     }
 
-    // Used only in the case of a newCurators porposal.
+    // Used only in the case of a newCurators proposal.
     struct SplitData {
         // The balance of the current DAO minus the deposit at the time of split
         uint splitBalance;
@@ -129,14 +129,14 @@ contract DAOInterface {
     // Used to restrict access to certain functions to only DAO Token Holders
     modifier onlyTokenholders {}
 
-    /// @dev Constructor setting the default service provider and the address
+    /// @dev Constructor setting the default Curator and the address
     /// for the contract able to create another DAO as well as the parameters
     /// for the DAO Token Sale
-    /// @param _defaultServiceProvider The default service provider
+    /// @param _defaultServiceProvider The Curator
     /// @param _daoCreator The contract able to (re)create this DAO
     /// @param _proposalDeposit The deposit to be paid for a regular proposal
     /// @param _minValue Minimal value for a successful DAO Token Sale
-    /// @param _closingTime Date (in unix time) of the end of the DAO Token Sale
+    /// @param _closingTime Date (in Unix time) of the end of the DAO Token Sale
     /// @param _privateSale If zero the DAO Token Sale is open to public, a
     /// non-zero address means that the DAO Token Sale is only for the address
     // This is the constructor: it can not be overloaded so it is commented out
@@ -154,7 +154,7 @@ contract DAOInterface {
     function () returns (bool success);
 
 
-    /// @dev This function is used by the service provider to send money back
+    /// @dev This function is used to send money back
     /// to the DAO, it can also be used to receive payments that should not be
     /// counted as rewards (donations, grants, etc.)
     /// @return Whether the DAO received the ether successfully
@@ -163,15 +163,15 @@ contract DAOInterface {
     /// @notice `msg.sender` creates a proposal to send `_amount` Wei to
     /// `_recipient` with the transaction data `_transactionData`. If
     /// `_newCurators` is true, then this is a proposal that splits the
-    /// DAO and sets `_recipient` as the new DAO's service provider.
+    /// DAO and sets `_recipient` as the new DAO's Curator.
     /// @param _recipient Address of the recipient of the proposed transaction
     /// @param _amount Amount of wei to be sent with the proposed transaction
     /// @param _description String describing the proposal
     /// @param _transactionData Data of the proposed transaction
     /// @param _debatingPeriod Time used for debating a proposal, at least 2
-    /// weeks for a regular proposal, 10 days for new service provider proposal
+    /// weeks for a regular proposal, 10 days for new Curator proposal
     /// @param _newCurators Bool defining whether this proposal is about
-    /// a new service provider or not
+    /// a new Curator or not
     /// @return The proposal ID. Needed for voting on the proposal
     function newProposal(
         address _recipient,
@@ -218,12 +218,12 @@ contract DAOInterface {
     ) returns (bool _success);
 
     /// @notice ATTENTION! I confirm to move my remaining funds to a new DAO
-    /// with `_newCurators` as the new service provider, as has been
+    /// with `_newCurators` as the new Curator, as has been
     /// proposed in proposal `_proposalID`. This will burn my tokens. This can
     /// not be undone and will split the DAO into two DAO's, with two
     /// different underlying tokens.
     /// @param _proposalID The proposal ID
-    /// @param _newCurators The new service provider of the new DAO
+    /// @param _newCurators The new Curator of the new DAO
     /// @dev This function, when called for the first time for this proposal,
     /// will create a new DAO and send the sender's portion of the remaining
     /// ether and Reward Tokens to the new DAO. It will also burn the DAO Tokens
@@ -235,7 +235,7 @@ contract DAOInterface {
 
     /// @dev can only be called by the DAO itself through a proposal
     /// updates the contract of the DAO by sending all funds and rewardTokens
-    /// to the new DAO. The new DAO needs to be approved by the service provider
+    /// to the new DAO. The new DAO needs to be approved by the Curator
     /// @param _newContract the address of the new contract
     function newContract(address _newContract);
 
@@ -243,7 +243,7 @@ contract DAOInterface {
     /// @notice Add a new possible recipient `_recipient` to the whitelist so
     /// that the DAO can send transactions to them (using proposals)
     /// @param _recipient New recipient address
-    /// @dev Can only be called by the current service provider
+    /// @dev Can only be called by the current Curator
     /// @return Whether successful or not
     function changeAllowedRecipients(address _recipient, bool _allowed) external returns (bool _success);
 
@@ -567,9 +567,9 @@ contract DAO is DAOInterface, Token, TokenSale {
         if (now < p.votingDeadline  // has the voting deadline arrived?
             //The request for a split expires 27 days after the voting deadline
             || now > p.votingDeadline + 27 days
-            // Does the new service provider address match?
+            // Does the new Curator address match?
             || p.recipient != _newCurators
-            // Is it a new service provider proposal?
+            // Is it a new Curator proposal?
             || !p.newCurators
             // Have you voted for this split?
             || !p.votedYes[msg.sender]
