@@ -75,12 +75,12 @@ contract DAOInterface {
     // this one), used for splits
     DAO_Creator public daoCreator;
 
-    // A proposal with `newServiceProvider == false` represents a transaction
+    // A proposal with `newCurators == false` represents a transaction
     // to be issued by this DAO
-    // A proposal with `newServiceProvider == true` represents a DAO split
+    // A proposal with `newCurators == true` represents a DAO split
     struct Proposal {
         // The address where the `amount` will go to if the proposal is accepted
-        // or if `newServiceProvider` is true, the proposed service provider of
+        // or if `newCurators` is true, the proposed service provider of
         // the new DAO).
         address recipient;
         // The amount to transfer to `recipient` if the proposal is accepted.
@@ -100,7 +100,7 @@ contract DAOInterface {
         // is taken from the msg.value of a newProposal call.
         uint proposalDeposit;
         // True if this proposal is to assign a new service provider
-        bool newServiceProvider;
+        bool newCurators;
         // Data needed for splitting the DAO
         SplitData[] splitData;
         // Number of Tokens in favour of the proposal
@@ -115,7 +115,7 @@ contract DAOInterface {
         address creator;
     }
 
-    // Used only in the case of a newServiceProvider porposal.
+    // Used only in the case of a newCurators porposal.
     struct SplitData {
         // The balance of the current DAO minus the deposit at the time of split
         uint splitBalance;
@@ -163,7 +163,7 @@ contract DAOInterface {
 
     /// @notice `msg.sender` creates a proposal to send `_amount` Wei to
     /// `_recipient` with the transaction data `_transactionData`. If
-    /// `_newServiceProvider` is true, then this is a proposal that splits the
+    /// `_newCurators` is true, then this is a proposal that splits the
     /// DAO and sets `_recipient` as the new DAO's service provider.
     /// @param _recipient Address of the recipient of the proposed transaction
     /// @param _amount Amount of wei to be sent with the proposed transaction
@@ -171,7 +171,7 @@ contract DAOInterface {
     /// @param _transactionData Data of the proposed transaction
     /// @param _debatingPeriod Time used for debating a proposal, at least 2
     /// weeks for a regular proposal, 10 days for new service provider proposal
-    /// @param _newServiceProvider Bool defining whether this proposal is about
+    /// @param _newCurators Bool defining whether this proposal is about
     /// a new service provider or not
     /// @return The proposal ID. Needed for voting on the proposal
     function newProposal(
@@ -180,7 +180,7 @@ contract DAOInterface {
         string _description,
         bytes _transactionData,
         uint _debatingPeriod,
-        bool _newServiceProvider
+        bool _newCurators
     ) onlyTokenholders returns (uint _proposalID);
 
     /// @notice Check that the proposal with the ID `_proposalID` matches the
@@ -219,19 +219,19 @@ contract DAOInterface {
     ) returns (bool _success);
 
     /// @notice ATTENTION! I confirm to move my remaining funds to a new DAO
-    /// with `_newServiceProvider` as the new service provider, as has been
+    /// with `_newCurators` as the new service provider, as has been
     /// proposed in proposal `_proposalID`. This will burn my tokens. This can
     /// not be undone and will split the DAO into two DAO's, with two
     /// different underlying tokens.
     /// @param _proposalID The proposal ID
-    /// @param _newServiceProvider The new service provider of the new DAO
+    /// @param _newCurators The new service provider of the new DAO
     /// @dev This function, when called for the first time for this proposal,
     /// will create a new DAO and send the sender's portion of the remaining
     /// ether and Reward Tokens to the new DAO. It will also burn the DAO Tokens
     /// of the sender. (TODO: document rewardTokens - done??)
     function splitDAO(
         uint _proposalID,
-        address _newServiceProvider
+        address _newCurators
     ) returns (bool _success);
 
     /// @dev can only be called by the DAO itself through a proposal
@@ -309,12 +309,12 @@ contract DAOInterface {
         uint indexed proposalID,
         address recipient,
         uint amount,
-        bool newServiceProvider,
+        bool newCurators,
         string description
     );
     event Voted(uint indexed proposalID, bool position, address indexed voter);
     event ProposalTallied(uint indexed proposalID, bool result, uint quorum);
-    event NewServiceProvider(address indexed _newServiceProvider);
+    event newCurators(address indexed _newCurators);
     event AllowedRecipientAdded(address indexed _recipient);
 }
 
@@ -371,11 +371,11 @@ contract DAO is DAOInterface, Token, TokenSale {
         string _description,
         bytes _transactionData,
         uint _debatingPeriod,
-        bool _newServiceProvider
+        bool _newCurators
     ) onlyTokenholders returns (uint _proposalID) {
 
         // Sanity check
-        if (_newServiceProvider && (
+        if (_newCurators && (
             _amount != 0
             || _transactionData.length != 0
             || _recipient == curators
@@ -383,7 +383,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             || _debatingPeriod < 1 weeks)) {
             throw;
         } else if(
-            !_newServiceProvider
+            !_newCurators
             && (!isRecipientAllowed(_recipient) || (_debatingPeriod < 2 weeks))
         ) {
             throw;
@@ -391,7 +391,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
         if (!isFunded
             || now < closingTime
-            || (msg.value < proposalDeposit && !_newServiceProvider)) {
+            || (msg.value < proposalDeposit && !_newCurators)) {
 
             throw;
         }
@@ -412,8 +412,8 @@ contract DAO is DAOInterface, Token, TokenSale {
         p.votingDeadline = now + _debatingPeriod;
         p.open = true;
         //p.proposalPassed = False; // that's default
-        p.newServiceProvider = _newServiceProvider;
-        if (_newServiceProvider)
+        p.newCurators = _newCurators;
+        if (_newCurators)
             p.splitData.length++;
         p.creator = msg.sender;
         p.proposalDeposit = msg.value;
@@ -424,7 +424,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             _proposalID,
             _recipient,
             _amount,
-            _newServiceProvider,
+            _newCurators,
             _description
         );
     }
@@ -490,7 +490,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             throw;
         }
 
-        if (p.newServiceProvider && now > p.votingDeadline + 28) {
+        if (p.newCurators && now > p.votingDeadline + 28) {
             p.open = false;
             return;
         }
@@ -539,7 +539,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
     function splitDAO(
         uint _proposalID,
-        address _newServiceProvider
+        address _newCurators
     ) noEther onlyTokenholders returns (bool _success) {
 
         Proposal p = proposals[_proposalID];
@@ -550,9 +550,9 @@ contract DAO is DAOInterface, Token, TokenSale {
             //The request for a split expires 41 days after the voting deadline
             || now > p.votingDeadline + 27 days
             // Does the new service provider address match?
-            || p.recipient != _newServiceProvider
+            || p.recipient != _newCurators
             // Is it a new service provider proposal?
-            || !p.newServiceProvider
+            || !p.newCurators
             // Have you voted for this split?
             || !p.votedYes[msg.sender]
             // Did you already vote on another proposal?
@@ -564,7 +564,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         // If the new DAO doesn't exist yet, create the new DAO and store the
         // current split data
         if (address(p.splitData[0].newDAO) == 0) {
-            p.splitData[0].newDAO = createNewDAO(_newServiceProvider);
+            p.splitData[0].newDAO = createNewDAO(_newCurators);
             // Call depth limit reached, etc.
             if (address(p.splitData[0].newDAO) == 0)
                 throw;
@@ -778,9 +778,9 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
 
-    function createNewDAO(address _newServiceProvider) internal returns (DAO _newDAO) {
-        NewServiceProvider(_newServiceProvider);
-        return daoCreator.createDAO(_newServiceProvider, 0, 0, now + 28 days);
+    function createNewDAO(address _newCurators) internal returns (DAO _newDAO) {
+        newCurators(_newCurators);
+        return daoCreator.createDAO(_newCurators, 0, 0, now + 28 days);
     }
 
 
