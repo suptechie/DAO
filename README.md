@@ -30,7 +30,7 @@ A very active community can be found on  [slack](http://slack.slock.it:3000)
 
 Our generic DAO code allows people to create self-governing, decentralized autonomous organizations governed by software code with instructions written immutably to the blockchain.
 
-We are making the generic DAO model we developed free and open source, so it can be reused by anyone wishing to put together a transparent organization where governance and decision making system are immutably programmed in the Blockchain. This code been reviewed by hundreds of pairs of eyes from our community and by one of the most respected auditing company in the world, Deja Vu.
+We are making the generic DAO model we developed free and open source, so it can be reused by anyone wishing to put together a transparent organization where governance and decision making systems are immutably programmed in the Blockchain. This code been reviewed by hundreds of pairs of eyes from our community and by one of the most respected auditing companies in the world, Deja Vu.
 
 This DAO model is open source under the LGPL, so it can be reused by anyone wishing to put together a transparent organization where governance and decision making system are immutably programmed in the Blockchain.
 
