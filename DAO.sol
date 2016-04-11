@@ -361,7 +361,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             throw;
         lastTimeMinQuorumMet = now;
         minQuorumDivisor = 5; // sets the minimal quorum to 20%
-        proposals.length++; // avoids a proposal with ID 0 because it is used
+        proposals.length = 1; // avoids a proposal with ID 0 because it is used
 
         allowedRecipients[address(this)] = true;
     }
