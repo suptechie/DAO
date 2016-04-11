@@ -245,7 +245,9 @@ contract DAOInterface {
     /// that the DAO can send transactions to them (using proposals)
     /// @param _recipient New recipient address
     /// @dev Can only be called by the current service provider
-    function addAllowedAddress(address _recipient) external returns (bool _success);
+    /// @return Whether successful or not
+    function changeAllowedRecipients(address _recipient, bool _allowed) external returns (bool _success);
+
 
     /// @notice Change the minimum deposit required to submit a proposal
     /// @param _proposalDeposit The new proposal deposit
