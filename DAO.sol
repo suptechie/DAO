@@ -490,13 +490,21 @@ contract DAO is DAOInterface, Token, TokenSale {
             throw;
         }
 
-        if (p.newServiceProvider) {
+        if (p.newServiceProvider && now > p.votingDeadline + 28) {
             p.open = false;
             return;
         }
 
         if (p.amount > actualBalance())
             throw;
+
+        if (!allowedRecipients[p.recipient]) {
+            p.open = false;
+            if (!p.creator.send(p.proposalDeposit))
+                throw;
+            sumOfProposalDeposits -= p.proposalDeposit;
+            return;
+        }
 
         uint quorum = p.yea + p.nay;
 
@@ -540,7 +548,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
         if (now < p.votingDeadline  // has the voting deadline arrived?
             //The request for a split expires 41 days after the voting deadline
-            || now > p.votingDeadline + 41 days
+            || now > p.votingDeadline + 27 days
             // Does the new service provider address match?
             || p.recipient != _newServiceProvider
             // Is it a new service provider proposal?
@@ -728,10 +736,10 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
 
-    function addAllowedAddress(address _recipient) noEther external returns (bool _success) {
+    function changeAllowedRecipients(address _recipient, bool _allowed) noEther external returns (bool _success) {
         if (msg.sender != guardian)
             throw;
-        allowedRecipients[_recipient] = true;
+        allowedRecipients[_recipient] = _allowed;
         return true;
     }
 
@@ -772,7 +780,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
     function createNewDAO(address _newServiceProvider) internal returns (DAO _newDAO) {
         NewServiceProvider(_newServiceProvider);
-        return daoCreator.createDAO(_newServiceProvider, 0, 0, now + 42 days);
+        return daoCreator.createDAO(_newServiceProvider, 0, 0, now + 28 days);
     }
 
 
