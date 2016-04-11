@@ -26,6 +26,18 @@ import "./ManagedAccount.sol";
 
 contract DAOInterface {
 
+    // The amount of days for which people who try to participate in the sale
+    // by calling the fallback function will still get their money back
+    uint constant saleGracePeriod = 40 days;
+    // The minimum debate period that a generic proposal can have
+    uint constant minProposalDebatePeriod = 2 weeks;
+    // The minimum debate period that a split proposal can have
+    uint constant minSplitDebatePeriod = 1 weeks;
+    // Period of days inside which it's possible to execute a DAO split
+    uint constant splitExecutionPeriod = 27 days;
+    // Period of time after which the minimum Quorum is halved
+    uint constant quorumHalvingPeriod = 52 weeks;
+
     // Proposals to spend the DAO's ether or to choose a new service provider
     Proposal[] public proposals;
     // The quorum needed for each proposal is partially calculated by
@@ -355,7 +367,7 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
     function () returns (bool success) {
-        if (now < closingTime + 40 days)
+        if (now < closingTime + saleGracePeriod)
             return buyTokenProxy(msg.sender);
         else
             return receiveEther();
@@ -382,11 +394,11 @@ contract DAO is DAOInterface, Token, TokenSale {
             || _transactionData.length != 0
             || _recipient == curators
             || msg.value > 0
-            || _debatingPeriod < 1 weeks)) {
+            || _debatingPeriod < minSplitDebatePeriod)) {
             throw;
         } else if(
             !_newCurators
-            && (!isRecipientAllowed(_recipient) || (_debatingPeriod < 2 weeks))
+            && (!isRecipientAllowed(_recipient) || (_debatingPeriod <  minProposalDebatePeriod))
         ) {
             throw;
         }
@@ -496,7 +508,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         }
 
         if (p.newCurators) {
-            if (now > p.votingDeadline + 28) {
+            if (now > p.votingDeadline + splitExecutionPeriod) {
                 p.open = false;
             }
             return;
@@ -566,8 +578,8 @@ contract DAO is DAOInterface, Token, TokenSale {
         // Sanity check
 
         if (now < p.votingDeadline  // has the voting deadline arrived?
-            //The request for a split expires 27 days after the voting deadline
-            || now > p.votingDeadline + 27 days
+            //The request for a split expires XX days after the voting deadline
+            || now > p.votingDeadline + splitExecutionPeriod
             // Does the new service provider address match?
             || p.recipient != _newCurators
             // Is it a new service provider proposal?
@@ -787,7 +799,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function halveMinQuorum() returns (bool _success) {
-        if (lastTimeMinQuorumMet < (now - 52 weeks)) {
+        if (lastTimeMinQuorumMet < (now - quorumHalvingPeriod)) {
             lastTimeMinQuorumMet = now;
             minQuorumDivisor *= 2;
             return true;
@@ -799,7 +811,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
     function createNewDAO(address _newCurators) internal returns (DAO _newDAO) {
         NewCurators(_newCurators);
-        return daoCreator.createDAO(_newCurators, 0, 0, now + 28 days);
+        return daoCreator.createDAO(_newCurators, 0, 0, now + splitExecutionPeriod);
     }
 
 
