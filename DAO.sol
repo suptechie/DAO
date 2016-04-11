@@ -132,7 +132,7 @@ contract DAOInterface {
     /// @dev Constructor setting the default Curator and the address
     /// for the contract able to create another DAO as well as the parameters
     /// for the DAO Token Sale
-    /// @param _defaultServiceProvider The Curator
+    /// @param _curator The Curator
     /// @param _daoCreator The contract able to (re)create this DAO
     /// @param _proposalDeposit The deposit to be paid for a regular proposal
     /// @param _minValue Minimal value for a successful DAO Token Sale
@@ -141,7 +141,7 @@ contract DAOInterface {
     /// non-zero address means that the DAO Token Sale is only for the address
     // This is the constructor: it can not be overloaded so it is commented out
     //  function DAO(
-        //  address _defaultServiceProvider,
+        //  address _curator,
         //  DAO_Creator _daoCreator,
         //  uint _proposalDeposit,
         //  uint _minValue,
@@ -827,14 +827,14 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 contract DAO_Creator {
     function createDAO(
-        address _defaultServiceProvider,
+        address _curator,
         uint _proposalDeposit,
         uint _minValue,
         uint _closingTime
     ) returns (DAO _newDAO) {
 
         return new DAO(
-            _defaultServiceProvider,
+            _curator,
             DAO_Creator(this),
             _proposalDeposit,
             _minValue,
