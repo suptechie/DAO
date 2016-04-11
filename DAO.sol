@@ -34,8 +34,8 @@ contract DAOInterface {
     // The unix time of the last time quorum was reached on a proposal
     uint lastTimeMinQuorumMet;
 
-    // Address of the guardian
-    address public guardian;
+    // Address of the curators
+    address public curators;
     // The whitelist: List of addresses the DAO is allowed to send money to
     mapping (address => bool) public allowedRecipients;
 
@@ -295,7 +295,7 @@ contract DAOInterface {
     /// @return total number of proposals ever created
     function numberOfProposals() constant returns (uint _numberOfProposals);
 
-    /// @param _proposalID Id of the new guardian proposal
+    /// @param _proposalID Id of the new curators proposal
     /// @return Address of the new DAO
     function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO);
 
@@ -328,7 +328,7 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
     function DAO(
-        address _defaultGuardian,
+        address _defaultCurators,
         DAO_Creator _daoCreator,
         uint _proposalDeposit,
         uint _minValue,
@@ -336,7 +336,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         address _privateSale
     ) TokenSale(_minValue, _closingTime, _privateSale) {
 
-        guardian = _defaultGuardian;
+        curators = _defaultCurators;
         daoCreator = _daoCreator;
         proposalDeposit = _proposalDeposit;
         rewardAccount = new ManagedAccount(address(this));
@@ -378,7 +378,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         if (_newServiceProvider && (
             _amount != 0
             || _transactionData.length != 0
-            || _recipient == guardian
+            || _recipient == curators
             || msg.value > 0
             || _debatingPeriod < 1 weeks)) {
             throw;
@@ -737,7 +737,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function changeAllowedRecipients(address _recipient, bool _allowed) noEther external returns (bool _success) {
-        if (msg.sender != guardian)
+        if (msg.sender != curators)
             throw;
         allowedRecipients[_recipient] = _allowed;
         return true;
