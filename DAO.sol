@@ -490,8 +490,10 @@ contract DAO is DAOInterface, Token, TokenSale {
             throw;
         }
 
-        if (p.newCurators && now > p.votingDeadline + 28) {
-            p.open = false;
+        if (p.newCurators) {
+            if (now > p.votingDeadline + 28) {
+                p.open = false;
+            }
             return;
         }
 
