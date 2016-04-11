@@ -549,7 +549,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         // Sanity check
 
         if (now < p.votingDeadline  // has the voting deadline arrived?
-            //The request for a split expires 41 days after the voting deadline
+            //The request for a split expires 27 days after the voting deadline
             || now > p.votingDeadline + 27 days
             // Does the new service provider address match?
             || p.recipient != _newCurators
