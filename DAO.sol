@@ -500,6 +500,8 @@ contract DAO is DAOInterface, Token, TokenSale {
         if (p.amount > actualBalance())
             throw;
 
+        // If the curators removed the recipient from the whitelist, close the proposal
+        // in order to free the deposit and allow unblocking of voters
         if (!allowedRecipients[p.recipient]) {
             p.open = false;
             if (!p.creator.send(p.proposalDeposit))
