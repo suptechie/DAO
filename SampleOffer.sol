@@ -17,7 +17,7 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /* 
-Sample Proposal from a Service Provider to the DAO. 
+Sample Proposal from a Contractor to the DAO. 
 Feel free to use as a template for your own proposal.
 */
 
@@ -114,7 +114,7 @@ contract SampleOffer {
 
     function setDeploymentFee(uint _deploymentReward) callingRestriction {
         if (deploymentReward > 10 ether)
-            throw; // TODO, set a max defined by service provider, or ideally oracle (set in euro)
+            throw; // TODO, set a max defined by Curator, or ideally oracle (set in euro)
         deploymentReward = _deploymentReward;
     }
 
