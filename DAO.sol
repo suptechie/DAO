@@ -607,7 +607,9 @@ contract DAO is DAOInterface, Token, TokenSale {
     function newContract(address _newContract){
         if (msg.sender != address(this) || !allowedRecipients[_newContract]) return;
         // move all funds
-        _newContract.call.value(address(this).balance)();
+        if (!_newContract.call.value(address(this).balance)()) {
+            throw;
+        }
 
         //move all reward tokens
         rewardToken[_newContract] += rewardToken[address(this)];
