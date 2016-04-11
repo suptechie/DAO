@@ -15,7 +15,9 @@ You should have received a copy of the GNU lesser General Public License
 along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Sample Proposal from the Service Provider to the DAO
+// Sample Proposal from a Service Provider to the DAO. 
+// Feel free to use as a template for your own proposal.
+
 
 import "./DAO.sol";
 
@@ -27,7 +29,7 @@ contract SampleOffer {
 
 
     address serviceProvider;
-    bytes32 hashOfTheContract;
+    bytes32 hashOfTheTerms;
     uint minDailyCosts;
     uint paidOut;
 
@@ -56,7 +58,7 @@ contract SampleOffer {
 
     function SampleOffer(
         address _serviceProvider,
-        bytes32 _hashOfTheContract,
+        bytes32 _hashOfTheTerms,
         uint _totalCosts,
         uint _oneTimeCosts,
         uint _minDailyCosts,
@@ -64,7 +66,7 @@ contract SampleOffer {
         uint _deploymentReward
     ) {
         serviceProvider = _serviceProvider;
-        hashOfTheContract = _hashOfTheContract;
+        hashOfTheTerms = _hashOfTheTerms;
         totalCosts = _totalCosts;
         oneTimeCosts = _oneTimeCosts;
         minDailyCosts = _minDailyCosts;
@@ -114,7 +116,7 @@ contract SampleOffer {
         deploymentReward = _deploymentReward;
     }
 
-    // interface for Slocks
+    // interface for Ethereum Computer
     function payOneTimeReward() returns(bool) {
         if (msg.value < deploymentReward)
             throw;
