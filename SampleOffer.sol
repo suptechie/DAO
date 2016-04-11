@@ -15,9 +15,11 @@ You should have received a copy of the GNU lesser General Public License
 along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Sample Proposal from a Service Provider to the DAO. 
-// Feel free to use as a template for your own proposal.
 
+/* 
+Sample Proposal from a Service Provider to the DAO. 
+Feel free to use as a template for your own proposal.
+*/
 
 import "./DAO.sol";
 
