@@ -129,7 +129,7 @@ contract DAOInterface {
     // Used to restrict access to certain functions to only DAO Token Holders
     modifier onlyTokenholders {}
 
-    /// @dev Constructor setting the default Curator and the address
+    /// @dev Constructor setting the Curator and the address
     /// for the contract able to create another DAO as well as the parameters
     /// for the DAO Token Sale
     /// @param _curator The Curator
@@ -329,7 +329,7 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
     function DAO(
-        address _defaultCurator,
+        address _curator,
         DAO_Creator _daoCreator,
         uint _proposalDeposit,
         uint _minValue,
@@ -337,7 +337,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         address _privateSale
     ) TokenSale(_minValue, _closingTime, _privateSale) {
 
-        curator = _defaultCurator;
+        curator = _curator;
         daoCreator = _daoCreator;
         proposalDeposit = _proposalDeposit;
         rewardAccount = new ManagedAccount(address(this));
