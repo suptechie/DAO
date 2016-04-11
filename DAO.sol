@@ -17,8 +17,7 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /*
-Generic contract for a Decentralized Autonomous Organization (DAO) to manage
-a trust
+Generic smart contract for a Decentralized Autonomous Organization (DAO) to automate organizational governance and decision-making.
 */
 
 import "./TokenSale.sol";
@@ -26,7 +25,7 @@ import "./ManagedAccount.sol";
 
 contract DAOInterface {
 
-    // Proposals to spend the DAO's ether or to choose a new service provider
+    // Proposals to spend the DAO's ether or to choose a new Curator
     Proposal[] public proposals;
     // The quorum needed for each proposal is partially calculated by
     // totalSupply / minQuorumDivisor
