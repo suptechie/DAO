@@ -314,7 +314,7 @@ contract DAOInterface {
     );
     event Voted(uint indexed proposalID, bool position, address indexed voter);
     event ProposalTallied(uint indexed proposalID, bool result, uint quorum);
-    event newCurators(address indexed _newCurators);
+    event NewCurators(address indexed _newCurators);
     event AllowedRecipientAdded(address indexed _recipient);
 }
 
@@ -783,7 +783,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function createNewDAO(address _newCurators) internal returns (DAO _newDAO) {
-        newCurators(_newCurators);
+        NewCurators(_newCurators);
         return daoCreator.createDAO(_newCurators, 0, 0, now + 28 days);
     }
 
