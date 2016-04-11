@@ -517,8 +517,18 @@ contract DAO is DAOInterface, Token, TokenSale {
 
         uint quorum = p.yea + p.nay;
 
+        // require 53% for calling newContract()
+        bool updateContractQuorumCheck = true;
+        if (_transactionData.length >= 4 && _transactionData[0] == 0x68
+            && _transactionData[1] == 0x37 && _transactionData[2] == 0xff
+            && _transactionData[3] == 0x1e
+            && quorum < minQuorum(actualBalance() + rewardToken[address(this)])) {
+
+                updateContractQuorumCheck = false;
+        }
+
         // Execute result
-        if (quorum >= minQuorum(p.amount) && p.yea > p.nay) {
+        if (quorum >= minQuorum(p.amount) && p.yea > p.nay && updateContractQuorumCheck) {
             if (!p.creator.send(p.proposalDeposit))
                 throw;
             // Without this throw, the creator of the proposal can repeat this,
@@ -530,7 +540,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             lastTimeMinQuorumMet = now;
             rewardToken[address(this)] += p.amount;
             totalRewardToken += p.amount;
-        } else if (quorum >= minQuorum(p.amount) && p.nay >= p.yea) {
+        } else if (quorum >= minQuorum(p.amount) && p.nay >= p.yea || !updateContractQuorumCheck) {
             if (!p.creator.send(p.proposalDeposit))
                 throw;
             lastTimeMinQuorumMet = now;
