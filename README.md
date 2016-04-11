@@ -53,7 +53,7 @@ Defines the functions to check token balances, send tokens, send tokens on behal
 Token Sale contract, used by the DAO to sell its tokens and initialize its ether.
 
 ### SampleOffer.sol
-Sample Proposal from a Service Provider to the DAO. Feel free to use as a template for your own proposal.
+Sample Proposal from a Contractor to the DAO. Feel free to use as a template for your own proposal.
 
 ### ManagedAccount.sol
 Basic account, used by the DAO contract to separately manage both the rewards and the extraBalance accounts. 
