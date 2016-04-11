@@ -391,6 +391,9 @@ contract DAO is DAOInterface, Token, TokenSale {
             throw;
         }
 
+        if (_debatingPeriod > 8 weeks)
+            throw;
+
         if (!isFunded
             || now < closingTime
             || (msg.value < proposalDeposit && !_newCurators)) {
