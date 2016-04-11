@@ -28,7 +28,7 @@ contract TokenSaleInterface {
 
     // End of token sale, in Unix time
     uint public closingTime;
-    // Minimum fueling goal of the token sale, denominated in tokens
+    // Minimum fueling goal of the token sale, denominated in ether
     uint public minValue;
     // True if the DAO reached its minimum fueling goal, false otherwise
     bool public isFunded;
