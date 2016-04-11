@@ -217,7 +217,7 @@ contract DAOInterface {
         bytes _transactionData
     ) returns (bool _success);
 
-    /// @notice ATTENTION! I confirm to move my remaining funds to a new DAO
+    /// @notice ATTENTION! I confirm to move my remaining ether to a new DAO
     /// with `_newCurator` as the new Curator, as has been
     /// proposed in proposal `_proposalID`. This will burn my tokens. This can
     /// not be undone and will split the DAO into two DAO's, with two
@@ -234,7 +234,7 @@ contract DAOInterface {
     ) returns (bool _success);
 
     /// @dev can only be called by the DAO itself through a proposal
-    /// updates the contract of the DAO by sending all funds and rewardTokens
+    /// updates the contract of the DAO by sending all ether and rewardTokens
     /// to the new DAO. The new DAO needs to be approved by the Curator
     /// @param _newContract the address of the new contract
     function newContract(address _newContract);
@@ -595,7 +595,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             p.proposalPassed = true;
         }
 
-        // Move funds and assign new Tokens
+        // Move ether and assign new Tokens
         uint fundsToBeMoved =
             (balances[msg.sender] * p.splitData[0].splitBalance) /
             p.splitData[0].totalSupply;
@@ -632,7 +632,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
     function newContract(address _newContract){
         if (msg.sender != address(this) || !allowedRecipients[_newContract]) return;
-        // move all funds
+        // move all ether
         if (!_newContract.call.value(address(this).balance)()) {
             throw;
         }
