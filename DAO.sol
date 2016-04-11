@@ -17,7 +17,7 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /*
-Generic contract for a Decentralized Autonomous Organisation (DAO) to manage
+Generic contract for a Decentralized Autonomous Organization (DAO) to manage
 a trust
 */
 
