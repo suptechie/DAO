@@ -16,6 +16,9 @@ tests/deposit.js
 tests/fund.js
 tests/fund_fail.js
 tests/fund_fail2.js
+tests/fuel.js
+tests/fuel_fail.js
+tests/fuel_fail2.js
 tests/proposal.js
 tests/accounts.js
 tests/rewards.js

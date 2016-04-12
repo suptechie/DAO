@@ -1,4 +1,4 @@
-var _defaultServiceProvider = web3.eth.accounts[0];
+var _curator = web3.eth.accounts[0];
 var daoContract = web3.eth.contract($dao_abi);
 console.log("Creating DAOCreator Contract");
 var creatorContract = web3.eth.contract($creator_abi);
@@ -14,7 +14,7 @@ var _daoCreatorContract = creatorContract.new(
         addToTest('dao_creator_address', contract.address);
         checkWork();
         var dao = daoContract.new(
-	        _defaultServiceProvider,
+	        _curator,
 	        contract.address,
             $default_proposal_deposit,
 	        web3.toWei($min_value, "ether"),
@@ -37,7 +37,7 @@ var _daoCreatorContract = creatorContract.new(
 checkWork();
 var offerContract = web3.eth.contract($offer_abi);
 var offer = offerContract.new(
-    _defaultServiceProvider, //service provider
+    _curator,
     '0x0',  // This is a hash of the paper contract. Does not matter for testing
     web3.toWei($offer_total, "ether"), //total costs
     web3.toWei($offer_onetime, "ether"), //one time costs

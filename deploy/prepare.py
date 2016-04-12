@@ -70,9 +70,9 @@ if __name__ == "__main__":
         help='If given then a version of DAO.sol without limits is compiled'
     )
     p.add_argument(
-        '--service-provider',
+        '--curator',
         default="0x08144824954c65b12f68b75072488e634ac4e67a",  # Griff testnet
-        help='Account to set as service provider'
+        help='Account to set as the curator'
     )
     p.add_argument(
         '--default-proposal-deposit',
@@ -96,7 +96,7 @@ if __name__ == "__main__":
         f.write("seconds_from_now = {};\n".format(
           args.sale_duration_mins * 60)
         )
-        f.write("service_provider = \"{}\";\n".format(args.service_provider))
+        f.write("curator = \"{}\";\n".format(args.curator))
         f.write("default_proposal_deposit = {};\n".format(
             args.default_proposal_deposit)
         )

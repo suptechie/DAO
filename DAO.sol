@@ -407,7 +407,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         if (_debatingPeriod > 8 weeks)
             throw;
 
-        if (!isFunded
+        if (!isFueled
             || now < closingTime
             || (msg.value < proposalDeposit && !_newCurator)) {
 
@@ -700,7 +700,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function transfer(address _to, uint256 _value) returns (bool success) {
-        if (isFunded
+        if (isFueled
             && now > closingTime
             && !isBlocked(msg.sender)
             && transferPaidOut(msg.sender, _to, _value)
@@ -721,7 +721,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
-        if (isFunded
+        if (isFueled
             && now > closingTime
             && !isBlocked(_from)
             && transferPaidOut(_from, _to, _value)

@@ -20,7 +20,7 @@ var _daoCreatorContract = creatorContract.new(
 	    } else if (typeof contract.address != 'undefined') {
             console.log("Creating the actual DAO");
             var dao = daoContract.new(
-	            service_provider,
+	            curator,
 	            contract.address,
                 web3.toWei(default_proposal_deposit, "ether"),
 	            web3.toWei(min_value, "ether"),

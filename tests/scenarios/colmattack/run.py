@@ -9,7 +9,7 @@ scenario_description = (
 
 
 def run(ctx):
-    ctx.assert_scenario_ran('fund')
+    ctx.assert_scenario_ran('fuel')
 
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,
@@ -22,6 +22,7 @@ def run(ctx):
     })
 
     ctx.execute(expected={
-        "final_diff": 0,  # should be 0, the attacker MUST NOT make any profit
-        "split_dao_total_supply": float(ctx.token_amounts[2])
+        "attacker_eth_balance_diff": 0,
+        "attacker_dao_balance_diff": 0,
+        "split_dao_total_supply": ctx.token_amounts[2]
     })

@@ -30,7 +30,7 @@ contract SampleOffer {
     uint dailyCosts;
 
 
-    address serviceProvider;
+    address contractor;
     bytes32 hashOfTheTerms;
     uint minDailyCosts;
     uint paidOut;
@@ -46,7 +46,7 @@ contract SampleOffer {
         if (promiseValid) {
             if (msg.sender != address(client))
                 throw;
-        } else if (msg.sender != serviceProvider) {
+        } else if (msg.sender != contractor) {
                 throw;
         }
         _
@@ -59,7 +59,7 @@ contract SampleOffer {
     }
 
     function SampleOffer(
-        address _serviceProvider,
+        address _contractor,
         bytes32 _hashOfTheTerms,
         uint _totalCosts,
         uint _oneTimeCosts,
@@ -67,7 +67,7 @@ contract SampleOffer {
         uint _rewardDivisor,
         uint _deploymentReward
     ) {
-        serviceProvider = _serviceProvider;
+        contractor = _contractor;
         hashOfTheTerms = _hashOfTheTerms;
         totalCosts = _totalCosts;
         oneTimeCosts = _oneTimeCosts;
@@ -80,7 +80,7 @@ contract SampleOffer {
     function sign() {
         if (msg.value < totalCosts && dateOfSignature != 0)
             throw;
-        if (!serviceProvider.send(oneTimeCosts))
+        if (!contractor.send(oneTimeCosts))
             throw;
         client = DAO(msg.sender);
         dateOfSignature = now;
@@ -99,10 +99,10 @@ contract SampleOffer {
     }
 
     function getDailyPayment() {
-        if (msg.sender != serviceProvider)
+        if (msg.sender != contractor)
             throw;
         uint amount = (now - dateOfSignature) / (1 days) * dailyCosts - paidOut;
-        if (serviceProvider.send(amount))
+        if (contractor.send(amount))
             paidOut += amount;
     }
 
@@ -129,7 +129,7 @@ contract SampleOffer {
                 throw;
             }
         } else {
-            if (serviceProvider.send(msg.value)) {
+            if (contractor.send(msg.value)) {
                 return true;
             } else {
                 throw;
@@ -146,7 +146,7 @@ contract SampleOffer {
                 throw;
             }
         } else {
-            if (serviceProvider.send(msg.value)) {
+            if (contractor.send(msg.value)) {
                 return true;
             } else {
                 throw;

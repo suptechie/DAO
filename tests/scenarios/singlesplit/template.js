@@ -1,18 +1,18 @@
 var dao = web3.eth.contract($dao_abi).at('$dao_address');
-var newServiceProvider = eth.accounts[1];
+var newCurator = eth.accounts[1];
 
 
 console.log("Our disgruntled user is creating proposal to change SP to itself...");
 var tx_hash = null;
 dao.newProposal.sendTransaction(
-    newServiceProvider, // new SP
+    newCurator,
     0,
     'eth.accounts[1] wants to split out',
     '',
     $debating_period,
     true,
     {
-        from: newServiceProvider,
+        from: newCurator,
         gas: 1000000
     }
     , function (e, res) {
@@ -48,8 +48,8 @@ setTimeout(function() {
     // now our disgruntled user is the only one to execute the splitDAO function
     dao.splitDAO.sendTransaction(
         prop_id,
-        newServiceProvider,
-        {from:newServiceProvider, gas: $split_gas}
+        newCurator,
+        {from:newCurator, gas: $split_gas}
     );
     checkWork();
     console.log("After split execution");
@@ -72,14 +72,14 @@ setTimeout(function() {
         // now our disgruntled user has his own DAO and is the SP of that DAO so ...
         console.log("Angry user proposes to his own DAO to send all funds to himself...");
         newdao.newProposal.sendTransaction(
-            newServiceProvider,
+            newCurator,
             newdao.totalSupply(),
             'Send all money to myself!! Screw you guys ... I am going home!',
             '0x0', // bytecode, not needed here, calling the fallback function
             $debating_period,
             false,
             {
-                from: newServiceProvider,
+                from: newCurator,
                 value: web3.toWei($proposal_deposit, "ether"),
                 gas: 1000000
             }
@@ -98,19 +98,19 @@ setTimeout(function() {
             1,
             true,
             {
-                from: newServiceProvider,
+                from: newCurator,
                 gas: 1000000
             }
         );
         checkWork();
         addToTest('newdao_proposals_num', newdao.numberOfProposals());
-        addToTest('angry_user_before', web3.fromWei(eth.getBalance(newServiceProvider)));
+        addToTest('angry_user_before', web3.fromWei(eth.getBalance(newCurator)));
         setTimeout(function() {
             addToTest('newdao_proposal_passed', newdao.proposals(1)[5]);
             // now execute the proposal
-            newdao.executeProposal.sendTransaction(1, '0x0', {from:newServiceProvider, gas:1000000});
+            newdao.executeProposal.sendTransaction(1, '0x0', {from:newCurator, gas:1000000});
             checkWork();
-            addToTest('angry_user_after', web3.fromWei(eth.getBalance(newServiceProvider)));
+            addToTest('angry_user_after', web3.fromWei(eth.getBalance(newCurator)));
             addToTest(
                 'angry_user_profit',
                 bigDiffRound(testMap['angry_user_after'], testMap['angry_user_before'])

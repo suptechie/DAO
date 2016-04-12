@@ -2,10 +2,10 @@ from utils import arr_str, create_votes_array
 
 
 scenario_description = (
-    " Testing an equal split, with a new SP. Half of the token holders vote "
-    "for a split to a new DAO and half vote to stay with the old one. Assert "
-    "that the split happens, a new DAO is created and that the tokens are "
-    "burned from the old DAO and moved to the new DAO succesfully. Also "
+    " Testing an equal split, with a new Curator. Half of the token holders "
+    "vote for a split to a new DAO and half vote to stay with the old one. "
+    "Assert that the split happens, a new DAO is created and that the tokens "
+    "are burned from the old DAO and moved to the new DAO succesfully. Also "
     "assert that the reward tokens are succesfully transferred"
 )
 

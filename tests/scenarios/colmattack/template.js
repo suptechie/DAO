@@ -5,13 +5,13 @@ addToTest('attacker_balance_before', web3.fromWei(eth.getBalance(attacker)));
 addToTest('attacker_dao_balance_before', web3.fromWei(dao.balanceOf(attacker)));
 
 // add SP to the whitelist
-dao.addAllowedAddress.sendTransaction(serviceProvider, {from:serviceProvider, gas:200000});
+dao.changeAllowedRecipients.sendTransaction(curator, true, {from:curator, gas:200000});
 
 console.log("Making the attack proposal");
 var attack_proposal_id = $attack_proposal_id;
 var tx_hash = null;
 dao.newProposal.sendTransaction(
-    serviceProvider, // only address currently in the whitelist
+    curator, // only address currently in the whitelist
     web3.toWei(0, "ether"), // irrelevant
     'The colm attack proposal with a big deposit',
     '',
@@ -92,7 +92,7 @@ setTimeout(function() {
         checkWork();
 
         console.log("Right after the split, execute the attack proposal to get the deposit back");
-        dao.executeProposal.sendTransaction(attack_proposal_id, '', {from:attacker, gas:1000000});
+        dao.executeProposal.sendTransaction(attack_proposal_id, '', {from:attacker, gas:4000000});
         addToTest('attack_proposal_passed', dao.proposals(attack_proposal_id)[5]);
         checkWork();
 
@@ -108,10 +108,13 @@ setTimeout(function() {
         // colm attack that would not be the case as he would also get part of his proposal
         // deposit into the new DAO and thus make profit.
         addToTest(
-        'final_diff',
-        bigDiffRound(testMap['attacker_balance_after'], testMap['attacker_balance_before']) +
-        bigDiffRound(testMap['split_dao_total_supply'], testMap['attacker_dao_balance_before'])
-    );
+            'attacker_eth_balance_diff',
+            bigDiffRound(testMap['attacker_balance_after'], testMap['attacker_balance_before'])
+        );
+        addToTest(
+            'attacker_dao_balance_diff',
+            bigDiffRound(testMap['split_dao_total_supply'], testMap['attacker_dao_balance_before'])
+        );
         testResults();
     }, ($split_debating_period - $attack_debating_period) * 1000);
 
