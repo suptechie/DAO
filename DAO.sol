@@ -498,6 +498,16 @@ contract DAO is DAOInterface, Token, TokenSale {
     ) noEther returns (bool _success) {
 
         Proposal p = proposals[_proposalID];
+
+        // If the curator removed the recipient from the whitelist, close the proposal
+        // in order to free the deposit and allow unblocking of voters
+        if (!allowedRecipients[p.recipient]) {
+            p.open = false;
+            p.creator.send(p.proposalDeposit);
+            sumOfProposalDeposits -= p.proposalDeposit;
+            return;
+        }
+
         // Check if the proposal can be executed
         if (now < p.votingDeadline  // has the voting deadline arrived?
             // Have the votes been counted?
@@ -517,16 +527,6 @@ contract DAO is DAOInterface, Token, TokenSale {
 
         if (p.amount > actualBalance())
             throw;
-
-        // If the curator removed the recipient from the whitelist, close the proposal
-        // in order to free the deposit and allow unblocking of voters
-        if (!allowedRecipients[p.recipient]) {
-            p.open = false;
-            if (!p.creator.send(p.proposalDeposit))
-                throw;
-            sumOfProposalDeposits -= p.proposalDeposit;
-            return;
-        }
 
         uint quorum = p.yea + p.nay;
 
