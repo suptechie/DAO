@@ -240,7 +240,7 @@ contract DAOInterface {
     /// @dev This function, when called for the first time for this proposal,
     /// will create a new DAO and send the sender's portion of the remaining
     /// ether and Reward Tokens to the new DAO. It will also burn the DAO Tokens
-    /// of the sender. (TODO: document rewardTokens - done??)
+    /// of the sender.
     function splitDAO(
         uint _proposalID,
         address _newCurator
