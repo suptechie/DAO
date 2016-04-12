@@ -497,6 +497,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         bytes _transactionData
     ) noEther returns (bool _success) {
 
+        stackDepthControl();
         Proposal p = proposals[_proposalID];
 
         if (p.newCurator) {
@@ -821,6 +822,17 @@ contract DAO is DAOInterface, Token, TokenSale {
     function createNewDAO(address _newCurator) internal returns (DAO _newDAO) {
         NewCurator(_newCurator);
         return daoCreator.createDAO(_newCurator, 0, 0, now + splitExecutionPeriod);
+    }
+
+    uint stackDepthControlTmp;
+
+    function stackDepthControl() returns (bool) {
+        if (stackDepthControlTmp++ < 16){
+            if (!DAO(this).stackDepthControl())
+                throw;
+        }
+        stackDepthControlTmp = 0;
+        return true;
     }
 
 
