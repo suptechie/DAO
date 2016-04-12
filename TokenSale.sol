@@ -31,7 +31,7 @@ contract TokenSaleInterface {
     // Minimum fueling goal of the token sale, denominated in ether
     uint public minValue;
     // True if the DAO reached its minimum fueling goal, false otherwise
-    bool public isFunded;
+    bool public isFueled;
     // For DAO splits - if privateSale is 0, then it is a public sale, otherwise
     // only the address stored in privateSale is allowed to purchase tokens
     address public privateSale;
@@ -90,8 +90,8 @@ contract TokenSale is TokenSaleInterface, Token {
             totalSupply += token;
             weiGiven[_tokenHolder] += msg.value;
             SoldToken(_tokenHolder, token);
-            if (totalSupply >= minValue && !isFunded) {
-                isFunded = true;
+            if (totalSupply >= minValue && !isFueled) {
+                isFueled = true;
                 FundingToDate(totalSupply);
             }
             return true;
@@ -100,7 +100,7 @@ contract TokenSale is TokenSaleInterface, Token {
     }
 
     function refund() noEther {
-        if (now > closingTime && !isFunded) {
+        if (now > closingTime && !isFueled) {
             // Get extraBalance - will only succeed when called for the first time
             extraBalance.payOut(address(this), extraBalance.accumulatedInput());
 

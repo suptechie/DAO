@@ -6,7 +6,7 @@
 }, {
     "name": "min_value",
     "default": 40,
-    "description": "Minimum value in Ether to consider the DAO crowdfunded",
+    "description": "Minimum value in Ether to consider the DAO fueled",
     "type": "int"
 },{
     "name": "onetime_costs",
