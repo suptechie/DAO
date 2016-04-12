@@ -14,7 +14,7 @@ dao.newProposal.sendTransaction(
     curator, // only address currently in the whitelist
     web3.toWei(0, "ether"), // irrelevant
     'The colm attack proposal with a big deposit',
-    '',
+    '0x0',
     $attack_debating_period,
     false,
     {
@@ -108,10 +108,13 @@ setTimeout(function() {
         // colm attack that would not be the case as he would also get part of his proposal
         // deposit into the new DAO and thus make profit.
         addToTest(
-        'final_diff',
-        bigDiffRound(testMap['attacker_balance_after'], testMap['attacker_balance_before']) +
-        bigDiffRound(testMap['split_dao_total_supply'], testMap['attacker_dao_balance_before'])
-    );
+            'attacker_eth_balance_diff',
+            bigDiffRound(testMap['attacker_balance_after'], testMap['attacker_balance_before'])
+        );
+        addToTest(
+            'attacker_dao_balance_diff',
+            bigDiffRound(testMap['split_dao_total_supply'], testMap['attacker_dao_balance_before'])
+        );
         testResults();
     }, ($split_debating_period - $attack_debating_period) * 1000);
 
