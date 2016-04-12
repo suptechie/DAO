@@ -4,6 +4,7 @@ import random
 import os
 import json
 import sys
+import re
 from datetime import datetime
 from jsutils import js_common_intro
 
@@ -226,36 +227,36 @@ def str_replace_or_die(string, old, new):
     return string.replace(old, new)
 
 
+def re_replace_or_die(string, varname, value):
+    old_string = string
+    new_string = re.sub(
+        r"(uint constant *{} *=).*;".format(varname),
+        r"\1 {};".format(value),
+        string
+    )
+    if old_string == new_string:
+        print(
+            "ERROR: Could not match RE for '{}' during DAO's source "
+            "code editing for the tests.".format(varname)
+        )
+        sys.exit(1)
+    return new_string
+
+
 def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
 
     # remove all limits that would make testing impossible
     if not keep_limits:
-        contents = str_replace_or_die(
-            contents, " || _debatingPeriod < 1 weeks", ""
-        )
-        contents = str_replace_or_die(
-            contents, " || (_debatingPeriod < 2 weeks)", ""
-        )
-        contents = str_replace_or_die(
-            contents, "|| now > p.votingDeadline + 41 days", ""
-        )
-        contents = str_replace_or_die(
-            contents, "now < closingTime + 40 days", "true"
-        )
-        contents = str_replace_or_die(
-            contents,
-            "daoCreator.createDAO(_newServiceProvider, 0, 0, now + 42 days);",
-            "daoCreator.createDAO(_newServiceProvider, 0, 0, now + 20);"
-        )
+        re.sub
+        contents = re_replace_or_die(contents, "minProposalDebatePeriod", "1")
+        contents = re_replace_or_die(contents, "minSplitDebatePeriod", "1")
+        contents = re_replace_or_die(contents, "splitExecutionPeriod", "20")
+        contents = re_replace_or_die(contents, "saleGracePeriod", "1")
 
     if halve_minquorum:  # if we are testing halve_minquorum remove year limit
-        contents = str_replace_or_die(
-            contents,
-            "if (lastTimeMinQuorumMet < (now - 52 weeks)) {",
-            "if (lastTimeMinQuorumMet < now) {"
-        )
+        contents = re_replace_or_die(contents, "quorumHalvingPeriod", "1")
 
     # add test query functions
     contents = str_replace_or_die(
@@ -265,28 +266,28 @@ def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
 
         function splitProposalBalance(uint pid, uint sid) constant returns (uint _balance) {
             Proposal p = proposals[pid];
-            if (!p.newServiceProvider) throw;
+            if (!p.newCurator) throw;
             SplitData s = p.splitData[sid];
             return s.splitBalance;
         }
 
         function splitProposalSupply(uint pid, uint sid) constant returns (uint _supply) {
             Proposal p = proposals[pid];
-            if (!p.newServiceProvider) throw;
+            if (!p.newCurator) throw;
             SplitData s = p.splitData[sid];
             return s.totalSupply;
         }
 
         function splitProposalrewardToken(uint pid, uint sid) constant returns (uint _rewardToken) {
             Proposal p = proposals[pid];
-            if (!p.newServiceProvider) throw;
+            if (!p.newCurator) throw;
             SplitData s = p.splitData[sid];
             return s.rewardToken;
         }
 
         function splitProposalNewAddress(uint pid, uint sid) constant returns (address _DAO) {
             Proposal p = proposals[pid];
-            if (!p.newServiceProvider) throw;
+            if (!p.newCurator) throw;
             SplitData s = p.splitData[sid];
             return address(s.newDAO);
         }
