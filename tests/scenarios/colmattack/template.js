@@ -14,7 +14,7 @@ dao.newProposal.sendTransaction(
     curator, // only address currently in the whitelist
     web3.toWei(0, "ether"), // irrelevant
     'The colm attack proposal with a big deposit',
-    '0x0',
+    '',
     $attack_debating_period,
     false,
     {
@@ -92,7 +92,7 @@ setTimeout(function() {
         checkWork();
 
         console.log("Right after the split, execute the attack proposal to get the deposit back");
-        dao.executeProposal.sendTransaction(attack_proposal_id, '', {from:attacker, gas:1000000});
+        dao.executeProposal.sendTransaction(attack_proposal_id, '', {from:attacker, gas:4000000});
         addToTest('attack_proposal_passed', dao.proposals(attack_proposal_id)[5]);
         checkWork();
 
