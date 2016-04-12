@@ -17,7 +17,8 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /*
-Generic smart contract for a Decentralized Autonomous Organization (DAO) to automate organizational governance and decision-making.
+Generic smart contract for a Decentralized Autonomous Organization (DAO)
+to automate organizational governance and decision-making.
 */
 
 import "./TokenSale.sol";
@@ -363,6 +364,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         proposals.length = 1; // avoids a proposal with ID 0 because it is used
 
         allowedRecipients[address(this)] = true;
+        allowedRecipients[curator] = true;
     }
 
     function () returns (bool success) {
