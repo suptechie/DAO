@@ -397,7 +397,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             throw;
         } else if(
             !_newCurator
-            && (!isRecipientAllowed(_recipient) || (_debatingPeriod < 2 minProposalDebatePeriod))
+            && (!isRecipientAllowed(_recipient) || (_debatingPeriod <  minProposalDebatePeriod))
         ) {
             throw;
         }
@@ -582,7 +582,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             // Does the new Curator address match?
             || p.recipient != _newCurator
             // Is it a new curator proposal?
-            || !p.newCurators
+            || !p.newCurator
             // Have you voted for this split?
             || !p.votedYes[msg.sender]
             // Did you already vote on another proposal?
