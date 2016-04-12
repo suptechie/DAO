@@ -56,17 +56,17 @@ setTimeout(function() {
     miner.stop(0);
     console.log("Executing the proposal...");
     // now execute the proposal
-    dao.executeProposal.sendTransaction(prop_id, '$transaction_bytecode', {from:serviceProvider, gas:1000000});
+    dao.executeProposal.sendTransaction(prop_id, '$transaction_bytecode', {from:curator, gas:1000000});
     checkWork();
-    addToTest('provider_balance_before_claim', eth.getBalance(serviceProvider));
+    addToTest('curator_balance_before_claim', eth.getBalance(curator));
     console.log("Claiming the reward...");
-    dao.getMyReward.sendTransaction({from: serviceProvider, gas: 1000000});
+    dao.getMyReward.sendTransaction({from: curator, gas: 1000000});
     checkWork();
-    addToTest('provider_balance_after_claim', eth.getBalance(serviceProvider));
+    addToTest('curator_balance_after_claim', eth.getBalance(curator));
     addToTest(
-        'provider_reward_portion',
+        'curator_reward_portion',
         parseFloat(web3.fromWei(bigDiff(
-            testMap['provider_balance_after_claim'], testMap['provider_balance_before_claim']
+            testMap['curator_balance_after_claim'], testMap['curator_balance_before_claim']
         )))
     );
     addToTest('DAO_balance', parseFloat(web3.fromWei(eth.getBalance('$dao_address'))));

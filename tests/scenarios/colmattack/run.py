@@ -9,7 +9,7 @@ scenario_description = (
 
 
 def run(ctx):
-    ctx.assert_scenario_ran('fund')
+    ctx.assert_scenario_ran('fuel')
 
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,

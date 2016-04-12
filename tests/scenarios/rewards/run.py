@@ -33,7 +33,7 @@ def run(ctx):
     )
 
     results = ctx.execute(expected={
-        "provider_reward_portion": calculate_reward(
+        "curator_reward_portion": calculate_reward(
             ctx.token_amounts[0],
             ctx.total_supply,
             ctx.args.rewards_total_amount)

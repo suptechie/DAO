@@ -1,10 +1,10 @@
 var dao = web3.eth.contract($dao_abi).at('$dao_address');
-var newServiceProvider = eth.accounts[1];
+var newCurator = eth.accounts[1];
 
 console.log("Creating proposal to change SP...");
 var tx_hash = null;
 dao.newProposal.sendTransaction(
-    newServiceProvider, // new SP
+    newCurator,
     0,
     'Changing SP to eth.accounts[1]',
     '',
@@ -50,7 +50,7 @@ setTimeout(function() {
         if (votes[i]) {
             dao.splitDAO.sendTransaction(
                 prop_id,
-                newServiceProvider,
+                newCurator,
                 {from:eth.accounts[i], gas: $split_gas}
             );
         }

@@ -2,7 +2,7 @@ var dao = web3.eth.contract($dao_abi).at('$dao_address');
 var offer = web3.eth.contract($offer_abi).at('$offer_address');
 
 console.log("Add offer contract as allowed recipient");
-dao.addAllowedAddress.sendTransaction('$offer_address', {from: serviceProvider, gas: 1000000});
+dao.changeAllowedRecipients.sendTransaction('$offer_address', true, {from: curator, gas: 1000000});
 checkWork();
 
 if ($should_halve_minquorum) {
@@ -61,23 +61,23 @@ for (i = 0; i < votes.length; i++) {
 checkWork();
 addToTest('proposal_yay', parseInt(web3.fromWei(dao.proposals(prop_id)[9])));
 addToTest('proposal_nay', parseInt(web3.fromWei(dao.proposals(prop_id)[10])));
-addToTest('provider_balance_before', web3.fromWei(eth.getBalance(serviceProvider)));
+addToTest('curator_balance_before', web3.fromWei(eth.getBalance(curator)));
 
 setTimeout(function() {
     miner.stop(0);
     console.log("After debating period. NOW is: " + Math.floor(Date.now() / 1000));
     console.log("Executing proposal ...");
-    dao.executeProposal.sendTransaction(prop_id, '$transaction_bytecode', {from:serviceProvider, gas:1000000});
+    dao.executeProposal.sendTransaction(prop_id, '$transaction_bytecode', {from:curator, gas:1000000});
     checkWork();
 
     // 5th member of the structure is proposalPassed
     addToTest('proposal_passed', dao.proposals(prop_id)[5]);
     addToTest('creator_balance_after_execution', web3.fromWei(eth.getBalance(proposalCreator)));
-    addToTest('provider_balance_after', web3.fromWei(eth.getBalance(serviceProvider)));
+    addToTest('curator_balance_after', web3.fromWei(eth.getBalance(curator)));
 
     addToTest(
         'onetime_costs',
-        bigDiffRound(testMap['provider_balance_after'], testMap['provider_balance_before'])
+        bigDiffRound(testMap['curator_balance_after'], testMap['curator_balance_before'])
     );
     addToTest(
         'deposit_returned',

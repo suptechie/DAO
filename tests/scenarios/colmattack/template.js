@@ -5,13 +5,13 @@ addToTest('attacker_balance_before', web3.fromWei(eth.getBalance(attacker)));
 addToTest('attacker_dao_balance_before', web3.fromWei(dao.balanceOf(attacker)));
 
 // add SP to the whitelist
-dao.addAllowedAddress.sendTransaction(serviceProvider, {from:serviceProvider, gas:200000});
+dao.changeAllowedRecipients.sendTransaction(curator, true, {from:curator, gas:200000});
 
 console.log("Making the attack proposal");
 var attack_proposal_id = $attack_proposal_id;
 var tx_hash = null;
 dao.newProposal.sendTransaction(
-    serviceProvider, // only address currently in the whitelist
+    curator, // only address currently in the whitelist
     web3.toWei(0, "ether"), // irrelevant
     'The colm attack proposal with a big deposit',
     '',
