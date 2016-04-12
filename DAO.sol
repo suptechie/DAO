@@ -499,12 +499,18 @@ contract DAO is DAOInterface, Token, TokenSale {
 
         Proposal p = proposals[_proposalID];
 
+        if (p.newCurator) {
+            if (now > p.votingDeadline + splitExecutionPeriod) {
+                p.open = false;
+            }
+            return;
+        }
+
         // If the curator removed the recipient from the whitelist, close the proposal
         // in order to free the deposit and allow unblocking of voters
         if (!allowedRecipients[p.recipient]) {
-            p.open = false;
+            closeProposal(_proposalID);
             p.creator.send(p.proposalDeposit);
-            sumOfProposalDeposits -= p.proposalDeposit;
             return;
         }
 
@@ -518,54 +524,57 @@ contract DAO is DAOInterface, Token, TokenSale {
             throw;
         }
 
-        if (p.newCurator) {
-            if (now > p.votingDeadline + splitExecutionPeriod) {
-                p.open = false;
-            }
-            return;
-        }
+        bool proposalCheck = true;
 
         if (p.amount > actualBalance())
-            throw;
+            proposalCheck = false;
 
         uint quorum = p.yea + p.nay;
 
         // require 53% for calling newContract()
-        bool updateContractQuorumCheck = true;
+
         if (_transactionData.length >= 4 && _transactionData[0] == 0x68
             && _transactionData[1] == 0x37 && _transactionData[2] == 0xff
             && _transactionData[3] == 0x1e
             && quorum < minQuorum(actualBalance() + rewardToken[address(this)])) {
 
-                updateContractQuorumCheck = false;
+                proposalCheck = false;
         }
 
         // Execute result
-        if (quorum >= minQuorum(p.amount) && p.yea > p.nay && updateContractQuorumCheck) {
+        if (quorum >= minQuorum(p.amount) && p.yea > p.nay && proposalCheck) {
             if (!p.creator.send(p.proposalDeposit))
                 throw;
-            // Without this throw, the creator of the proposal can repeat this,
-            // and get so much ether
-            if (!p.recipient.call.value(p.amount)(_transactionData))
-                throw;
+
+            lastTimeMinQuorumMet = now;
+
+            if (!p.recipient.call.value(p.amount)(_transactionData)) {
+                closeProposal(_proposalID);
+                ProposalTallied(_proposalID, _success, quorum);
+                return;
+            }
+
             p.proposalPassed = true;
             _success = true;
-            lastTimeMinQuorumMet = now;
             rewardToken[address(this)] += p.amount;
             totalRewardToken += p.amount;
-        } else if (quorum >= minQuorum(p.amount) && p.nay >= p.yea || !updateContractQuorumCheck) {
+        } else if (quorum >= minQuorum(p.amount) && p.nay >= p.yea || !proposalCheck) {
             if (!p.creator.send(p.proposalDeposit))
                 throw;
             lastTimeMinQuorumMet = now;
         }
 
-        sumOfProposalDeposits -= p.proposalDeposit;
-
-        // Since the voting deadline is over, close the proposal
-        p.open = false;
+        closeProposal(_proposalID);
 
         // Initiate event
         ProposalTallied(_proposalID, _success, quorum);
+    }
+
+
+    function closeProposal(uint _proposalID) internal {
+        Proposal p = proposals[_proposalID];
+        sumOfProposalDeposits -= p.proposalDeposit;
+        p.open = false;
     }
 
 
