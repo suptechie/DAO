@@ -65,12 +65,28 @@ def seconds_in_future(secs):
     return ts_now() + secs
 
 
-def create_votes_array(amounts, succeed):
+def create_votes_array(amounts, approve):
+    """
+    Create an array of votes out of the tokens holders to either pass or
+    reject a proposal.
+        Parameters
+        ----------
+        amounts : list
+        The list of tokens each token holder has
+
+        approve : bool
+        True if we want to pass and false if we want to vote against
+        the proposal
+
+        Returns
+        ----------
+        The array of votes required
+    """
     votes = []
     total = sum(amounts)
     percentage = 0.0
 
-    if not succeed:
+    if not approve:
         for val in amounts:
             ratio = val/float(total)
             if (percentage + ratio < 0.5):
@@ -87,6 +103,45 @@ def create_votes_array(amounts, succeed):
             else:
                 votes.append(False)
 
+    return votes
+
+
+def create_votes_array_for_quorum(amounts, targetQuorum, approve):
+    """
+    Create an array of votes for a proposal that will reach a targetQuorum
+        Parameters
+        ----------
+        amounts : list
+        The list of tokens each token holder has
+
+        targetQuorum : float
+        A target quorum represented by a float ranging from 0.0 to 1.0. It
+        represents percentage of the quorum we want to achieve
+
+        approve : bool
+        True if we want to pass and false if we want to vote against
+        the proposal
+
+        Returns
+        ----------
+        The array of votes required
+    """
+    votes = []
+    total = sum(amounts)
+    percentage = 0.0
+
+    for val in amounts:
+        ratio = val/float(total)
+        if (percentage + ratio < targetQuorum):
+            votes.append(approve)
+            percentage += ratio
+        else:
+            break
+    if not votes or percentage > targetQuorum:
+        print("ERROR: Could not satisfy the target quorum of '{}' with the "
+              "currrent way the token holders bought tokens. Please rerun the "
+              "test in order to get a different set of token holders")
+        sys.exit(1)
     return votes
 
 
