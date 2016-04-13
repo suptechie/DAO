@@ -37,7 +37,7 @@ contract DAOInterface {
     uint constant splitExecutionPeriod = 27 days;
     // Period of time after which the minimum Quorum is halved
     uint constant quorumHalvingPeriod = 52 weeks;
-    // Period after which a propsal can be closed (used in the case `executeProposal`
+    // Period after which a proposal can be closed (used in the case `executeProposal`
     // fails because it throws)
     uint constant executeProposalPeriod = 5 days;
 
