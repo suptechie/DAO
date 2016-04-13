@@ -37,6 +37,9 @@ contract DAOInterface {
     uint constant splitExecutionPeriod = 27 days;
     // Period of time after which the minimum Quorum is halved
     uint constant quorumHalvingPeriod = 52 weeks;
+    // Period after which a proposal can be closed (used in the case `executeProposal`
+    // fails because it throws)
+    uint constant executeProposalPeriod = 5 days;
 
     // Proposals to spend the DAO's ether or to choose a new Curator
     Proposal[] public proposals;
@@ -229,6 +232,12 @@ contract DAOInterface {
         uint _proposalID,
         bytes _transactionData
     ) returns (bool _success);
+
+    /// @notice close the proposal (used in the case `executeProposal`
+    /// fails because it throws)
+    /// @param _proposalID The proposal ID
+    function emergenyCloseProposal(uint _proposalID) external;
+
 
     /// @notice ATTENTION! I confirm to move my remaining ether to a new DAO
     /// with `_newCurator` as the new Curator, as has been
@@ -498,6 +507,14 @@ contract DAO is DAOInterface, Token, TokenSale {
     ) noEther returns (bool _success) {
 
         Proposal p = proposals[_proposalID];
+
+        if (p.newCurator) {
+            if (now > p.votingDeadline + splitExecutionPeriod) {
+                p.open = false;
+            }
+            return;
+        }
+
         // Check if the proposal can be executed
         if (now < p.votingDeadline  // has the voting deadline arrived?
             // Have the votes been counted?
@@ -508,66 +525,69 @@ contract DAO is DAOInterface, Token, TokenSale {
             throw;
         }
 
-        if (p.newCurator) {
-            if (now > p.votingDeadline + splitExecutionPeriod) {
-                p.open = false;
-            }
-            return;
-        }
-
-        if (p.amount > actualBalance())
-            throw;
-
         // If the curator removed the recipient from the whitelist, close the proposal
         // in order to free the deposit and allow unblocking of voters
-        if (!allowedRecipients[p.recipient]) {
-            p.open = false;
-            if (!p.creator.send(p.proposalDeposit))
-                throw;
-            sumOfProposalDeposits -= p.proposalDeposit;
+        if (!allowedRecipients[p.recipient] && p.open) {
+            closeProposal(_proposalID);
+            p.creator.send(p.proposalDeposit);
             return;
         }
+
+        bool proposalCheck = true;
+
+        if (p.amount > actualBalance())
+            proposalCheck = false;
 
         uint quorum = p.yea + p.nay;
 
         // require 53% for calling newContract()
-        bool updateContractQuorumCheck = true;
         if (_transactionData.length >= 4 && _transactionData[0] == 0x68
             && _transactionData[1] == 0x37 && _transactionData[2] == 0xff
             && _transactionData[3] == 0x1e
             && quorum < minQuorum(actualBalance() + rewardToken[address(this)])) {
 
-                updateContractQuorumCheck = false;
+                proposalCheck = false;
         }
 
         // Execute result
-        if (quorum >= minQuorum(p.amount) && p.yea > p.nay && updateContractQuorumCheck) {
+        if (quorum >= minQuorum(p.amount) && p.yea > p.nay && proposalCheck) {
             if (!p.creator.send(p.proposalDeposit))
                 throw;
-            // Without this throw, the creator of the proposal can repeat this,
-            // and get so much ether
+
+            lastTimeMinQuorumMet = now;
+
             if (!p.recipient.call.value(p.amount)(_transactionData))
                 throw;
+
             p.proposalPassed = true;
             _success = true;
-            lastTimeMinQuorumMet = now;
             rewardToken[address(this)] += p.amount;
             totalRewardToken += p.amount;
-        } else if (quorum >= minQuorum(p.amount) && p.nay >= p.yea || !updateContractQuorumCheck) {
+        } else if (quorum >= minQuorum(p.amount) && p.nay >= p.yea || !proposalCheck) {
             if (!p.creator.send(p.proposalDeposit))
                 throw;
             lastTimeMinQuorumMet = now;
         }
 
-        sumOfProposalDeposits -= p.proposalDeposit;
-
-        // Since the voting deadline is over, close the proposal
-        p.open = false;
+        closeProposal(_proposalID);
 
         // Initiate event
         ProposalTallied(_proposalID, _success, quorum);
     }
 
+
+    function closeProposal(uint _proposalID) internal {
+        Proposal p = proposals[_proposalID];
+        if (p.open)
+            sumOfProposalDeposits -= p.proposalDeposit;
+        p.open = false;
+    }
+
+    function emergenyCloseProposal(uint _proposalID) external {
+        Proposal p = proposals[_proposalID];
+        if (p.votingDeadline + executeProposalPeriod < now && p.open)
+            closeProposal(_proposalID);
+    }
 
     function splitDAO(
         uint _proposalID,
@@ -829,7 +849,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         if (blocked[_account] == 0)
             return false;
         Proposal p = proposals[blocked[_account]];
-        if (!p.open) {
+        if (now > p.votingDeadline) {
             blocked[_account] = 0;
             return false;
         } else {
