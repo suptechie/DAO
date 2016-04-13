@@ -37,6 +37,9 @@ contract DAOInterface {
     uint constant splitExecutionPeriod = 27 days;
     // Period of time after which the minimum Quorum is halved
     uint constant quorumHalvingPeriod = 52 weeks;
+    // Period after which a propsal can be closed (used in the case `executeProposal`
+    // fails because it throws)
+    uint constant executeProposalPeriod = 5 days;
 
     // Proposals to spend the DAO's ether or to choose a new Curator
     Proposal[] public proposals;
@@ -506,14 +509,6 @@ contract DAO is DAOInterface, Token, TokenSale {
             return;
         }
 
-        // If the curator removed the recipient from the whitelist, close the proposal
-        // in order to free the deposit and allow unblocking of voters
-        if (!allowedRecipients[p.recipient] && p.open) {
-            closeProposal(_proposalID);
-            p.creator.send(p.proposalDeposit);
-            return;
-        }
-
         // Check if the proposal can be executed
         if (now < p.votingDeadline  // has the voting deadline arrived?
             // Have the votes been counted?
@@ -522,6 +517,14 @@ contract DAO is DAOInterface, Token, TokenSale {
             || p.proposalHash != sha3(p.recipient, p.amount, _transactionData)) {
 
             throw;
+        }
+
+        // If the curator removed the recipient from the whitelist, close the proposal
+        // in order to free the deposit and allow unblocking of voters
+        if (!allowedRecipients[p.recipient] && p.open) {
+            closeProposal(_proposalID);
+            p.creator.send(p.proposalDeposit);
+            return;
         }
 
         bool proposalCheck = true;
@@ -576,7 +579,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
     function emergenyCloseProposal(uint _proposalID) external {
         Proposal p = proposals[_proposalID];
-        if (p.votingDeadline + 5 days < now && p.open)
+        if (p.votingDeadline + executeProposalPeriod < now && p.open)
             closeProposal(_proposalID);
     }
 
