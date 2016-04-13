@@ -342,6 +342,8 @@ def calculate_bytecode(function_hash, value):
 
     if value_type is int:
         return "{0}{1:0{2}x}".format(function_hash, value, 64)
+    elif isinstance(value, basestring):
+        return "0x{}{}".format(function_hash, value)
     else:
         print("Error: Invalid value type at 'calculate_bytecode()`")
         sys.exit(1)

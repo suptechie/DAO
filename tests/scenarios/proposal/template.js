@@ -12,7 +12,6 @@ if ($should_halve_minquorum) {
 
 addToTest('creator_balance_before', web3.fromWei(eth.getBalance(proposalCreator)));
 console.log("Creating a new proposal for $offer_amount ether.");
-var tx_hash = null;
 dao.newProposal.sendTransaction(
     '$offer_address',
     web3.toWei($offer_amount, "ether"),
@@ -24,14 +23,6 @@ dao.newProposal.sendTransaction(
         from: proposalCreator,
         value: web3.toWei($proposal_deposit, "ether"),
         gas: 1000000
-    }
-    , function (e, res) {
-        if (e) {
-            console.log(e + "at newProposal()!");
-        } else {
-            tx_hash = res;
-            console.log("newProposal tx hash is: " + tx_hash);
-        }
     }
 );
 checkWork();
