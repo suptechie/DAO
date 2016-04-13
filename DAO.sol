@@ -497,7 +497,6 @@ contract DAO is DAOInterface, Token, TokenSale {
         bytes _transactionData
     ) noEther returns (bool _success) {
 
-        stackDepthControl();
         Proposal p = proposals[_proposalID];
 
         if (p.newCurator) {
@@ -549,11 +548,8 @@ contract DAO is DAOInterface, Token, TokenSale {
 
             lastTimeMinQuorumMet = now;
 
-            if (!p.recipient.call.value(p.amount)(_transactionData)) {
-                closeProposal(_proposalID);
-                ProposalTallied(_proposalID, _success, quorum);
-                return;
-            }
+            if (!p.recipient.call.value(p.amount)(_transactionData))
+                throw;
 
             p.proposalPassed = true;
             _success = true;
@@ -824,17 +820,6 @@ contract DAO is DAOInterface, Token, TokenSale {
         return daoCreator.createDAO(_newCurator, 0, 0, now + splitExecutionPeriod);
     }
 
-    uint stackDepthControlTmp;
-
-    function stackDepthControl() returns (bool) {
-        if (stackDepthControlTmp++ < 16){
-            if (!DAO(this).stackDepthControl())
-                throw;
-        }
-        stackDepthControlTmp = 0;
-        return true;
-    }
-
 
     function numberOfProposals() constant returns (uint _numberOfProposals) {
         // Don't count index 0. It's used by isBlocked() and exists from start
@@ -850,7 +835,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         if (blocked[_account] == 0)
             return false;
         Proposal p = proposals[blocked[_account]];
-        if (!p.open) {
+        if (now >= p.votingDeadline) {
             blocked[_account] = 0;
             return false;
         } else {
