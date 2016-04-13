@@ -532,7 +532,6 @@ contract DAO is DAOInterface, Token, TokenSale {
         uint quorum = p.yea + p.nay;
 
         // require 53% for calling newContract()
-
         if (_transactionData.length >= 4 && _transactionData[0] == 0x68
             && _transactionData[1] == 0x37 && _transactionData[2] == 0xff
             && _transactionData[3] == 0x1e
@@ -573,7 +572,6 @@ contract DAO is DAOInterface, Token, TokenSale {
         sumOfProposalDeposits -= p.proposalDeposit;
         p.open = false;
     }
-
 
     function splitDAO(
         uint _proposalID,
