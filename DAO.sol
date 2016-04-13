@@ -406,7 +406,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             || msg.value > 0
             || _debatingPeriod < minSplitDebatePeriod)) {
             throw;
-        } else if(
+        } else if (
             !_newCurator
             && (!isRecipientAllowed(_recipient) || (_debatingPeriod <  minProposalDebatePeriod))
         ) {
@@ -815,7 +815,7 @@ contract DAO is DAOInterface, Token, TokenSale {
     function minQuorum(uint _value) internal constant returns (uint _minQuorum) {
         // minimum of 20% and maximum of 53.33%
         return totalSupply / minQuorumDivisor +
-            (_value * totalSupply) / (3 * (actualBalance() + totalRewardToken));
+            (_value * totalSupply) / (3 * (actualBalance() + rewardToken[address(this)]));
     }
 
 
