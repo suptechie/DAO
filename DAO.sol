@@ -849,7 +849,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         if (blocked[_account] == 0)
             return false;
         Proposal p = proposals[blocked[_account]];
-        if (now >= p.votingDeadline) {
+        if (now > p.votingDeadline) {
             blocked[_account] = 0;
             return false;
         } else {
