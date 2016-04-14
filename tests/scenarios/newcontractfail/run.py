@@ -13,7 +13,7 @@ def run(ctx):
     votes = create_votes_array_for_quorum(ctx.token_amounts, 0.4, True)
     # let's just use an existing account
     newAddress = ctx.accounts[4]
-    bytecode = calculate_bytecode('6837ff1e', newAddress.strip("0x").zfill(64))
+    bytecode = calculate_bytecode('newContract', ("address", newAddress))
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,
         "dao_address": ctx.dao_addr,

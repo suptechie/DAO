@@ -16,7 +16,7 @@ def calculate_reward(tokens, total_tokens, total_rewards):
 def run(ctx):
     ctx.assert_scenario_ran('proposal')
 
-    bytecode = calculate_bytecode('0xa1da2fb9', True)
+    bytecode = calculate_bytecode('retrieveDAOReward', ("bool", True))
     ctx.create_js_file(substitutions={
             "dao_abi": ctx.dao_abi,
             "dao_address": ctx.dao_addr,
