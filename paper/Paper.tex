@@ -113,7 +113,7 @@ Minority owner rights can be a problem in any corporate form. Minority rights ma
 
 A problem every DAO has to mitigate is the ability for the majority to rob the minority by changing governance and ownership rules after DAO formation. For example, an attacker with $51\%$ of the tokens, acquired either during the funding period or purchased afterwards, could make a proposal to send all the funds to themselves. Since they would hold the majority of the tokens, they would always be able to pass their proposals.
 
-To prevent this, the minority must always have the ability to retrieve their portion of the funds. Our solution is to allow a DAO to split into two. If an individual, or a group of token holders, disagree with a proposal and want to retrieve their portion of the ether before the proposal gets executed, they can submit and approve a special type of proposal to form a new DAO. The token holders that voted for this proposal can then split the DAO moving their portion of the ether to this new DAO, leaving the rest alone only able to spend their own money.
+To prevent this, the minority must always have the ability to retrieve their portion of the funds. Our solution is to allow a DAO to split into two. If an individual, or a group of token holders, disagree with a proposal and want to retrieve their portion of the ether before the proposal gets executed, they can submit and approve a special type of proposal to form a new DAO. The token holders that voted for this proposal can then split the DAO moving their portion of the ether to this new DAO, leaving the rest alone only able to spend their own ether.
 
 This idea originates from a blog post by Vitalik Buterin (\cite{Vitalik2015subjectivity}). 
 
@@ -148,7 +148,7 @@ Here $t$ is the unix time in seconds, $t_c$ is the closing time of the funding p
 Hence the number of tokens (in its base unit) each buyer receives is calculated as: $P(t) \cdot \Xi_c$. Here $\Xi_c$ stands for the amount of ether sent to fuel the DAO, denoted in wei.
 This results in a constant Creation ratio in the beginning, until $2$ weeks before the end of the DAO Creation. At this time the Creation ratio increases daily by $0.05 \: \Xi_c$ per base unit of DAO token. Until $4$ days before the closing time when there will be a constant Creation ratio of $1.5 \: \Xi_c$ per base unit of DAO token.
 
-Creation ratio increases during the Creation Phase could lead to a situation where a single contributor, having bought tokens during at the initial Creation ratio, could split the DAO immediately after the sale ends, thereby receiving more ether than they put in due to other contributors having a higher Creation ratio (\cite{GriffDiscussion}).
+Creation ratio increases during the Creation Phase could lead to a situation where a single contributor, having bought tokens at the initial Creation ratio, could split the DAO immediately after the sale ends, thereby receiving more ether than they put in due to other contributors having a higher Creation ratio (\cite{GriffDiscussion}).
 In order to avoid that possibility, all ether that is received above the initial Creation ratio of the token, will be sent to an extra account. Denoted as \verb|extraBalance| in \ref{app:TokenSale}. This ether can be sent back to the DAO through a proposal after the DAO has spent at least this amount of ether.
 This rule is implemented in the internal function \verb|isRecipientAllowed| in section \ref{DAO}.
 
@@ -894,7 +894,7 @@ contract TokenSale is TokenSaleInterface, Token {
 contract DAOInterface {
 
     // The amount of days for which people who try to participate in the sale
-    // by calling the fallback function will still get their money back
+    // by calling the fallback function will still get their ether back
     uint constant saleGracePeriod = 40 days;
     // The minimum debate period that a generic proposal can have
     uint constant minProposalDebatePeriod = 2 weeks;
@@ -918,7 +918,7 @@ contract DAOInterface {
 
     // Address of the Curator
     address public curator;
-    // The whitelist: List of addresses the DAO is allowed to send money to
+    // The whitelist: List of addresses the DAO is allowed to send ether to
     mapping (address => bool) public allowedRecipients;
 
     // Tracks the addresses that own Reward Tokens. Those addresses can only be
@@ -1037,7 +1037,7 @@ contract DAOInterface {
     function () returns (bool success);
 
 
-    /// @dev This function is used to send money back
+    /// @dev This function is used to send ether back
     /// to the DAO, it can also be used to receive payments that should not be
     /// counted as rewards (donations, grants, etc.)
     /// @return Whether the DAO received the ether successfully
