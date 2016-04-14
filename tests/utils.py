@@ -147,7 +147,28 @@ def create_votes_array_for_quorum(amounts, targetQuorum, approve):
 
 
 def arr_str(arr):
-    return '[ ' + ', '.join([str(x).lower() for x in arr]) + ' ]'
+    """
+    Create a string representation of an array, ready to be imported to js.
+        Parameters
+        ----------
+        arr : list
+        The list from which to create the array string. Can be an array of
+        ints, strings or booleans
+
+        Returns
+        ----------
+        A string representation of the array ready to be imported in a js
+        template
+    """
+    if type(arr) is not list or arr == []:
+        print("ERROR: 'arr_str()' expects a non-empty list")
+        sys.exit(1)
+    has_strings = isinstance(arr[0], basestring)
+    return "[ {} ]".format(
+        ', '.join(['"{}"'.format(
+            str(x).lower()
+        ) if has_strings else str(x).lower() for x in arr])
+    )
 
 
 def extract_test_dict(name, output):
