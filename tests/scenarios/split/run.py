@@ -78,8 +78,7 @@ def prepare_test_split(ctx, split_gas):
             "dao_address": ctx.dao_addr,
             "debating_period": ctx.args.split_debate_seconds,
             "split_gas": split_gas,
-            "votes": arr_str(votes),
-            "prop_id": ctx.next_proposal_id()
+            "votes": arr_str(votes)
         }
     )
     print(
@@ -98,6 +97,7 @@ def run(ctx):
     split_gas = 4000000
 
     votes = prepare_test_split(ctx, split_gas)
+    print("---> VOTES: {}".format(votes))
     oldBalance, newBalance, oldDAORewards, newDAORewards = tokens_after_split(
         votes,
         ctx.token_amounts,
@@ -105,7 +105,7 @@ def run(ctx):
         ctx.dao_rewardToken_after_rewards
     )
 
-    ctx.execute(expected={
+    results = ctx.execute(expected={
         "newDAOProposalDeposit": 0,
         "oldDAOBalance": oldBalance,
         "newDAOBalance": newBalance,
@@ -118,3 +118,8 @@ def run(ctx):
     #     "oldDAOBalance": self.token_amounts,
     #     "newDAOBalance": [0] * len(self.token_amounts),
     # })
+    # remember some variables so they can be used in later tests
+    ctx.childDAOAddress = results['proposal_newdao']
+    ctx.childDAOMembers = [
+        ctx.accounts[idx] for idx, x in enumerate(votes) if x is True
+    ]

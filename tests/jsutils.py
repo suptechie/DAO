@@ -36,5 +36,47 @@ function addToTest(name, value) {
 function testResults() {
     console.log("Test Results: " + JSON.stringify(testMap));
 }
+
+function testFail(str) {
+    console.log("TEST FAIL: " + str);
+    exit();
+}
+
+function attempt_proposal(
+    argdao,
+    recipient,
+    proposal_creator,
+    ether_amount,
+    desc,
+    bytecode,
+    debating_period,
+    ether_deposit,
+    is_split_proposal
+    ) {
+
+    proposals_num_before = argdao.numberOfProposals();
+    console.log("Creating a new proposal to: " + desc);
+    argdao.newProposal.sendTransaction(
+    recipient,
+    web3.toWei(ether_amount, "ether"),
+    desc,
+    bytecode,
+    debating_period,
+    is_split_proposal,
+    {
+        from: proposal_creator,
+        value: web3.toWei(ether_deposit, "ether"),
+        gas: 1000000
+    });
+    checkWork();
+    proposals_num_now = argdao.numberOfProposals();
+
+    if (!proposals_num_now.equals(proposals_num_before.add(1))) {
+        testFail("Failed to create a proposal to: " + desc);
+    } else {
+        console.log("Proposal succesfully created");
+    }
+    return proposals_num_now;
+}
 """
     return s

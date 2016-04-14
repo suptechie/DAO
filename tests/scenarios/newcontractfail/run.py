@@ -21,8 +21,7 @@ def run(ctx):
         "proposal_deposit": ctx.args.proposal_deposit,
         "votes": arr_str(votes),
         "transaction_bytecode": bytecode,
-        "debating_period": ctx.args.proposal_debate_seconds,
-        "prop_id": ctx.next_proposal_id()
+        "debating_period": ctx.args.proposal_debate_seconds
     })
     print(
         "Notice: Debate period is {} seconds so the test will wait "

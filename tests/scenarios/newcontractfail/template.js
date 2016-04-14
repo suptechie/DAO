@@ -8,24 +8,19 @@ console.log("Add new contract as allowed recipient");
 dao.changeAllowedRecipients.sendTransaction(newContract, true, {from: curator, gas: 1000000});
 checkWork();
 
-console.log("Create the proposal to update");
-dao.newProposal.sendTransaction(
-    dao.address,
-    web3.toWei(0, "ether"),
-    'Move all funds to a new contract',
-    '$transaction_bytecode',
-    $debating_period,
-    false,
-    {
-        from: proposalCreator,
-        value: web3.toWei($proposal_deposit, "ether"),
-        gas: 1000000
-    }
+var prop_id = attempt_proposal(
+    dao, // DAO in question
+    dao.address, // recipient
+    proposalCreator, // proposal creator
+    0, // proposal amount in ether
+    'Move all funds to a new contract', // description
+    '$transaction_bytecode', //bytecode
+    $debating_period, // debating period
+    $proposal_deposit, // proposal deposit in ether
+    false // whether it's a split proposal or not
 );
-checkWork();
 
 console.log("Vote on the proposal to update");
-var prop_id = $prop_id;
 var votes = $votes;
 for (i = 0; i < votes.length; i++) {
     dao.vote.sendTransaction(

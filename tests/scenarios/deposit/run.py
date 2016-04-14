@@ -18,8 +18,7 @@ def run(ctx):
             "dao_address": ctx.dao_addr,
             "proposal_deposit": ctx.args.proposal_deposit,
             "transaction_bytecode": bytecode,
-            "debating_period": ctx.args.deposit_debate_seconds,
-            "prop_id": ctx.next_proposal_id()
+            "debating_period": ctx.args.deposit_debate_seconds
         }
     )
     print(

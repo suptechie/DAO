@@ -59,4 +59,3 @@ def run(ctx):
         "deposit_returned": True,
         "offer_promise_valid": True
     })
-    ctx.prop_id = 1

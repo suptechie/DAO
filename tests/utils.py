@@ -373,6 +373,10 @@ def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
             SplitData s = p.splitData[sid];
             return address(s.newDAO);
         }
+
+        function extMinQuorum(uint _val) constant returns (uint _minQuorum) {
+            return minQuorum(_val);
+        }
 """
     )
     contents = str_replace_or_die(
