@@ -5,6 +5,7 @@ import os
 import json
 import sys
 import re
+from sha3 import sha3_256 as sha3
 from datetime import datetime
 from jsutils import js_common_intro
 
@@ -65,12 +66,28 @@ def seconds_in_future(secs):
     return ts_now() + secs
 
 
-def create_votes_array(amounts, succeed):
+def create_votes_array(amounts, approve):
+    """
+    Create an array of votes out of the tokens holders to either pass or
+    reject a proposal.
+        Parameters
+        ----------
+        amounts : list
+        The list of tokens each token holder has
+
+        approve : bool
+        True if we want to pass and false if we want to vote against
+        the proposal
+
+        Returns
+        ----------
+        The array of votes required
+    """
     votes = []
     total = sum(amounts)
     percentage = 0.0
 
-    if not succeed:
+    if not approve:
         for val in amounts:
             ratio = val/float(total)
             if (percentage + ratio < 0.5):
@@ -87,6 +104,45 @@ def create_votes_array(amounts, succeed):
             else:
                 votes.append(False)
 
+    return votes
+
+
+def create_votes_array_for_quorum(amounts, targetQuorum, approve):
+    """
+    Create an array of votes for a proposal that will reach a targetQuorum
+        Parameters
+        ----------
+        amounts : list
+        The list of tokens each token holder has
+
+        targetQuorum : float
+        A target quorum represented by a float ranging from 0.0 to 1.0. It
+        represents percentage of the quorum we want to achieve
+
+        approve : bool
+        True if we want to pass and false if we want to vote against
+        the proposal
+
+        Returns
+        ----------
+        The array of votes required
+    """
+    votes = []
+    total = sum(amounts)
+    percentage = 0.0
+
+    for val in amounts:
+        ratio = val/float(total)
+        if (percentage + ratio < targetQuorum):
+            votes.append(approve)
+            percentage += ratio
+        else:
+            break
+    if not votes or percentage > targetQuorum:
+        print("ERROR: Could not satisfy the target quorum of '{}' with the "
+              "currrent way the token holders bought tokens. Please rerun the "
+              "test in order to get a different set of token holders")
+        sys.exit(1)
     return votes
 
 
@@ -316,10 +372,10 @@ def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
     return new_path
 
 
-def calculate_bytecode(function_hash, value):
+def calculate_bytecode(function_name, *args):
     """
-    Create the bytecode for calling function with `function_hash` and the
-    given argument value as defined here:
+    Create the bytecode for calling function with `function_name` and the
+    given arguments as defined here:
     https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI#examples
 
         Parameters
@@ -327,24 +383,44 @@ def calculate_bytecode(function_hash, value):
         function_hash : string
         The first 4 bytes of the hash of the function signature.
 
-        value : anything
-        The value to encode. Encoding depends on the value's type
+        args : list
+        A list of arguments to encode. Each argument consists of a tuple of
+        the argument type and its value.
 
         Returns
         ----------
         results : string
-        The encoded ABI for the function call with the given argument
+        The encoded ABI for the function call with the given arguments
     """
-    value_type = type(value)
-    if value_type is bool:
-        value_type = int
-        value = 1 if value is True else 0
 
-    if value_type is int:
-        return "{0}{1:0{2}x}".format(function_hash, value, 64)
-    else:
-        print("Error: Invalid value type at 'calculate_bytecode()`")
-        sys.exit(1)
+    # form the function's hash
+    types = []
+    for arg in args:
+        types.append(arg[0])
+    function_hash = "0x" + sha3("{}({})".format(
+        function_name,
+        ','.join(types)
+    )).hexdigest()[:8]
+
+    bytecode = function_hash
+    for arg in args:
+        # import pdb
+        # pdb.set_trace()
+        arg_type = arg[0]
+        arg_val = arg[1]
+        if arg_type == "bool" or arg_type == "uint256":
+            if arg_type == "bool":
+                arg_val = 1 if arg[1] is True else 0
+            bytecode += "{0:0{1}x}".format(arg_val, 64)
+        elif arg_type == "address":
+            bytecode += arg_val.strip("0x").zfill(64)
+        else:
+            print(
+                "Error: Invalid argument type '{}' given at "
+                "'calculate_bytecode()`".format(arg_type)
+            )
+            sys.exit(1)
+    return bytecode
 
 
 def available_scenarios():
