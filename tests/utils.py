@@ -190,18 +190,23 @@ def extract_test_dict(name, output):
     return result
 
 
-def compare_values(a, b):
-    if isinstance(a, float) ^ isinstance(b, float):
-        print("ERROR: float compared with non-float")
-        return False
-    if isinstance(a, float):
-        return abs(a - b) <= 0.01
-    elif isinstance(a, basestring) and isinstance(b, int):
-        return int(a) == b
-    elif isinstance(b, basestring) and isinstance(a, int):
-        return a == int(b)
+def compare_values(got, expect):
+    if isinstance(got, float) ^ isinstance(expect, float):
+        if isinstance(got, int) and expect % 1 <= 0.01:
+            return int(expect) == got
+        elif isinstance(expect, int) and got % 1 <= 0.01:
+            return int(got) == expect
+        else:
+            print("ERROR: float compared with non-float")
+            return False
+    if isinstance(got, float):
+        return abs(got - expect) <= 0.01
+    elif isinstance(got, basestring) and isinstance(expect, int):
+        return int(got) == expect
+    elif isinstance(expect, basestring) and isinstance(got, int):
+        return got == int(expect)
     else:
-        return a == b
+        return got == expect
 
 
 def eval_test(name, output, expected_dict):
