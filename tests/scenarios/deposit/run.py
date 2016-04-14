@@ -7,9 +7,12 @@ scenario_description = (
 
 
 def run(ctx):
-    ctx.assert_scenario_ran('fund')
+    ctx.assert_scenario_ran('fuel')
 
-    bytecode = calculate_bytecode('0xe33734fd', ctx.args.deposit_new_value)
+    bytecode = calculate_bytecode(
+        'changeProposalDeposit',
+        ('uint256', ctx.args.deposit_new_value)
+    )
     ctx.create_js_file(substitutions={
             "dao_abi": ctx.dao_abi,
             "dao_address": ctx.dao_addr,
