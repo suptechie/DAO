@@ -27,7 +27,7 @@ import "./ManagedAccount.sol";
 contract DAOInterface {
 
     // The amount of days for which people who try to participate in the sale
-    // by calling the fallback function will still get their money back
+    // by calling the fallback function will still get their ether back
     uint constant saleGracePeriod = 40 days;
     // The minimum debate period that a generic proposal can have
     uint constant minProposalDebatePeriod = 2 weeks;
@@ -51,7 +51,7 @@ contract DAOInterface {
 
     // Address of the curator
     address public curator;
-    // The whitelist: List of addresses the DAO is allowed to send money to
+    // The whitelist: List of addresses the DAO is allowed to send ether to
     mapping (address => bool) public allowedRecipients;
 
     // Tracks the addresses that own Reward Tokens. Those addresses can only be
@@ -170,7 +170,7 @@ contract DAOInterface {
     function () returns (bool success);
 
 
-    /// @dev This function is used to send money back
+    /// @dev This function is used to send ether back
     /// to the DAO, it can also be used to receive payments that should not be
     /// counted as rewards (donations, grants, etc.)
     /// @return Whether the DAO received the ether successfully
