@@ -84,7 +84,7 @@ contract DAOInterface {
     uint public proposalDeposit;
 
     // the accumulated sum of all current proposal deposits
-    uint sumOfProposalDeposits;
+    uint public sumOfProposalDeposits;
 
     // Contract that is able to create a new DAO (with the same code as
     // this one), used for splits
@@ -782,7 +782,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function changeProposalDeposit(uint _proposalDeposit) noEther external {
-        if (msg.sender != address(this) || _proposalDeposit > actualBalance() / 10)
+        if (msg.sender != address(this) || _proposalDeposit > (actualBalance() + rewardToken[address(this)]) / 100)
             throw;
         proposalDeposit = _proposalDeposit;
     }
