@@ -66,7 +66,7 @@ Crowdfunding (\cite{2015CFReport}) amplifies the problem. On the one hand, it ha
 
 We present a potential solution using Ethereum, (\cite{buterin2013ethereum,Wood2014ethereum}) a blockchain technology which integrates a Turing complete programming language with smart contract processing functionality. We illustrate a method that for the first time allows the creation of organizations in which (1) participants maintain direct real-time control of contributed funds and (2) where governance rules are formalized, automated and enforced using software. Specifically, we have written generic smart contract code (\cite{szabo1997formalizing, miller1997future}) that can be used to form a Decentralized Autonomous Organization (DAO) on the Ethereum blockchain. In this paper we explain how a DAO's code works. We do so by focusing on some basic formation and governance features, including formation, creation and voting rights.
 
-We first describe a DAO's formation and basic functionality. We then discuss minority owner rights and propose a solution to the ``Majority Robbing the Minority Attack'' problem, the ``DAO split''. We then explore the smart contract code in detail, and conclude with an explanation and detailed specification of the ``DAO split''.
+We first describe a DAO's formation and basic functionality. We then discuss minority owner rights and propose a solution to the ``Majority Robbing the Minority Attack'' problem, the ``DAO split.'' We then explore the smart contract code in detail, and conclude with an explanation and detailed specification of the ``DAO split.''
 
 The code for the smart contracts is located at: \url{https://github.com/slockit/DAO/}
 
@@ -103,7 +103,7 @@ $\Xi_{DAO}$ is the amount of ether owned by a DAO and $R_{\text{DAO}}$ is the am
 
 This means, initially, a quorum of  $20\%$ of all tokens is required for any proposal to pass. In the event $\Xi_{\text{transfer}}$ equals the amount of ether a DAO has ever received, then a quorum of $53.33\%$ is required.
 
-In order to prevent ``proposal spam'', a minimal deposit can be required to be paid when creating a proposal, which gets refunded if quorum is achieved. If quorum is not achieved, the DAO keeps the proposal deposit. The value of the proposal deposit can be changed from the default value by the DAO through another proposal.
+In order to prevent ``proposal spam,'' a minimal deposit can be required to be paid when creating a proposal, which gets refunded if quorum is achieved. If quorum is not achieved, the DAO keeps the proposal deposit. The value of the proposal deposit can be changed from the default value by the DAO through another proposal.
 
 \section{Notation}
 Throughout this paper, $\Xi$ always represents an amount of ether in its base unit wei. This is defined as $1 \: \text{Wei} = 10^{-18} \: \text{Ether}$ (\cite{Wood2014ethereum}).
@@ -431,7 +431,7 @@ Those are all the member variables which are stored in this smart contract on th
 
 We will now discuss the functions of the DAO contract in detail. Many of the member variables that are used in this contract are defined in one of the other three contracts. 
 
-There is a special function which is called the constructor. It has the same name as the contract ``DAO''. This function is only executed once, when the DAO is created.
+There is a special function which is called the constructor. It has the same name as the contract ``DAO.'' This function is only executed once, when the DAO is created.
 In the DAO constructor, the following variables are set:
 \begin{itemize}
  \item \verb|curator|
