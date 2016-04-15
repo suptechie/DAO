@@ -325,7 +325,11 @@ def re_replace_or_die(string, varname, value):
     return new_string
 
 
-def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
+def edit_dao_source(
+        contracts_dir,
+        keep_limits,
+        halve_minquorum,
+        split_exec_period):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
 
@@ -334,7 +338,11 @@ def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
         re.sub
         contents = re_replace_or_die(contents, "minProposalDebatePeriod", "1")
         contents = re_replace_or_die(contents, "minSplitDebatePeriod", "1")
-        contents = re_replace_or_die(contents, "splitExecutionPeriod", "20")
+        contents = re_replace_or_die(
+            contents,
+            "splitExecutionPeriod",
+            str(split_exec_period)
+        )
         contents = re_replace_or_die(contents, "saleGracePeriod", "1")
 
     if halve_minquorum:  # if we are testing halve_minquorum remove year limit

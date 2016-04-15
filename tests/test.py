@@ -151,7 +151,8 @@ class TestContext():
         dao_contract = edit_dao_source(
             self.contracts_dir,
             keep_limits,
-            self.args.proposal_halveminquorum
+            self.args.proposal_halveminquorum,
+            self.args.split_execution_period
         )
 
         res = self.compile_contract(dao_contract)
