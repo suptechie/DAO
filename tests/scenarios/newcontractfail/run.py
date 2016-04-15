@@ -10,7 +10,7 @@ scenario_description = (
 def run(ctx):
     ctx.assert_scenario_ran('fuel')
 
-    votes = create_votes_array_for_quorum(ctx.token_amounts, 0.4, True)
+    votes = create_votes_array_for_quorum(ctx.token_amounts, 0.4, True, False)
     # let's just use an existing account
     newAddress = ctx.accounts[4]
     bytecode = calculate_bytecode('newContract', ("address", newAddress))

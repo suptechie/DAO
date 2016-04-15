@@ -27,6 +27,7 @@ tests/singlesplit.js
 tests/colmattack.js
 tests/newcontract.js
 tests/newcontractfail.js
+tests/multisplitrewards.js
 
 # Ignore deployment related file
 deploy/code.js

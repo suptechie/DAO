@@ -66,7 +66,7 @@ def seconds_in_future(secs):
     return ts_now() + secs
 
 
-def create_votes_array(amounts, approve):
+def create_votes_array(amounts, approve, reverse):
     """
     Create an array of votes out of the tokens holders to either pass or
     reject a proposal.
@@ -79,16 +79,21 @@ def create_votes_array(amounts, approve):
         True if we want to pass and false if we want to vote against
         the proposal
 
+        reverse : bool
+        True if we need to iterate the list in reverse to give chance for
+        True votes to the last accounts
+
         Returns
         ----------
         The array of votes required
     """
     votes = []
     total = sum(amounts)
+    amounts_for_traversal = list(reversed(amounts)) if reverse else amounts
     percentage = 0.0
 
     if not approve:
-        for val in amounts:
+        for val in amounts_for_traversal:
             ratio = val/float(total)
             if (percentage + ratio < 0.5):
                 votes.append(True)
@@ -96,7 +101,7 @@ def create_votes_array(amounts, approve):
             else:
                 votes.append(False)
     else:
-        for val in amounts:
+        for val in amounts_for_traversal:
             ratio = val/float(total)
             if percentage <= 0.5:
                 votes.append(True)
@@ -104,7 +109,7 @@ def create_votes_array(amounts, approve):
             else:
                 votes.append(False)
 
-    return votes
+    return list(reversed(votes)) if reverse else votes
 
 
 def create_votes_array_for_quorum(amounts, targetQuorum, approve):

@@ -1,12 +1,11 @@
 var dao_abi = $dao_abi;
 var dao = web3.eth.contract(dao_abi).at('$dao_address');
-var newCurator = eth.accounts[1];
 var split_execution_period = $split_execution_period;
-addToTest('new_curator', newCurator);
+var child_dao_curator = '$child_dao_curator';
 
 var prop_id = attempt_proposal(
     dao, // DAO in question
-    newCurator, // recipient
+    child_dao_curator, // recipient
     proposalCreator, // proposal creator
     0, // proposal amount in ether
     'Voting to split and change Curator', // description
@@ -40,7 +39,7 @@ setTimeout(function() {
     for (i = 0; i < votes.length; i++) {
         if (votes[i]) {
             console.log("User [" + i + "] is calling splitDAO()");
-            attempt_split(dao, prop_id, eth.accounts[i], newCurator, split_execution_period);
+            attempt_split(dao, prop_id, eth.accounts[i], child_dao_curator, split_execution_period);
         }
     }
     console.log("After split execution");
@@ -60,7 +59,8 @@ setTimeout(function() {
     addToTest('oldDaoRewardTokens', parseFloat(web3.fromWei(dao.rewardToken('$dao_address'))));
     addToTest('newDaoRewardTokens', parseFloat(web3.fromWei(dao.rewardToken(testMap['proposal_newdao']))));
 
-    addToTest('newDAOTotalSupply', parseInt(web3.fromWei(newdao.totalSupply())));
+    addToTest('new_dao_balance', web3.fromWei(eth.getBalance(newdao.address)).ceil());
+    addToTest('new_dao_total_supply', web3.fromWei(newdao.totalSupply()).ceil());
     addToTest('newDAOProposalDeposit', parseInt(web3.fromWei(newdao.proposalDeposit())));
     addToTest('new_dao_closing_time', parseInt(newdao.closingTime()));
 

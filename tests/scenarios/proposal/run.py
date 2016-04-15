@@ -28,7 +28,8 @@ def run(ctx):
     amount = random.randint(minamount, sum(ctx.token_amounts))
     votes = create_votes_array(
         ctx.token_amounts,
-        not ctx.args.proposal_fail
+        not ctx.args.proposal_fail,
+        False
     )
     yay, nay = count_token_votes(ctx.token_amounts, votes)
     ctx.create_js_file(substitutions={
