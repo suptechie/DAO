@@ -46,7 +46,7 @@
 \begin{document}
 
 \begin{abstract}
-This paper describes the first implementation of Decentralized Autonomous Organization (DAO) code to automate organizational governance and decision-making. The code can be used by individuals working together collaboratively outside of a traditional corporate form. It can also be used by a registered corporate entity to automate formal governance rules contained in corporate bylaws or imposed by law. We first discuss the DAO Concept. We then discuss minority rights, and propose a solution to a ``robbing the minority'' attack vector. Finally, we provide a practical implementation of a first generation DAO entity using smart contracts written in Solidity on the Ethereum blockchain.
+This paper describes the first implementation of Decentralized Autonomous Organization (DAO) code to automate organizational governance and decision-making. The code can be used by individuals working together collaboratively outside of a traditional corporate form. It can also be used by a registered corporate entity to automate formal governance rules contained in corporate bylaws or imposed by law. First the DAO Concept is described, then minority rights is discussed, and a solution to a ``robbing the minority'' attack vector isproposed. Finally, a practical implementation of a first generation DAO entity is provided using smart contracts written in Solidity on the Ethereum blockchain.
 \end{abstract}
 
 \maketitle
@@ -64,13 +64,13 @@ Rule-breaking within an organization not always obvious, and motives may not mat
 
 Crowdfunding (\cite{2015CFReport}) amplifies the problem. On the one hand, it has made it easier for small contributors to invest in large projects, and it has also made it possible for entrepreneurs to receive financial support that might not have been easily available in the past. On the other hand, small investors remain vulnerable to financial mismanagement or outright fraud, and because they have a small stake in a venture, they may lack power to identify problems, participate in governance decisions, or to easily recover their investment (\cite{9MostDisgracefulCrowdFundings, CrowdfundingFailTC}). At the same time, corporate leadership and management may be accused of malfeasance or mismanagement when they believe that they have acted in good faith, based on their understanding of their obligations and interpretation of applicable rules.
 
-We present a potential solution using Ethereum, (\cite{buterin2013ethereum,Wood2014ethereum}) a blockchain technology which integrates a Turing complete programming language with smart contract processing functionality. We illustrate a method that for the first time allows the creation of organizations in which (1) participants maintain direct real-time control of contributed funds and (2) where governance rules are formalized, automated and enforced using software. Specifically, we have written generic smart contract code (\cite{szabo1997formalizing, miller1997future}) that can be used to form a Decentralized Autonomous Organization (DAO) on the Ethereum blockchain. In this paper we explain how a DAO's code works. We do so by focusing on some basic formation and governance features, including formation, creation and voting rights.
+This paper presents a potential solution using Ethereum, (\cite{buterin2013ethereum,Wood2014ethereum}) a blockchain technology which integrates a Turing complete programming language with smart contract processing functionality. This paper illustrates a method that for the first time allows the creation of organizations in which (1) participants maintain direct real-time control of contributed funds and (2)  governance rules are formalized, automated and enforced using software. Specifically, generic smart contract code (\cite{szabo1997formalizing, miller1997future}) has been written that can be used to form a Decentralized Autonomous Organization (DAO) on the Ethereum blockchain. This paper explains how a DAO's code works, focusing on some basic formation and governance features, including structure, creation and voting rights.
 
-We first describe a DAO's formation and basic functionality. We then discuss minority owner rights and propose a solution to the ``Majority Robbing the Minority Attack'' problem, the ``DAO split.'' We then explore the smart contract code in detail, and conclude with an explanation and detailed specification of the ``DAO split.''
+First a DAO's Creation Phase and basic functionality are described. Then minority owner rights are discussed and a solution to the ``Majority Robbing the Minority Attack'' problem is proposed: the ``DAO split.'' The smart contract code is then explored in detail, and conclude with an explanation and detailed specification of the ``DAO split.''
 
 The code for the smart contracts is located at: \url{https://github.com/slockit/DAO/}
 
-A word of caution, at the outset:  the legal status of DAOs remains the subject of active and vigorous debate and discussion. Not everyone shares the same definition. Some have said that they are autonomous code and can operate independently of legal systems; others have said that they must be owned or operate by humans or human created entities. There will be many uses cases, and the DAO code will develop over time. Ultimately, how a DAO functions and its legal status will depend on many factors, including how DAO code is used, where it is used, and who uses it. We do not speculate about the legal status of DAOs worldwide. This paper is not intended to offer legal advice or conclusions. Anyone who uses DAO code will do so at their own risk.
+A word of caution, at the outset:  the legal status of DAOs remains the subject of active and vigorous debate and discussion. Not everyone shares the same definition. Some have said that they are autonomous code and can operate independently of legal systems; others have said that they must be owned or operate by humans or human created entities. There will be many uses cases, and the DAO code will develop over time. Ultimately, how a DAO functions and its legal status will depend on many factors, including how DAO code is used, where it is used, and who uses it. This paper does not speculate about the legal status of DAOs worldwide. This paper is not intended to offer legal advice or conclusions. Anyone who uses DAO code will do so at their own risk.
 
 
 
@@ -84,7 +84,7 @@ In exchange for ether, a DAO's code creates tokens that are assigned to the acco
 
 A minimum DAO Creation goal and Creation Phase time-period are set as parameters in a DAO's code at the time of deployment. If the minimum DAO Creation goal is not reached at the close of the Creation Phase, all ether is returned. After the Creation Phase has ended, the total ether raised is denoted by $\Xi_{\text{raised}}$ and the total amount of tokens created is denoted by $T_{\text{total}}$. 
 
-A DAO stores ether and other Ethereum based tokens and transmits them based on the DAO's code. It does not do much else. It cannot build a product, write code or develop hardware. It requires what we have called a ``Contractor'' to accomplish these and other goals. A DAO selects a Contractor by accepting a Contractor's proposal. 
+A DAO stores ether and other Ethereum based tokens and transmits them based on the DAO's code. It does not do much else. It cannot build a product, write code or develop hardware. It requires a ``Contractor'' to accomplish these and other goals. A DAO selects a Contractor by accepting a Contractor's proposal. 
 
 Any DAO Token Holder may become a Contractor by submitting proposals to use a DAO's ether, denoted by $\Xi_{\text{transfer}}$. If a proposal is approved, the DAO transmits ether to a smart contract representing the proposed project. Such smart contracts can be parameterized and enable a DAO to interact with and influence the project it chose to support.
 An example of such an agreement between a DAO and a project to be funded can be found in the appendix (\ref{app:SampleOffer}).
@@ -107,9 +107,10 @@ In order to prevent ``proposal spam,'' a minimal deposit can be required to be p
 
 \section{Notation}
 Throughout this paper, $\Xi$ always represents an amount of ether in its base unit wei. This is defined as $1 \: \text{Wei} = 10^{-18} \: \text{Ether}$ (\cite{Wood2014ethereum}).
-Similarly, DAO tokens are denoted with $T$ and always represent the amount of DAO tokens in its base unit. We define this as $10^{-16}$ DAO token.
+Similarly, DAO tokens are denoted with $T$ and always represent the amount of DAO tokens in its base unit, defined as $10^{-16}$ DAO token.
+
 \section{Majority robs minority attack}
-Minority owner rights can be a problem in any corporate form. Minority rights may be protected or addressed by provisions in corporate governance documents or by statute or judge-made law. But many of these solutions fail because minority owners may lack voting rights or the ability to ``vote with their feet" and easily retrieve their capital. We present a solution to this problem in the DAO's code. 
+Minority owner rights can be a problem in any corporate form. Minority rights may be protected or addressed by provisions in corporate governance documents or by statute or judge-made law. But many of these solutions fail because minority owners may lack voting rights or the ability to ``vote with their feet" and easily retrieve their capital. This paper presents a solution to this problem in the DAO's code. 
 
 A problem every DAO has to mitigate is the ability for the majority to rob the minority by changing governance and ownership rules after DAO formation. For example, an attacker with $51\%$ of the tokens, acquired either during the funding period or purchased afterwards, could make a proposal to send all the funds to themselves. Since they would hold the majority of the tokens, they would always be able to pass their proposals.
 
@@ -132,7 +133,7 @@ The debating period is used to discuss (on or off-chain) the new Curator and con
 
 \section{Token Price} \label{TokenPrice}
 DAO Token Creation schedule increases over time. This reflects an assumption that early acts of DAO Creation have greater risk, as they may have less information about the potential success of the DAO and do not know whether what contribution will lead to full funding of the DAO. 
-For the DAO described here, we have chosen the following Creation schedule:
+The DAO described in this paper has the following Creation schedule:
 \begin{equation}
  P(t) = \begin{cases}
 1 & \text{if} \quad t < t_c - 2 \cdot \text{w} \\
@@ -154,7 +155,7 @@ This rule is implemented in the internal function \verb|isRecipientAllowed| in s
 
 \section{Contracts}
 This section will detail the smart contracts implementing the aforementioned concept. The contracts are written in the programming language Solidity (\cite{ReitwiessnerWoodSolidity}).
-Each contract has member variables and functions which can be externally called by sending a transaction to the Ethereum network with the DAO contract address as the recipient and the method ID (optional with parameters) as data. In this section we will discuss the meaning of the variables and the functions in detail.
+Each contract has member variables and functions which can be externally called by sending a transaction to the Ethereum network with the DAO contract address as the recipient and the method ID (optional with parameters) as data. This section will discuss the meaning of the variables and the functions in detail.
 
 The main contract is called 'DAO'. It defines the inner workings of the DAO and it derives the member variables and functions from 'Token' and 'TokenSale'. ‘Token’ defines the inner workings of the DAO Token and ‘TokenSale’ defines how the DAO token is purchased for ether. In addition to these three contracts, there is the 'ManagedAccount' contract, which acts as a helper contract to store the rewards which are to be distributed to the token holders and the \verb|extraBalance| (see section \ref{TokenPrice}).
 The contract 'SampleOffer' (\ref{app:SampleOffer}) is an example of what a proposal from a contractor to the DAO could look like.
@@ -368,7 +369,7 @@ contract DAOInterface {
 \begin{multicols}{2}
 The original contract used as a starting point for the ‘’DAO’’ was: \url{http://chriseth.github.io/browser-solidity/?gist=192371538cf5e43e6dab} as described in 
 \url{https://blog.ethereum.org/2015/12/04}. The main feature added is the splitting mechanism and all that comes with it.
-Now we will define the member variables and functions one at a time. 
+This section will define the member variables and functions from the above smart contract one at a time. 
 
 The array \verb|proposals| holds all the proposals ever made. 
 
@@ -429,7 +430,7 @@ The split data structure is used to split the DAO. It contains:
 
 Those are all the member variables which are stored in this smart contract on the blockchain. This information can at any time be read from the blockchain using an Ethereum client.
 
-We will now discuss the functions of the DAO contract in detail. Many of the member variables that are used in this contract are defined in one of the other three contracts. 
+This section will discuss the functions of the DAO contract in detail. Many of the member variables that are used in this contract are defined in one of the other three contracts. 
 
 There is a special function which is called the constructor. It has the same name as the contract ``DAO.'' This function is only executed once, when the DAO is created.
 In the DAO constructor, the following variables are set:
@@ -596,7 +597,7 @@ The function \verb|payOut| can only be executed by the \verb|owner| (in our case
 
 \section{Reward Tokens} \label{RewardToken}
 
-In this section we give a description of how reward tokens are implemented in this contract. Much of the information has already been explained, but it is restated here for clarity. 
+This section gives a description of how reward tokens are implemented in this contract. Much of the information has already been explained, but it is restated here for clarity. 
 
 Reward tokens are used to divide the ether sent to \verb|DAOrewardAccount| amongst the various DAOs that own reward tokens. Reward tokens are only transferred in the event of a DAO split or an update of the contract, they can never be owned by anything other than the original DAO or a “fork” of the original DAO that generated the reward tokens. 
 
@@ -609,7 +610,7 @@ These payouts are tracked by the map \verb|paidOut| which keeps track of which t
 
 \section{Split} \label{split}
 
-In this section we want to formally describe some parameters and their behavior during a split.
+This section formally describes a few important parameters and their behavior during a split.
 
 The total amount of DAO tokens \verb|totalSupply| is defined as follows:
 \begin{equation}
@@ -652,7 +653,7 @@ This process allows DAO token holders to retrieve their ether from the DAO at an
 Although the code of the contract specified at a certain address in the Ethereum blockchain can not be changed, there might still be a need for a single member or the DAO as a whole to change the contracts.
 Every single member can always split the DAO as described above and move their funds to a new DAO. From there they can move their funds to another new DAO with a new smart contract.
 But in order to use a new code for the complete DAO one can simply create a new DAO contract with all the needed features and deploy it on the blockchain, and make a proposal to call the \verb|newContract| function with the address of the new contract as parameter.
-If accepted, the complete DAO moves to the new contract, meaining, all ether and reward tokens are transferred to the new contract. In order to use the same underlying DAO tokens there, one can use the \verb|approve| function and give the new DAO the right to move the tokens. In the new contract this right should only be usable in restricted functions which are only callable by the owner of the tokens.
+If accepted, the complete DAO moves to the new contract, meaning, all ether and reward tokens are transferred to the new contract. In order to use the same underlying DAO tokens there, one can use the \verb|approve| function and give the new DAO the right to move the tokens. In the new contract this right should only be usable in restricted functions which are only callable by the owner of the tokens.
 Another option is to create new tokens in the new contract based on the token distribution in the old contract. This can also be achieved by a proof that the old tokens are destroyed (sending to the $0$ address).
 This process allows for the DAO to maintain static immutable code on the Ethereum blockchain, while still being able to be updated if the need arises.
 
