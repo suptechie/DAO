@@ -14,8 +14,8 @@ def run(ctx):
         "dao_abi": ctx.dao_abi,
         "dao_address": ctx.dao_addr,
         "proposal_deposit": ctx.args.proposal_deposit,
-        "split_gas": 4000000,
-        "debating_period": ctx.args.proposal_debate_seconds
+        "debating_period": ctx.args.proposal_debate_seconds,
+        "split_execution_period": ctx.args.split_execution_period
     })
     print(
         "Notice: Debate period is {} seconds so the test will wait "

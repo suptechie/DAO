@@ -1,11 +1,12 @@
 var dao_abi = $dao_abi;
 var dao = web3.eth.contract(dao_abi).at('$dao_address');
-var newCurator = eth.accounts[1];
+var split_execution_period = $split_execution_period;
+var new_curator = eth.accounts[1];
 
 var prop_id = attempt_proposal(
     dao, // DAO in question
-    newCurator, // recipient
-    newCurator, // proposal creator
+    new_curator, // recipient
+    new_curator, // proposal creator
     0, // proposal amount in ether
     'Our disgruntled user wants to split out', // description
     '', //bytecode
@@ -31,14 +32,9 @@ addToTest('proposal_nay', parseInt(web3.fromWei(dao.proposals(prop_id)[10])));
 
 setTimeout(function() {
     miner.stop(0);
-    console.log("Executing the split proposal...");
     // now our disgruntled user is the only one to execute the splitDAO function
-    dao.splitDAO.sendTransaction(
-        prop_id,
-        newCurator,
-        {from:newCurator, gas: $split_gas}
-    );
-    checkWork();
+    attempt_split(dao, prop_id, new_curator, new_curator, split_execution_period);
+
     console.log("After split execution");
     addToTest('proposal_passed', dao.proposals(prop_id)[5]);
     addToTest('proposal_newdao', dao.splitProposalNewAddress(prop_id, 0));
@@ -60,8 +56,8 @@ setTimeout(function() {
         // now our disgruntled user has his own DAO and is the SP of that DAO so ...
         var new_prop_id = attempt_proposal(
             newdao, // DAO in question
-            newCurator, // recipient
-            newCurator, // proposal creator
+            new_curator, // recipient
+            new_curator, // proposal creator
             testMap['newDAOTotalSupply'], // proposal amount in ether
             'Send all money to myself!! Screw you guys ... I am going home!', // description
             '', //bytecode
@@ -75,18 +71,18 @@ setTimeout(function() {
             new_prop_id,
             true,
             {
-                from: newCurator,
+                from: new_curator,
                 gas: 1000000
             });
         checkWork();
         addToTest('newdao_proposals_num', newdao.numberOfProposals());
-        addToTest('angry_user_before', web3.fromWei(eth.getBalance(newCurator)));
+        addToTest('angry_user_before', web3.fromWei(eth.getBalance(new_curator)));
         setTimeout(function() {
             // now execute the proposal
-            newdao.executeProposal.sendTransaction(new_prop_id, '', {from:newCurator, gas:4000000});
+            newdao.executeProposal.sendTransaction(new_prop_id, '', {from:new_curator, gas:4000000});
             checkWork();
             addToTest('newdao_proposal_passed', newdao.proposals(new_prop_id)[5]);
-            addToTest('angry_user_after', web3.fromWei(eth.getBalance(newCurator)));
+            addToTest('angry_user_after', web3.fromWei(eth.getBalance(new_curator)));
             addToTest(
                 'angry_user_profit',
                 bigDiffRound(testMap['angry_user_after'], testMap['angry_user_before'])
@@ -94,7 +90,7 @@ setTimeout(function() {
             testResults();
         }, $debating_period * 1000);
         console.log("Wait for end of second debating period");
-    }, 20 * 1000);
+    }, split_execution_period * 1000);
     console.log("Wait for new DAO funding period to end");
 }, $debating_period * 1000);
 console.log("Wait for end of first debating period");
