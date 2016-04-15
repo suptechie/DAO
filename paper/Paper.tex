@@ -146,11 +146,11 @@ with the multiplier $m$ defined as:
  m(t) = (t - (t_c - 2 \cdot \text{w})) / \text{d}
 \end{equation}
 Here $t$ is the unix time in seconds, $t_c$ is the closing time of the funding period (see \ref{app:TokenSale} \verb|closingTime|), $w$ is a week in seconds and $d$ a day in seconds.
-Hence the number of tokens (in its base unit) each buyer receives is calculated as: $P(t) \cdot \Xi_c$. Here $\Xi_c$ stands for the amount of ether sent to fuel the DAO, denoted in wei.
-This results in a constant Creation ratio in the beginning, until $2$ weeks before the end of the DAO Creation. At this time the Creation ratio increases daily by $0.05 \: \Xi_c$ per base unit of DAO token. Until $4$ days before the closing time when there will be a constant Creation ratio of $1.5 \: \Xi_c$ per base unit of DAO token.
+Hence the number of tokens (in its base unit) each buyer Creates is calculated as: $P(t) \cdot \Xi_c$. Here $\Xi_c$ stands for the amount of ether sent to fuel the DAO, denoted in wei.
+This results in a constant Creation rate in the beginning, until $2$ weeks before the end of the DAO Creation Phase. At this time the Creation rate increases daily by $0.05 \: \Xi_c$ per base unit of DAO token. Until $4$ days before the closing time when there will be a constant Creation rate of $1.5 \: \Xi_c$ per base unit of DAO token.
 
-Creation ratio increases during the Creation Phase could lead to a situation where a single contributor, having bought tokens at the initial Creation ratio, could split the DAO immediately after the sale ends, thereby receiving more ether than they put in due to other contributors having a higher Creation ratio (\cite{GriffDiscussion}).
-In order to avoid that possibility, all ether that is received above the initial Creation ratio of the token, will be sent to an extra account. Denoted as \verb|extraBalance| in \ref{app:TokenSale}. This ether can be sent back to the DAO through a proposal after the DAO has spent at least this amount of ether.
+Creation rate increases during the Creation Phase could lead to a situation where a single contributor, having bought tokens at the initial Creation rate, could split the DAO immediately after the sale ends, thereby receiving more ether than they put in due to other contributors having fueled a DAO at a higher Creation rate (\cite{GriffDiscussion}).
+In order to avoid that possibility, all ether that is used to fuel the DAO above the initial Creation rate, will be sent to an extra account. Denoted as \verb|extraBalance| in \ref{app:TokenSale}. This ether can be sent back to the DAO through a proposal after the DAO has spent at least this amount of ether.
 This rule is implemented in the internal function \verb|isRecipientAllowed| in section \ref{DAO}.
 
 \section{Contracts}
