@@ -341,7 +341,7 @@ contract DAOInterface {
     event Voted(uint indexed proposalID, bool position, address indexed voter);
     event ProposalTallied(uint indexed proposalID, bool result, uint quorum);
     event NewCurator(address indexed _newCurator);
-    event AllowedRecipientAdded(address indexed _recipient);
+    event AllowedRecipientChanged(address indexed _recipient, bool _allowed);
 }
 
 // The DAO contract itself
@@ -798,6 +798,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         if (msg.sender != curator)
             throw;
         allowedRecipients[_recipient] = _allowed;
+        AllowedRecipientChanged(_recipient, _allowed);
         return true;
     }
 
