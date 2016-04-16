@@ -29,9 +29,18 @@ def run(ctx):
         "as much".format(sale_secs)
     )
 
+    adjusted_amounts = (
+        [x/1.5 for x in ctx.token_amounts]
+        if ctx.args.scenario == "extrabalance" else ctx.token_amounts
+    )
+    adjusted_supply = (
+        ctx.total_supply / 1.5
+        if ctx.args.scenario == "extrabalance" else ctx.total_supply
+    )
+
     ctx.execute(expected={
         "dao_fueled": True,
-        "total_supply": ctx.total_supply,
-        "balances": ctx.token_amounts,
-        "user0_after": ctx.token_amounts[0],
+        "total_supply": adjusted_supply,
+        "balances": adjusted_amounts,
+        "user0_after": adjusted_amounts[0]
     })

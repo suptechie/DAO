@@ -152,7 +152,8 @@ class TestContext():
             self.contracts_dir,
             keep_limits,
             self.args.proposal_halveminquorum,
-            self.args.split_execution_period
+            self.args.split_execution_period,
+            self.args.scenario == "extrabalance"
         )
 
         res = self.compile_contract(dao_contract)

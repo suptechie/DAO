@@ -16,10 +16,10 @@ checkWork();
 setTimeout(function() {
     miner.stop(0);
     addToTest('dao_fueled', dao.isFueled());
-    addToTest('total_supply', parseInt(web3.fromWei(dao.totalSupply())));
+    addToTest('total_supply', parseFloat(web3.fromWei(dao.totalSupply())));
     var balances = [];
     for (i = 0; i < eth.accounts.length; i++) {
-        balances.push(parseInt(web3.fromWei(dao.balanceOf(eth.accounts[i]))));
+        balances.push(parseFloat(web3.fromWei(dao.balanceOf(eth.accounts[i]))));
     }
     addToTest('balances', balances);
 
@@ -35,7 +35,7 @@ setTimeout(function() {
     });
     // and confirm balance is still the same
     checkWork();
-    addToTest('user0_after', parseInt(web3.fromWei(dao.balanceOf(eth.accounts[0]))));
+    addToTest('user0_after', parseFloat(web3.fromWei(dao.balanceOf(eth.accounts[0]))));
     testResults();
 }, $wait_ms);
 console.log("Wait for end of sale");
