@@ -46,7 +46,7 @@
 \begin{document}
 
 \begin{abstract}
-This paper describes the first implementation of Decentralized Autonomous Organization (DAO) code to automate organizational governance and decision-making. The code can be used by individuals working together collaboratively outside of a traditional corporate form. It can also be used by a registered corporate entity to automate formal governance rules contained in corporate bylaws or imposed by law. First the DAO Concept is described, then minority rights is discussed, and a solution to a ``robbing the minority'' attack vector isproposed. Finally, a practical implementation of a first generation DAO entity is provided using smart contracts written in Solidity on the Ethereum blockchain.
+This paper describes the first implementation of Decentralized Autonomous Organization (DAO) code to automate organizational governance and decision-making. The code can be used by individuals working together collaboratively outside of a traditional corporate form. It can also be used by a registered corporate entity to automate formal governance rules contained in corporate bylaws or imposed by law. First the DAO concept is described, then minority rights is discussed, and a solution to a ``robbing the minority'' attack vector is proposed. Finally, a practical implementation of a first generation DAO entity is provided using smart contracts written in Solidity on the Ethereum blockchain.
 \end{abstract}
 
 \maketitle
@@ -132,7 +132,7 @@ This is $7$ days less than the minimum required for regular proposals, allowing 
 The debating period is used to discuss (on or off-chain) the new Curator and conduct a first vote that's non-binding. After this first vote, token holders can confirm its results or not. In the case a majority opts to  keep the original Curator, the minority can either keep the original Curator in order to avoid a split, or inversely they can confirm their vote for a new Curator and move their portion of the ether to a new DAO.
 
 \section{Token Price} \label{TokenPrice}
-DAO Token Creation schedule increases over time. This reflects an assumption that early acts of DAO Creation have greater risk, as they may have less information about the potential success of the DAO and do not know whether what contribution will lead to full funding of the DAO. 
+DAO Token Creation rate decreases over time. This reflects an assumption that early acts of DAO Creation have greater risk, as they may have less information about the potential success of the DAO and do not know whether what contribution will lead to full funding of the DAO. 
 The DAO described in this paper has the following Creation schedule:
 \begin{equation}
  P(t) = \begin{cases}
@@ -146,11 +146,11 @@ with the multiplier $m$ defined as:
  m(t) = (t - (t_c - 2 \cdot \text{w})) / \text{d}
 \end{equation}
 Here $t$ is the unix time in seconds, $t_c$ is the closing time of the funding period (see \ref{app:TokenSale} \verb|closingTime|), $w$ is a week in seconds and $d$ a day in seconds.
-Hence the number of tokens (in its base unit) each buyer receives is calculated as: $P(t) \cdot \Xi_c$. Here $\Xi_c$ stands for the amount of ether sent to fuel the DAO, denoted in wei.
-This results in a constant Creation ratio in the beginning, until $2$ weeks before the end of the DAO Creation. At this time the Creation ratio increases daily by $0.05 \: \Xi_c$ per base unit of DAO token. Until $4$ days before the closing time when there will be a constant Creation ratio of $1.5 \: \Xi_c$ per base unit of DAO token.
+Hence the number of tokens (in its base unit) each buyer Creates is calculated as: $P(t) \cdot \Xi_c$. Here $\Xi_c$ stands for the amount of ether sent to fuel a DAO, denoted in wei.
+This results in a constant Creation rate in the beginning, until $2$ weeks before the end of the DAO Creation Phase. At this time the amount of ether required to Create DAO tokens increases daily by $0.05 \: \Xi_c$ per base unit of DAO token. Until $4$ days before the closing time when there will be a constant Creation rate of $1.5 \: \Xi_c$ per base unit of DAO token.
 
-Creation ratio increases during the Creation Phase could lead to a situation where a single contributor, having bought tokens at the initial Creation ratio, could split the DAO immediately after the sale ends, thereby receiving more ether than they put in due to other contributors having a higher Creation ratio (\cite{GriffDiscussion}).
-In order to avoid that possibility, all ether that is received above the initial Creation ratio of the token, will be sent to an extra account. Denoted as \verb|extraBalance| in \ref{app:TokenSale}. This ether can be sent back to the DAO through a proposal after the DAO has spent at least this amount of ether.
+Creation rate decreases during the Creation Phase could lead to a situation where a single contributor, having Created DAO tokens at the initial Creation rate, could split the DAO immediately after the Creation Phase ends, thereby receiving more ether than they put in due to other contributors having fueled a DAO at a higher Creation rate (\cite{GriffDiscussion}).
+In order to avoid that possibility, all ether that is used to fuel a DAO above the initial Creation rate, will be sent to an extra account. Denoted as \verb|extraBalance| in \ref{app:TokenSale}. This ether can be sent back to the DAO through a proposal after the DAO has spent at least this amount of ether.
 This rule is implemented in the internal function \verb|isRecipientAllowed| in section \ref{DAO}.
 
 \section{Contracts}
@@ -224,19 +224,19 @@ contract TokenSaleInterface {
 \begin{multicols}{2}
 Above is the interface of the \verb|TokenSale| contract (\ref{app:TokenSale}). 
 
-The integer \verb|closingTime| is the (unix) time at which the token sale ends.
+The integer \verb|closingTime| is the (unix) time at which the Creation Phase ends.
 
 The integer \verb|minValue| is the number of wei which are needed to be received by the DAO in order to get funded.
 
 The boolean \verb|isFueled| is true if DAO has reached its minimum fueling goal, false otherwise.
 
-The address \verb|privateSale| is used for DAO splits - if it is set to 0, then it is a public sale, otherwise, only the address stored in \verb|privateSale| is allowed to purchase tokens.
+The address \verb|privateSale| is used for DAO splits - if it is set to 0, then it is a public Creation, otherwise, only the address stored in \verb|privateSale| is allowed to purchase tokens.
 
-The managed account (\ref{app:ManagedAccount}) \verb|extraBalance| is used to hold the excess ether which is received after the token price is increased during the sale. Anything that has been paid above the initial price goes to this account.
+The managed account (\ref{app:ManagedAccount}) \verb|extraBalance| is used to hold the excess ether which is received after the Creation rate is decreased during the Creation Phase. Anything that has been paid above the initial price goes to this account.
 
-The map \verb|weiGiven| stores the amount of wei given by each contributor during the sale and is only used to refund the contributors if the Token sale does not reach its funding goal.
+The map \verb|weiGiven| stores the amount of wei given by each contributor during the Creation Phase and is only used to refund the contributors if the Creation Phase does not reach its funding goal.
 
-The constructor \verb|TokenSale| initiates the token sale with the arguments \verb|minValue|, \verb|closingtime| and \verb|privateSale|, which will be set in the constructor of the DAO contract (\ref{app:DAO}) which is only executed once, when the DAO is deployed. 
+The constructor \verb|TokenSale| initiates the Creation Phase with the arguments \verb|minValue|, \verb|closingtime| and \verb|privateSale|, which will be set in the constructor of the DAO contract (\ref{app:DAO}) which is only executed once, when the DAO is deployed. 
 In order to interact with the contract the following functions can be used:
 
 \subsubsection*{buyTokenProxy}
@@ -244,12 +244,12 @@ This function creates one unit of the DAO token’s minimum denomination for eve
 The parameter \verb|tokenHolder| defines the receiver of the newly minted tokens. 
 
 \subsubsection*{refund}
-This function can be called by any contributor to recieve their wei back if the token sale failed to meet its funding goal.
+This function can be called by any contributor to receive their wei back if the Creation Phase failed to meet its funding goal.
 
 \subsubsection*{divisor}
-This function is used to calculate the price of the token during the sale in the function \verb|buyTokenProxy|.
+This function is used to calculate the price of the token during the Creation Phase in the function \verb|buyTokenProxy|.
 
-The events \verb|FundingToDate|, \verb|SoldToken| and \verb|Refund| are used to inform lightweight clients of the status of the token sale.
+The events \verb|FundingToDate|, \verb|SoldToken| and \verb|Refund| are used to inform lightweight clients of the status of the Creation Phase.
 \end{multicols}
 
 \subsection{DAO} \label{DAO}
@@ -452,7 +452,7 @@ In order to interact with the smart contract the following functions are used:
 
 \subsubsection*{fallback function}
 The fallback function is a function without a specific name. It is called when the contract receives a transaction without data (a pure value transfer). There are no direct arguments for this function.
-The fallback function will call \verb|buyTokenProxy| passing the address of the sender as an argument during the token sale. This will trigger the immediate purchase of tokens. In order to protect users, this function will send the ether received after the end of the sale back to the sender for a time period of $40$ days. After which this function is repurposed to receive ether as simple deposit to the DAO using the function \verb|receiveEther|.
+The fallback function will call \verb|buyTokenProxy| passing the address of the sender as an argument during the Creation Phase. This will trigger the immediate purchase of tokens. In order to protect users, this function will send the ether received after the end of the Creation Phase back to the sender for a time period of $40$ days. After which this function is repurposed to receive ether as simple deposit to the DAO using the function \verb|receiveEther|.
 
 \subsubsection*{receiveEther}
 A simple function used to receive ether. It does nothing but return true when the DAO receives ether.
