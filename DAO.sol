@@ -40,14 +40,17 @@ contract DAOInterface {
     // Period after which a proposal can be closed
     // (used in the case `executeProposal` fails because it throws)
     uint constant executeProposalPeriod = 5 days;
+    // Denotes the maximum proposal deposit that can be given. It is given as
+    // a fraction of total Ether spent plus balance of the DAO
+    uint constant maxDepositDivisor = 100;
 
     // Proposals to spend the DAO's ether or to choose a new Curator
     Proposal[] public proposals;
     // The quorum needed for each proposal is partially calculated by
     // totalSupply / minQuorumDivisor
-    uint minQuorumDivisor;
+    uint public minQuorumDivisor;
     // The unix time of the last time quorum was reached on a proposal
-    uint lastTimeMinQuorumMet;
+    uint  public lastTimeMinQuorumMet;
 
     // Address of the curator
     address public curator;
@@ -782,8 +785,11 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function changeProposalDeposit(uint _proposalDeposit) noEther external {
-        if (msg.sender != address(this) || _proposalDeposit > actualBalance() / 10)
+        if (msg.sender != address(this) || _proposalDeposit > (actualBalance() + rewardToken[address(this)])
+            / maxDepositDivisor) {
+
             throw;
+        }
         proposalDeposit = _proposalDeposit;
     }
 
@@ -807,7 +813,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             return false;
     }
 
-    function actualBalance() internal constant returns (uint _actualBalance) {
+    function actualBalance() constant returns (uint _actualBalance) {
         return this.balance - sumOfProposalDeposits;
     }
 
