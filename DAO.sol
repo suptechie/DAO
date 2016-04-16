@@ -40,9 +40,10 @@ contract DAOInterface {
     // Period after which a proposal can be closed
     // (used in the case `executeProposal` fails because it throws)
     uint constant executeProposalPeriod = 5 days;
-    // Denotes the maximim proposal deposit that can be given. It is given as
+    // Denotes the maximum proposal deposit that can be given. It is given as
     // a fraction of total Ether spent plus balance of the DAO
     uint constant maxDepositDivisor = 100;
+
     // Proposals to spend the DAO's ether or to choose a new Curator
     Proposal[] public proposals;
     // The quorum needed for each proposal is partially calculated by
@@ -86,7 +87,7 @@ contract DAOInterface {
     uint public proposalDeposit;
 
     // the accumulated sum of all current proposal deposits
-    uint public sumOfProposalDeposits;
+    uint sumOfProposalDeposits;
 
     // Contract that is able to create a new DAO (with the same code as
     // this one), used for splits
@@ -812,7 +813,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             return false;
     }
 
-    function actualBalance() internal constant returns (uint _actualBalance) {
+    function actualBalance() constant returns (uint _actualBalance) {
         return this.balance - sumOfProposalDeposits;
     }
 
