@@ -4,59 +4,32 @@ var attacker = eth.accounts[2];
 addToTest('attacker_balance_before', web3.fromWei(eth.getBalance(attacker)));
 addToTest('attacker_dao_balance_before', web3.fromWei(dao.balanceOf(attacker)));
 
-// add SP to the whitelist
+// add curator to the whitelist
 dao.changeAllowedRecipients.sendTransaction(curator, true, {from:curator, gas:200000});
 
-console.log("Making the attack proposal");
-var attack_proposal_id = $attack_proposal_id;
-var tx_hash = null;
-dao.newProposal.sendTransaction(
-    curator, // only address currently in the whitelist
-    web3.toWei(0, "ether"), // irrelevant
-    'The colm attack proposal with a big deposit',
-    '',
-    $attack_debating_period,
-    false,
-    {
-        from: attacker,
-        value: web3.toWei($attack_deposit, "ether"), // big deposit
-        gas: 4000000
-    }
-    , function (e, res) {
-        if (e) {
-            console.log(e + "at newProposal()!");
-        } else {
-            tx_hash = res;
-            console.log("newProposal tx hash is: " + tx_hash);
-        }
-    }
+var attack_proposal_id = attempt_proposal(
+    dao, // DAO in question
+    curator, // recipient
+    attacker, // proposal creator
+    0, // proposal amount in ether
+    'The colm attack proposal with a big deposit', // description
+    '', //bytecode
+    $attack_debating_period, // debating period
+    $attack_deposit, // proposal deposit in ether
+    false // whether it's a split proposal or not
 );
-checkWork();
-console.log("After attack proposal. Proposals Number: " + dao.numberOfProposals());
-console.log("Making the split proposal");
-var split_proposal_id = attack_proposal_id + 1;
-dao.newProposal.sendTransaction(
-    attacker, // new SP
-    0,
-    'attacker wants to split out',
-    '',
-    $split_debating_period,
-    true,
-    {
-        from: attacker,
-        gas: 1000000
-    }
-    , function (e, res) {
-        if (e) {
-            console.log(e + "at newProposal()!");
-        } else {
-            tx_hash = res;
-            console.log("newProposal tx hash is: " + tx_hash);
-        }
-    }
+
+var split_proposal_id = attempt_proposal(
+    dao, // DAO in question
+    attacker, // recipient
+    attacker, // proposal creator
+    0, // proposal amount in ether
+    'attacker wants to split out', // description
+    '', //bytecode
+    $split_debating_period, // debating period
+    0, // proposal deposit in ether
+    true // whether it's a split proposal or not
 );
-checkWork();
-console.log("After split proposal. Proposals Number: " + dao.numberOfProposals());
 
 console.log("Vote on proposals");
 // everyone votes on the attack proposal

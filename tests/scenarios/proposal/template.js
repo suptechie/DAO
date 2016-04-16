@@ -11,21 +11,17 @@ if ($should_halve_minquorum) {
 }
 
 addToTest('creator_balance_before', web3.fromWei(eth.getBalance(proposalCreator)));
-console.log("Creating a new proposal for $offer_amount ether.");
-dao.newProposal.sendTransaction(
-    '$offer_address',
-    web3.toWei($offer_amount, "ether"),
-    '$offer_desc',
-    '$transaction_bytecode',
-    $debating_period,
-    false,
-    {
-        from: proposalCreator,
-        value: web3.toWei($proposal_deposit, "ether"),
-        gas: 1000000
-    }
+var prop_id = attempt_proposal(
+    dao, // DAO in question
+    '$offer_address', // recipient
+    proposalCreator, // proposal creator
+    $offer_amount, // proposal amount in ether
+    '$offer_desc', // description
+    '$transaction_bytecode', //bytecode
+    $debating_period, // debating period
+    $proposal_deposit, // proposal deposit in ether
+    false // whether it's a split proposal or not
 );
-checkWork();
 
 addToTest('creator_balance_after_proposal', web3.fromWei(eth.getBalance(proposalCreator)));
 addToTest(
@@ -35,8 +31,6 @@ addToTest(
 addToTest('dao_proposals_number', dao.numberOfProposals());
 
 var votes = $votes;
-var prop_id = 1;
-
 console.log("Deadline is: " + dao.proposals(prop_id)[3] + " Voting ... ");
 for (i = 0; i < votes.length; i++) {
     console.log("User " + i +" is voting ["+ votes[i] +"]. His token balance is: " + web3.fromWei(dao.balanceOf(eth.accounts[i])) + " ether and NOW is: " + Math.floor(Date.now() / 1000));

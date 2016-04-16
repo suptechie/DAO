@@ -18,7 +18,6 @@ def run(ctx):
         "attack_debating_period": ctx.args.colmattack_attack_debate_secs,
         "split_debating_period": ctx.args.colmattack_split_debate_secs,
         "attack_deposit": ctx.args.colmattack_attack_deposit,
-        "attack_proposal_id": ctx.next_proposal_id()
     })
 
     ctx.execute(expected={

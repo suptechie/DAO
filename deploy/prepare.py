@@ -24,7 +24,8 @@ class TestDeployContext():
             contract_path = edit_dao_source(
                 self.args.contracts_dir,
                 False,
-                True
+                True,
+                self.args.split_execution_period
             )
         else:
             contract_path = os.path.join(
@@ -79,6 +80,15 @@ if __name__ == "__main__":
         type=int,
         default=10,
         help='The proposal deposit (in ether) for every proposal of the DAO'
+    )
+    p.add_argument(
+        '--split-execution-period',
+        type=int,
+        default=20,
+        help=(
+            'Number of seconds after the voting deadline for which a split '
+            'proposal is executable'
+        )
     )
     args = p.parse_args()
     ctx = TestDeployContext(args)

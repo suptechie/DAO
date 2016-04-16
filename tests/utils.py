@@ -66,7 +66,7 @@ def seconds_in_future(secs):
     return ts_now() + secs
 
 
-def create_votes_array(amounts, approve):
+def create_votes_array(amounts, approve, reverse):
     """
     Create an array of votes out of the tokens holders to either pass or
     reject a proposal.
@@ -79,16 +79,21 @@ def create_votes_array(amounts, approve):
         True if we want to pass and false if we want to vote against
         the proposal
 
+        reverse : bool
+        True if we need to iterate the list in reverse to give chance for
+        True votes to the last accounts
+
         Returns
         ----------
         The array of votes required
     """
     votes = []
     total = sum(amounts)
+    amounts_for_traversal = list(reversed(amounts)) if reverse else amounts
     percentage = 0.0
 
     if not approve:
-        for val in amounts:
+        for val in amounts_for_traversal:
             ratio = val/float(total)
             if (percentage + ratio < 0.5):
                 votes.append(True)
@@ -96,7 +101,7 @@ def create_votes_array(amounts, approve):
             else:
                 votes.append(False)
     else:
-        for val in amounts:
+        for val in amounts_for_traversal:
             ratio = val/float(total)
             if percentage <= 0.5:
                 votes.append(True)
@@ -104,7 +109,7 @@ def create_votes_array(amounts, approve):
             else:
                 votes.append(False)
 
-    return votes
+    return list(reversed(votes)) if reverse else votes
 
 
 def create_votes_array_for_quorum(amounts, targetQuorum, approve):
@@ -147,7 +152,28 @@ def create_votes_array_for_quorum(amounts, targetQuorum, approve):
 
 
 def arr_str(arr):
-    return '[ ' + ', '.join([str(x).lower() for x in arr]) + ' ]'
+    """
+    Create a string representation of an array, ready to be imported to js.
+        Parameters
+        ----------
+        arr : list
+        The list from which to create the array string. Can be an array of
+        ints, strings or booleans
+
+        Returns
+        ----------
+        A string representation of the array ready to be imported in a js
+        template
+    """
+    if type(arr) is not list or arr == []:
+        print("ERROR: 'arr_str()' expects a non-empty list")
+        sys.exit(1)
+    has_strings = isinstance(arr[0], basestring)
+    return "[ {} ]".format(
+        ', '.join(['"{}"'.format(
+            str(x).lower()
+        ) if has_strings else str(x).lower() for x in arr])
+    )
 
 
 def extract_test_dict(name, output):
@@ -169,18 +195,23 @@ def extract_test_dict(name, output):
     return result
 
 
-def compare_values(a, b):
-    if isinstance(a, float) ^ isinstance(b, float):
-        print("ERROR: float compared with non-float")
-        return False
-    if isinstance(a, float):
-        return abs(a - b) <= 0.01
-    elif isinstance(a, basestring) and isinstance(b, int):
-        return int(a) == b
-    elif isinstance(b, basestring) and isinstance(a, int):
-        return a == int(b)
+def compare_values(got, expect):
+    if isinstance(got, float) ^ isinstance(expect, float):
+        if isinstance(got, int) and expect % 1 <= 0.01:
+            return int(expect) == got
+        elif isinstance(expect, int) and got % 1 <= 0.01:
+            return int(got) == expect
+        else:
+            print("ERROR: float compared with non-float")
+            return False
+    if isinstance(got, float):
+        return abs(got - expect) <= 0.01
+    elif isinstance(got, basestring) and isinstance(expect, int):
+        return int(got) == expect
+    elif isinstance(expect, basestring) and isinstance(got, int):
+        return got == int(expect)
     else:
-        return a == b
+        return got == expect
 
 
 def eval_test(name, output, expected_dict):
@@ -299,7 +330,11 @@ def re_replace_or_die(string, varname, value):
     return new_string
 
 
-def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
+def edit_dao_source(
+        contracts_dir,
+        keep_limits,
+        halve_minquorum,
+        split_exec_period):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
 
@@ -308,7 +343,11 @@ def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
         re.sub
         contents = re_replace_or_die(contents, "minProposalDebatePeriod", "1")
         contents = re_replace_or_die(contents, "minSplitDebatePeriod", "1")
-        contents = re_replace_or_die(contents, "splitExecutionPeriod", "20")
+        contents = re_replace_or_die(
+            contents,
+            "splitExecutionPeriod",
+            str(split_exec_period)
+        )
         contents = re_replace_or_die(contents, "saleGracePeriod", "1")
 
     if halve_minquorum:  # if we are testing halve_minquorum remove year limit
@@ -346,6 +385,10 @@ def edit_dao_source(contracts_dir, keep_limits, halve_minquorum):
             if (!p.newCurator) throw;
             SplitData s = p.splitData[sid];
             return address(s.newDAO);
+        }
+
+        function extMinQuorum(uint _val) constant returns (uint _minQuorum) {
+            return minQuorum(_val);
         }
 """
     )

@@ -10,7 +10,7 @@ scenario_description = (
 def run(ctx):
     ctx.assert_scenario_ran('fuel')
 
-    votes = create_votes_array_for_quorum(ctx.token_amounts, 0.4, True)
+    votes = create_votes_array_for_quorum(ctx.token_amounts, 0.4, True, False)
     # let's just use an existing account
     newAddress = ctx.accounts[4]
     bytecode = calculate_bytecode('newContract', ("address", newAddress))
@@ -21,8 +21,7 @@ def run(ctx):
         "proposal_deposit": ctx.args.proposal_deposit,
         "votes": arr_str(votes),
         "transaction_bytecode": bytecode,
-        "debating_period": ctx.args.proposal_debate_seconds,
-        "prop_id": ctx.next_proposal_id()
+        "debating_period": ctx.args.proposal_debate_seconds
     })
     print(
         "Notice: Debate period is {} seconds so the test will wait "
