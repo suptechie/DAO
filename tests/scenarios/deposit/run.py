@@ -27,6 +27,5 @@ def run(ctx):
     )
 
     ctx.execute(expected={
-        "proposal_passed": True,
         "deposit_after_vote": ctx.args.deposit_new_value
     })

@@ -52,7 +52,6 @@ def run(ctx):
 
     ctx.execute(expected={
         "dao_proposals_number": "1",
-        "proposal_passed": True,
         "proposal_yay": yay,
         "proposal_nay": nay,
         "calculated_deposit": ctx.args.proposal_deposit,

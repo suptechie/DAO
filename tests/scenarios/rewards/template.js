@@ -38,10 +38,16 @@ checkWork();
 
 setTimeout(function() {
     miner.stop(0);
-    console.log("Executing the proposal...");
+
     // now execute the proposal
-    dao.executeProposal.sendTransaction(prop_id, '$transaction_bytecode', {from:curator, gas:1000000});
-    checkWork();
+    attempt_execute_proposal(
+        dao, // target DAO
+        prop_id, // proposal ID
+        '$transaction_bytecode', // transaction bytecode
+        curator, // proposal creator
+        true // should the proposal pass?
+    );
+
     addToTest('curator_balance_before_claim', eth.getBalance(curator));
     console.log("Claiming the reward...");
     dao.getMyReward.sendTransaction({from: curator, gas: 1000000});

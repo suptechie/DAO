@@ -65,9 +65,13 @@ setTimeout(function() {
         checkWork();
 
         console.log("Right after the split, execute the attack proposal to get the deposit back");
-        dao.executeProposal.sendTransaction(attack_proposal_id, '', {from:attacker, gas:4000000});
-        addToTest('attack_proposal_passed', dao.proposals(attack_proposal_id)[5]);
-        checkWork();
+        attempt_execute_proposal(
+            dao, // target DAO
+            attack_prop_id, // proposal ID
+            '', // transaction bytecode
+            attacker, // proposal creator
+            true // should the proposal pass?
+        );
 
         addToTest('split_proposal_id', split_proposal_id);
         addToTest('split_proposal_passed', dao.proposals(split_proposal_id)[5]);

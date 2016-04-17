@@ -28,7 +28,6 @@ def run(ctx):
     )
 
     ctx.execute(expected={
-        "proposal_passed": True,
         "dao_balance_after": 0,
         "money_transferred": True,
         "reward_tokens_transferred": True

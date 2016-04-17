@@ -79,9 +79,14 @@ setTimeout(function() {
         addToTest('angry_user_before', web3.fromWei(eth.getBalance(new_curator)));
         setTimeout(function() {
             // now execute the proposal
-            newdao.executeProposal.sendTransaction(new_prop_id, '', {from:new_curator, gas:4000000});
-            checkWork();
-            addToTest('newdao_proposal_passed', newdao.proposals(new_prop_id)[5]);
+            attempt_execute_proposal(
+                newdao, // target DAO
+                new_prop_id, // proposal ID
+                '', // transaction bytecode
+                new_curator, // proposal creator
+                true // should the proposal pass?
+            );
+
             addToTest('angry_user_after', web3.fromWei(eth.getBalance(new_curator)));
             addToTest(
                 'angry_user_profit',

@@ -29,7 +29,6 @@ def run(ctx):
     )
 
     ctx.execute(expected={
-        "proposal_passed": False,
         "new_contract_balance": 0,
         "dao_balance_diff": 0
     })
