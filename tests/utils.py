@@ -472,3 +472,7 @@ def available_scenarios():
     dir = "scenarios"
     return [name for name in os.listdir(dir)
             if os.path.isdir(os.path.join(dir, name))]
+
+
+def to_wei(val_in_ether):
+    return val_in_ether * 1000000000000000000

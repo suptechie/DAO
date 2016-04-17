@@ -126,7 +126,7 @@ function attempt_execute_proposal(
     expect_pass) {
     desc = argdao.proposals(prop_id)[2];
     vote_deadline = argdao.proposals(prop_id)[3];
-    console.log("Attempting to execute proposal for: '" +desc +"'.")
+    console.log("Attempting to execute proposal for: '" +desc +"'.");
 
     if (vote_deadline.gt(time_now())) {
         testFail("Can't execute a proposal whilte it is is still debated.");
@@ -150,7 +150,7 @@ function attempt_execute_proposal(
             (expect_pass ? "pass" : "fail") + "."
         );
     }
-
+    console.log("Executed proposal: '" + desc + "'.");
 }
 """
     return s
