@@ -112,7 +112,7 @@ Similarly, DAO tokens are denoted with $T$ and always represent the amount of DA
 \section{Majority robs minority attack}
 Minority owner rights can be a problem in any corporate form. Minority rights may be protected or addressed by provisions in corporate governance documents or by statute or judge-made law. But many of these solutions fail because minority owners may lack voting rights or the ability to ``vote with their feet" and easily retrieve their capital. This paper presents a solution to this problem in the DAO's code. 
 
-A problem every DAO has to mitigate is the ability for the majority to rob the minority by changing governance and ownership rules after DAO formation. For example, an attacker with $51\%$ of the tokens, acquired either during the funding period or purchased afterwards, could make a proposal to send all the funds to themselves. Since they would hold the majority of the tokens, they would always be able to pass their proposals.
+A problem every DAO has to mitigate is the ability for the majority to rob the minority by changing governance and ownership rules after DAO formation. For example, an attacker with $51\%$ of the tokens, acquired either during the fueling period or created afterwards, could make a proposal to send all the funds to themselves. Since they would hold the majority of the tokens, they would always be able to pass their proposals.
 
 To prevent this, the minority must always have the ability to retrieve their portion of the funds. Our solution is to allow a DAO to split into two. If an individual, or a group of token holders, disagree with a proposal and want to retrieve their portion of the ether before the proposal gets executed, they can submit and approve a special type of proposal to form a new DAO. The token holders that voted for this proposal can then split the DAO moving their portion of the ether to this new DAO, leaving the rest alone only able to spend their own ether.
 
@@ -157,7 +157,7 @@ This rule is implemented in the internal function \verb|isRecipientAllowed| in s
 This section will detail the smart contracts implementing the aforementioned concept. The contracts are written in the programming language Solidity (\cite{ReitwiessnerWoodSolidity}).
 Each contract has member variables and functions which can be externally called by sending a transaction to the Ethereum network with the DAO contract address as the recipient and the method ID (optional with parameters) as data. This section will discuss the meaning of the variables and the functions in detail.
 
-The main contract is called 'DAO'. It defines the inner workings of the DAO and it derives the member variables and functions from 'Token' and 'TokenCreation'. ‘Token’ defines the inner workings of the DAO Token and ‘TokenCreation’ defines how the DAO token is purchased for ether. In addition to these three contracts, there is the 'ManagedAccount' contract, which acts as a helper contract to store the rewards which are to be distributed to the token holders and the \verb|extraBalance| (see section \ref{TokenPrice}).
+The main contract is called 'DAO'. It defines the inner workings of the DAO and it derives the member variables and functions from 'Token' and 'TokenCreation'. ‘Token’ defines the inner workings of the DAO Token and ‘TokenCreation’ defines how the DAO token is created by fueling the DAO with ether. In addition to these three contracts, there is the 'ManagedAccount' contract, which acts as a helper contract to store the rewards which are to be distributed to the token holders and the \verb|extraBalance| (see section \ref{TokenPrice}).
 The contract 'SampleOffer' (\ref{app:SampleOffer}) is an example of what a proposal from a contractor to the DAO could look like.
 \end{multicols}
 
@@ -230,7 +230,7 @@ The integer \verb|minValue| is the number of wei which are needed to be received
 
 The boolean \verb|isFueled| is true if DAO has reached its minimum fueling goal, false otherwise.
 
-The address \verb|privateCreation| is used for DAO splits - if it is set to 0, then it is a public Creation, otherwise, only the address stored in \verb|privateCreation| is allowed to purchase tokens.
+The address \verb|privateCreation| is used for DAO splits - if it is set to 0, then it is a public Creation, otherwise, only the address stored in \verb|privateCreation| is allowed to create tokens.
 
 The managed account (\ref{app:ManagedAccount}) \verb|extraBalance| is used to hold the excess ether which is received after the Creation rate is decreased during the Creation Phase. Anything that has been paid above the initial price goes to this account.
 
@@ -240,7 +240,7 @@ The constructor \verb|TokenCreation| initiates the Creation Phase with the argum
 In order to interact with the contract the following functions can be used:
 
 \subsubsection*{createTokenProxy}
-This function creates one unit of the DAO token’s minimum denomination for every wei sent. The price is calculated as $$\Xi_c \cdot 20 / \text{divisor}$$ Here $\Xi_c$ is the amount of wei given in order to purchase tokens, and \verb|divisor| is calculated depending on the time: $20 / P(t)$ , as described in section \ref{TokenPrice}.
+This function creates one unit of the DAO token’s minimum denomination for every wei sent. The price is calculated as $$\Xi_c \cdot 20 / \text{divisor}$$ Here $\Xi_c$ is the amount of wei given in order to create tokens, and \verb|divisor| is calculated depending on the time: $20 / P(t)$ , as described in section \ref{TokenPrice}.
 The parameter \verb|tokenHolder| defines the receiver of the newly minted tokens. 
 
 \subsubsection*{refund}
@@ -452,7 +452,7 @@ In order to interact with the smart contract the following functions are used:
 
 \subsubsection*{fallback function}
 The fallback function is a function without a specific name. It is called when the contract receives a transaction without data (a pure value transfer). There are no direct arguments for this function.
-The fallback function will call \verb|createTokenProxy| passing the address of the sender as an argument during the Creation Phase. This will trigger the immediate purchase of tokens. In order to protect users, this function will send the ether received after the end of the Creation Phase back to the sender for a time period of $40$ days. After which this function is repurposed to receive ether as simple deposit to the DAO using the function \verb|receiveEther|.
+The fallback function will call \verb|createTokenProxy| passing the address of the sender as an argument during the Creation Phase. This will trigger the immediate creation of tokens. In order to protect users, this function will send the ether received after the end of the Creation Phase back to the sender for a time period of $40$ days. After which this function is repurposed to receive ether as simple deposit to the DAO using the function \verb|receiveEther|.
 
 \subsubsection*{receiveEther}
 A simple function used to receive ether. It does nothing but return true when the DAO receives ether.
@@ -818,7 +818,7 @@ contract TokenCreationInterface {
 
     /// @notice Create Token with `_tokenHolder` as the initial owner of the Token
     /// @param _tokenHolder The address of the Tokens's recipient
-    /// @return Whether the purchase was successful
+    /// @return Whether the token creation was successful
     function createTokenProxy(address _tokenHolder) returns (bool success);
 
     /// @notice Refund `msg.sender` in the case the Token Creation did
@@ -1040,7 +1040,7 @@ contract DAOInterface {
     //  );
 
     /// @notice Create Token with `msg.sender` as the beneficiary
-    /// @return Whether the purchase was successful
+    /// @return Whether the token creation was successful
     function () returns (bool success);
 
 

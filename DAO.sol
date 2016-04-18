@@ -169,7 +169,7 @@ contract DAOInterface {
     //  );
 
     /// @notice Create Token with `msg.sender` as the beneficiary
-    /// @return Whether the purchase was successful
+    /// @return Whether the token creation was successful
     function () returns (bool success);
 
 

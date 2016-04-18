@@ -106,7 +106,7 @@ a full refund.
 
 - *fuel*
 During the fueling period of the DAO, send enough ether from all
-accounts to purchase tokens and then assert that the user's balance is
+accounts to create tokens and then assert that the user's balance is
 indeed correct and that the minimum fueling goal has been reached.
 
 - *deposit*

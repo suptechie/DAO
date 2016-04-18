@@ -23,7 +23,7 @@ setTimeout(function() {
     }
     addToTest('balances', balances);
 
-    // now also try to purchase some extra tokens after the creation ended
+    // now also try to create some extra tokens after the creation ended
     // note we use createTokenProxy() directly because with the edited code
     // for the test the fallback function becomes a DAO donation code right
     // after the end of the creation period
