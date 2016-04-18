@@ -77,7 +77,7 @@ contract TokenSale is TokenSaleInterface, Token {
         closingTime = _closingTime;
         minValue = _minValue;
         privateSale = _privateSale;
-        extraBalance = new ManagedAccount(address(this));
+        extraBalance = new ManagedAccount(address(this), true);
     }
 
     function buyTokenProxy(address _tokenHolder) returns (bool success) {

@@ -365,8 +365,8 @@ contract DAO is DAOInterface, Token, TokenSale {
         curator = _curator;
         daoCreator = _daoCreator;
         proposalDeposit = _proposalDeposit;
-        rewardAccount = new ManagedAccount(address(this));
-        DAOrewardAccount = new ManagedAccount(address(this));
+        rewardAccount = new ManagedAccount(address(this), false);
+        DAOrewardAccount = new ManagedAccount(address(this), false);
         if (address(rewardAccount) == 0)
             throw;
         if (address(DAOrewardAccount) == 0)
