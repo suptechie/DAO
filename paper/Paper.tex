@@ -128,11 +128,11 @@ Any token holder can make a proposal to vote for a new Curator. In effect, even 
 
 The process of choosing a new Curator is as follows:
 Any token holder can submit a proposal for a new Curator. In this case, no proposal deposit is required, because an attacker could vote for an extremely high deposit, preventing any splits. The debating period for this proposal is $7$ days.
-This is $7$ days less than the minimum required for regular proposals, allowing anyone to retrieve their funds before a potentially malicious proposal goes through. There is no quorum requirement, so that every token holder has the ability to split into their own DAO. 
+This is $7$ days less than the minimum required for regular proposals, allowing anyone to retrieve their funds before a potentially malicious proposal goes through. There is no quorum requirement, so that every token holder has the ability to split into their own DAO.
 The debating period is used to discuss (on or off-chain) the new Curator and conduct a first vote that's non-binding. After this first vote, token holders can confirm its results or not. In the case a majority opts to  keep the original Curator, the minority can either keep the original Curator in order to avoid a split, or inversely they can confirm their vote for a new Curator and move their portion of the ether to a new DAO.
 
 \section{Token Price} \label{TokenPrice}
-DAO Token Creation rate decreases over time. This reflects an assumption that early acts of DAO Creation have greater risk, as they may have less information about the potential success of the DAO and do not know whether what contribution will lead to full funding of the DAO. 
+DAO Token Creation rate decreases over time. This reflects an assumption that early acts of DAO Creation have greater risk, as they may have less information about the potential success of the DAO and do not know whether what contribution will lead to full fueling of the DAO.
 The DAO described in this paper has the following Creation schedule:
 \begin{equation}
  P(t) = \begin{cases}
@@ -145,7 +145,7 @@ with the multiplier $m$ defined as:
 \begin{equation}
  m(t) = (t - (t_c - 2 \cdot \text{w})) / \text{d}
 \end{equation}
-Here $t$ is the unix time in seconds, $t_c$ is the closing time of the funding period (see \ref{app:TokenCreation} \verb|closingTime|), $w$ is a week in seconds and $d$ a day in seconds.
+Here $t$ is the unix time in seconds, $t_c$ is the closing time of the fueling period (see \ref{app:TokenCreation} \verb|closingTime|), $w$ is a week in seconds and $d$ a day in seconds.
 Hence the number of tokens (in its base unit) each person Creates is calculated as: $P(t) \cdot \Xi_c$. Here $\Xi_c$ stands for the amount of ether sent to fuel a DAO, denoted in wei.
 This results in a constant Creation rate in the beginning, until $2$ weeks before the end of the DAO Creation Phase. At this time the amount of ether required to Create DAO tokens increases daily by $0.05 \: \Xi_c$ per base unit of DAO token. Until $4$ days before the closing time when there will be a constant Creation rate of $1.5 \: \Xi_c$ per base unit of DAO token.
 
@@ -234,7 +234,7 @@ The address \verb|privateCreation| is used for DAO splits - if it is set to 0, t
 
 The managed account (\ref{app:ManagedAccount}) \verb|extraBalance| is used to hold the excess ether which is received after the Creation rate is decreased during the Creation Phase. Anything that has been paid above the initial price goes to this account.
 
-The map \verb|weiGiven| stores the amount of wei given by each contributor during the Creation Phase and is only used to refund the contributors if the Creation Phase does not reach its funding goal.
+The map \verb|weiGiven| stores the amount of wei given by each contributor during the Creation Phase and is only used to refund the contributors if the Creation Phase does not reach its fueling goal.
 
 The constructor \verb|TokenCreation| initiates the Creation Phase with the arguments \verb|minValue|, \verb|closingtime| and \verb|privateCreation|, which will be set in the constructor of the DAO contract (\ref{app:DAO}) which is only executed once, when the DAO is deployed. 
 In order to interact with the contract the following functions can be used:
@@ -244,7 +244,7 @@ This function creates one unit of the DAO token’s minimum denomination for eve
 The parameter \verb|tokenHolder| defines the receiver of the newly minted tokens. 
 
 \subsubsection*{refund}
-This function can be called by any contributor to receive their wei back if the Creation Phase failed to meet its funding goal.
+This function can be called by any contributor to receive their wei back if the Creation Phase failed to meet its fueling goal.
 
 \subsubsection*{divisor}
 This function is used to calculate the price of the token during the Creation Phase in the function \verb|createTokenProxy|.

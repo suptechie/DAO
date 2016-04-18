@@ -96,6 +96,6 @@ setTimeout(function() {
         }, $debating_period * 1000);
         console.log("Wait for end of second debating period");
     }, split_execution_period * 1000);
-    console.log("Wait for new DAO funding period to end");
+    console.log("Wait for new DAO fueling period to end");
 }, $debating_period * 1000);
 console.log("Wait for end of first debating period");
