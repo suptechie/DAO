@@ -1,7 +1,7 @@
 var amounts = $amounts;
 
 var dao = web3.eth.contract($dao_abi).at('$dao_address');
-console.log("Buying DAO tokens");
+console.log("Creating DAO tokens");
 for (i = 0; i < eth.accounts.length; i++) {
     web3.eth.sendTransaction({
         from:eth.accounts[i],
@@ -58,5 +58,5 @@ setTimeout(function() {
 
     testResults();
 }, $wait_ms);
-console.log("Wait for end of sale");
+console.log("Wait for end of creation");
 miner.start(1);

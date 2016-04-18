@@ -12,7 +12,7 @@ scenario_description = (
 def run(ctx):
     ctx.assert_scenario_ran('deploy')
 
-    sale_secs = ctx.remaining_time()
+    creation_secs = ctx.remaining_time()
     ctx.total_supply = ctx.args.deploy_min_value + random.randint(1, 100)
     ctx.token_amounts = constrained_sum_sample_pos(
         len(ctx.accounts), ctx.total_supply
@@ -20,13 +20,13 @@ def run(ctx):
     ctx.create_js_file(substitutions={
             "dao_abi": ctx.dao_abi,
             "dao_address": ctx.dao_addr,
-            "wait_ms": (sale_secs-3)*1000,
+            "wait_ms": (creation_secs-3)*1000,
             "amounts": arr_str(ctx.token_amounts)
         }
     )
     print(
         "Notice: Fueling period is {} seconds so the test will wait "
-        "as much".format(sale_secs)
+        "as much".format(creation_secs)
     )
 
     adjusted_amounts = (

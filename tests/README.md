@@ -23,7 +23,7 @@ optional arguments:
                         console
   --closing-time CLOSING_TIME
                         Number of minutes from now when the newly created DAO
-                        sale ends
+                        creation ends
   --min-value MIN_VALUE
                         Minimum value to consider the DAO crowdfunded
   --scenario {none,deploy,fund}

@@ -17,53 +17,57 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /*
-Token Sale contract, used by the DAO to sell its tokens and initialize its ether.
-Feel free to modify the divisor method to implement different Token sale parameters 
+ * Token Creation contract, used by the DAO to create its tokens and initialize
+ * its ether. Feel free to modify the divisor method to implement different
+ * Token Creation parameters
 */
 
 import "./Token.sol";
 import "./ManagedAccount.sol";
 
-contract TokenSaleInterface {
+contract TokenCreationInterface {
 
-    // End of token sale, in Unix time
+    // End of token creation, in Unix time
     uint public closingTime;
-    // Minimum fueling goal of the token sale, denominated in ether
+    // Minimum fueling goal of the token creation, denominated in ether
     uint public minValue;
     // True if the DAO reached its minimum fueling goal, false otherwise
     bool public isFueled;
-    // For DAO splits - if privateSale is 0, then it is a public sale, otherwise
-    // only the address stored in privateSale is allowed to purchase tokens
-    address public privateSale;
-    // hold extra ether which has been paid after the DAO token price has increased
+    // For DAO splits - if privateCreation is 0, then it is a public token
+    // creation, otherwise only the address stored in privateCreation is
+    // allowed to create tokens
+    address public privateCreation;
+    // hold extra ether which has been sent after the DAO token
+    // creation rate has increased
     ManagedAccount public extraBalance;
     // tracks the amount of wei given from each contributor (used for refund)
     mapping (address => uint256) weiGiven;
 
     /// @dev Constructor setting the minimum fueling goal and the
-    /// end of the Token Sale
-    /// @param _minValue Token Sale minimum fueling goal
-    /// @param _closingTime Date (in Unix time) of the end of the Token Sale
-    /// @param _privateSale Zero means that the sale is public.  A non-zero
-    /// address represents the only address that can buy Tokens (the address
-    /// can also buy Tokens on behalf of other accounts)
+    /// end of the Token Creation
+    /// @param _minValue Token Creation minimum fueling goal
+    /// @param _closingTime Date (in Unix time) of the end of the Token Creation
+    /// @param _privateCreation Zero means that the creation is public.  A
+    /// non-zero address represents the only address that can create Tokens
+    /// (the address can also create Tokens on behalf of other accounts)
     // This is the constructor: it can not be overloaded so it is commented out
-    //  function TokenSale(
+    //  function TokenCreation(
         //  uint _minValue,
         //  uint _closingTime,
-        //  address _privateSale
+        //  address _privateCreation
     //  );
 
-    /// @notice Buy Token with `_tokenHolder` as the initial owner of the Token
+    /// @notice Create Token with `_tokenHolder` as the initial owner of the Token
     /// @param _tokenHolder The address of the Tokens's recipient
     /// @return Whether the purchase was successful
-    function buyTokenProxy(address _tokenHolder) returns (bool success);
+    function createTokenProxy(address _tokenHolder) returns (bool success);
 
-    /// @notice Refund `msg.sender` in the case the Token Sale didn't reach its
-    /// minimum fueling goal
+    /// @notice Refund `msg.sender` in the case the Token Creation did
+    /// not reach its minimum fueling goal
     function refund();
 
-    /// @return The divisor used to calculate the token price during the sale
+    /// @return The divisor used to calculate the token creation rate during
+    /// the creation phase
     function divisor() returns (uint divisor);
 
     event FundingToDate(uint value);
@@ -72,17 +76,17 @@ contract TokenSaleInterface {
 }
 
 
-contract TokenSale is TokenSaleInterface, Token {
-    function TokenSale(uint _minValue, uint _closingTime, address _privateSale) {
+contract TokenCreation is TokenCreationInterface, Token {
+    function TokenCreation(uint _minValue, uint _closingTime, address _privateCreation) {
         closingTime = _closingTime;
         minValue = _minValue;
-        privateSale = _privateSale;
+        privateCreation = _privateCreation;
         extraBalance = new ManagedAccount(address(this), true);
     }
 
-    function buyTokenProxy(address _tokenHolder) returns (bool success) {
+    function createTokenProxy(address _tokenHolder) returns (bool success) {
         if (now < closingTime && msg.value > 0
-            && (privateSale == 0 || privateSale == msg.sender)) {
+            && (privateCreation == 0 || privateCreation == msg.sender)) {
 
             uint token = (msg.value * 20) / divisor();
             extraBalance.call.value(msg.value - token)();
@@ -120,10 +124,10 @@ contract TokenSale is TokenSaleInterface, Token {
         // The fueling period starts with a 1:1 ratio
         if (closingTime - 2 weeks > now) {
             return 20;
-        // Followed by 10 days with a daily price increase of 5%
+        // Followed by 10 days with a daily creation rate increase of 5%
         } else if (closingTime - 4 days > now) {
             return (20 + (now - (closingTime - 2 weeks)) / (1 days));
-        // The last 4 days there is a constant price ratio of 1:1.5
+        // The last 4 days there is a constant creation rate ratio of 1:1.5
         } else {
             return 30;
         }

@@ -10,7 +10,7 @@ scenario_description = (
 
 
 def calculate_closing_time(obj, script_name, substitutions):
-    obj.closing_time = seconds_in_future(obj.args.deploy_sale_seconds)
+    obj.closing_time = seconds_in_future(obj.args.deploy_creation_seconds)
     substitutions['closing_time'] = obj.closing_time
     return substitutions
 

@@ -69,7 +69,7 @@ function attempt_proposal(
     if (dao_closing_time.gt(time_now())) {
         testFail(
             "Failed to create a proposal to: '" + desc + "' because the DAO's "
-            + "sale time has not yet closed.\\ndao_closing_time: "
+            + "creation time has not yet closed.\\ndao_closing_time: "
             + dao_closing_time + "\\nnow(): " + time_now()
         );
     }

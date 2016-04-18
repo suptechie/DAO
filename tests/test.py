@@ -171,7 +171,7 @@ class TestContext():
 
         # also delete the temporary created files
         rm_file(os.path.join(self.contracts_dir, "DAOcopy.sol"))
-        rm_file(os.path.join(self.contracts_dir, "TokenSaleCopy.sol"))
+        rm_file(os.path.join(self.contracts_dir, "TokenCreationCopy.sol"))
 
     def create_js_file(self, substitutions, cb_before_creation=None):
         """

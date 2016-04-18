@@ -349,7 +349,7 @@ def edit_dao_source(
             "splitExecutionPeriod",
             str(split_exec_period)
         )
-        contents = re_replace_or_die(contents, "saleGracePeriod", "1")
+        contents = re_replace_or_die(contents, "creationGracePeriod", "1")
 
     if halve_minquorum:  # if we are testing halve_minquorum remove year limit
         contents = re_replace_or_die(contents, "quorumHalvingPeriod", "1")
@@ -357,8 +357,8 @@ def edit_dao_source(
     # add test query functions
     contents = str_replace_or_die(
         contents,
-        "contract DAO is DAOInterface, Token, TokenSale {",
-        """contract DAO is DAOInterface, Token, TokenSale {
+        "contract DAO is DAOInterface, Token, TokenCreation {",
+        """contract DAO is DAOInterface, Token, TokenCreation {
 
         function splitProposalBalance(uint pid, uint sid) constant returns (uint _balance) {
             Proposal p = proposals[pid];
@@ -395,23 +395,23 @@ def edit_dao_source(
     )
     contents = str_replace_or_die(
         contents,
-        'import "./TokenSale.sol";',
-        'import "./TokenSaleCopy.sol";'
+        'import "./TokenCreation.sol";',
+        'import "./TokenCreationCopy.sol";'
     )
 
     new_path = os.path.join(contracts_dir, "DAOcopy.sol")
     with open(new_path, "w") as f:
         f.write(contents)
 
-    # now edit TokenSale source
-    with open(os.path.join(contracts_dir, 'TokenSale.sol'), 'r') as f:
+    # now edit TokenCreation source
+    with open(os.path.join(contracts_dir, 'TokenCreation.sol'), 'r') as f:
         contents = f.read()
 
     if (not keep_limits) and (not normal_pricing):
         contents = str_replace_or_die(
             contents, 'closingTime - 2 weeks > now', 'true'
         )
-    with open(os.path.join(contracts_dir, 'TokenSaleCopy.sol'), "w") as f:
+    with open(os.path.join(contracts_dir, 'TokenCreationCopy.sol'), "w") as f:
         f.write(contents)
 
     return new_path

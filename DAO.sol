@@ -21,14 +21,14 @@ Generic smart contract for a Decentralized Autonomous Organization (DAO)
 to automate organizational governance and decision-making.
 */
 
-import "./TokenSale.sol";
+import "./TokenCreation.sol";
 import "./ManagedAccount.sol";
 
 contract DAOInterface {
 
-    // The amount of days for which people who try to participate in the sale
-    // by calling the fallback function will still get their ether back
-    uint constant saleGracePeriod = 40 days;
+    // The amount of days for which people who try to participate in the
+    // creation by calling the fallback function will still get their ether back
+    uint constant creationGracePeriod = 40 days;
     // The minimum debate period that a generic proposal can have
     uint constant minProposalDebatePeriod = 2 weeks;
     // The minimum debate period that a split proposal can have
@@ -150,14 +150,14 @@ contract DAOInterface {
 
     /// @dev Constructor setting the Curator and the address
     /// for the contract able to create another DAO as well as the parameters
-    /// for the DAO Token Sale
+    /// for the DAO Token Creation
     /// @param _curator The Curator
     /// @param _daoCreator The contract able to (re)create this DAO
     /// @param _proposalDeposit The deposit to be paid for a regular proposal
-    /// @param _minValue Minimal value for a successful DAO Token Sale
-    /// @param _closingTime Date (in Unix time) of the end of the DAO Token Sale
-    /// @param _privateSale If zero the DAO Token Sale is open to public, a
-    /// non-zero address means that the DAO Token Sale is only for the address
+    /// @param _minValue Minimal value for a successful DAO Token Creation
+    /// @param _closingTime Date (in Unix time) of the end of the DAO Token Creation
+    /// @param _privateCreation If zero the DAO Token Creation is open to public, a
+    /// non-zero address means that the DAO Token Creation is only for the address
     // This is the constructor: it can not be overloaded so it is commented out
     //  function DAO(
         //  address _curator,
@@ -165,7 +165,7 @@ contract DAOInterface {
         //  uint _proposalDeposit,
         //  uint _minValue,
         //  uint _closingTime,
-        //  address _privateSale
+        //  address _privateCreation
     //  );
 
     /// @notice Buy Token with `msg.sender` as the beneficiary
@@ -345,7 +345,7 @@ contract DAOInterface {
 }
 
 // The DAO contract itself
-contract DAO is DAOInterface, Token, TokenSale {
+contract DAO is DAOInterface, Token, TokenCreation {
 
     // Modifier that allows only shareholders to vote and create new proposals
     modifier onlyTokenholders {
@@ -359,8 +359,8 @@ contract DAO is DAOInterface, Token, TokenSale {
         uint _proposalDeposit,
         uint _minValue,
         uint _closingTime,
-        address _privateSale
-    ) TokenSale(_minValue, _closingTime, _privateSale) {
+        address _privateCreation
+    ) TokenCreation(_minValue, _closingTime, _privateCreation) {
 
         curator = _curator;
         daoCreator = _daoCreator;
@@ -380,8 +380,8 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
     function () returns (bool success) {
-        if (now < closingTime + saleGracePeriod)
-            return buyTokenProxy(msg.sender);
+        if (now < closingTime + creationGracePeriod)
+            return createTokenProxy(msg.sender);
         else
             return receiveEther();
     }
@@ -636,7 +636,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         uint fundsToBeMoved =
             (balances[msg.sender] * p.splitData[0].splitBalance) /
             p.splitData[0].totalSupply;
-        if (p.splitData[0].newDAO.buyTokenProxy.value(fundsToBeMoved)(msg.sender) == false)
+        if (p.splitData[0].newDAO.createTokenProxy.value(fundsToBeMoved)(msg.sender) == false)
             throw;
 
 
