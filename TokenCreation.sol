@@ -71,7 +71,7 @@ contract TokenCreationInterface {
     function divisor() returns (uint divisor);
 
     event FuelingToDate(uint value);
-    event SoldToken(address indexed to, uint amount);
+    event CreatedToken(address indexed to, uint amount);
     event Refund(address indexed to, uint value);
 }
 
@@ -93,7 +93,7 @@ contract TokenCreation is TokenCreationInterface, Token {
             balances[_tokenHolder] += token;
             totalSupply += token;
             weiGiven[_tokenHolder] += msg.value;
-            SoldToken(_tokenHolder, token);
+            CreatedToken(_tokenHolder, token);
             if (totalSupply >= minValue && !isFueled) {
                 isFueled = true;
                 FuelingToDate(totalSupply);
