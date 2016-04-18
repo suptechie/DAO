@@ -168,7 +168,7 @@ contract DAOInterface {
         //  address _privateCreation
     //  );
 
-    /// @notice Buy Token with `msg.sender` as the beneficiary
+    /// @notice Create Token with `msg.sender` as the beneficiary
     /// @return Whether the purchase was successful
     function () returns (bool success);
 

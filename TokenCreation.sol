@@ -70,7 +70,7 @@ contract TokenCreationInterface {
     /// the creation phase
     function divisor() returns (uint divisor);
 
-    event FundingToDate(uint value);
+    event FuelingToDate(uint value);
     event SoldToken(address indexed to, uint amount);
     event Refund(address indexed to, uint value);
 }
@@ -96,7 +96,7 @@ contract TokenCreation is TokenCreationInterface, Token {
             SoldToken(_tokenHolder, token);
             if (totalSupply >= minValue && !isFueled) {
                 isFueled = true;
-                FundingToDate(totalSupply);
+                FuelingToDate(totalSupply);
             }
             return true;
         }
