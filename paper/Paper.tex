@@ -205,13 +205,13 @@ The event \verb|Approval| is used to inform lightweight clients about changes in
 \begin{verbatim}
 contract TokenCreationInterface {
     uint public closingTime;   
-    uint public minValue;  
+    uint public minTokensToCreate;
     bool public isFueled;
     address public privateCreation;
     ManagedAccount extraBalance;
     mapping (address => uint256) weiGiven;
 
-    function TokenCreation(uint _minValue, uint _closingTime);
+    function TokenCreation(uint _minTokensToCreate, uint _closingTime);
     function createTokenProxy(address _tokenHolder) returns (bool success);
     function refund();
     function divisor() returns (uint divisor);
@@ -226,7 +226,7 @@ Above is the interface of the \verb|TokenCreation| contract (\ref{app:TokenCreat
 
 The integer \verb|closingTime| is the (unix) time at which the Creation Phase ends.
 
-The integer \verb|minValue| is the number of wei which are needed to be received by the DAO in order to get funded.
+The integer \verb|minTokensToCreate| is the number of wei-equivalent tokens which are needed to be created by the DAO in order to be considered fueled.
 
 The boolean \verb|isFueled| is true if DAO has reached its minimum fueling goal, false otherwise.
 
@@ -236,7 +236,7 @@ The managed account (\ref{app:ManagedAccount}) \verb|extraBalance| is used to ho
 
 The map \verb|weiGiven| stores the amount of wei given by each contributor during the Creation Phase and is only used to refund the contributors if the Creation Phase does not reach its fueling goal.
 
-The constructor \verb|TokenCreation| initiates the Creation Phase with the arguments \verb|minValue|, \verb|closingtime| and \verb|privateCreation|, which will be set in the constructor of the DAO contract (\ref{app:DAO}) which is only executed once, when the DAO is deployed. 
+The constructor \verb|TokenCreation| initiates the Creation Phase with the arguments \verb|minTokensToCreate|, \verb|closingtime| and \verb|privateCreation|, which will be set in the constructor of the DAO contract (\ref{app:DAO}) which is only executed once, when the DAO is deployed. 
 In order to interact with the contract the following functions can be used:
 
 \subsubsection*{createTokenProxy}
@@ -302,7 +302,7 @@ contract DAOInterface {
         address _curator,
         DAO_Creator _daoCreator,
         uint _proposalDeposit,
-        uint _minValue,
+        uint _minTokensToCreate,
         uint _closingTime,
         address _privateCreation
     )
@@ -440,7 +440,7 @@ In the DAO constructor, the following variables are set:
  \item \verb|proposalDeposit|
  \item \verb|rewardAccount|
  \item \verb|DAOrewardAccount|
- \item \verb|minValue|
+ \item \verb|minTokensToCreate|
  \item \verb|closingTime|
  \item \verb|privateCreation|
  \item \verb|lastTimeMinQuorumMet|
@@ -788,8 +788,9 @@ contract TokenCreationInterface {
 
     // End of token creation, in Unix time
     uint public closingTime;
-    // Minimum fueling goal of the token creation, denominated in ether
-    uint public minValue;
+    // Minimum fueling goal of the token creation, denominated in tokens to
+    // be created
+    uint public minTokensToCreate;
     // True if the DAO reached its minimum fueling goal, false otherwise
     bool public isFueled;
     // For DAO splits - if privateCreation is 0, then it is a public token
@@ -804,14 +805,15 @@ contract TokenCreationInterface {
 
     /// @dev Constructor setting the minimum fueling goal and the
     /// end of the Token Creation
-    /// @param _minValue Token Creation minimum fueling goal
+    /// @param _minTokensToCreate Minimum required wei-equivalent tokens
+    ///        to be created for a successful DAO Token Creation
     /// @param _closingTime Date (in Unix time) of the end of the Token Creation
     /// @param _privateCreation Zero means that the creation is public.  A
     /// non-zero address represents the only address that can create Tokens
     /// (the address can also create Tokens on behalf of other accounts)
     // This is the constructor: it can not be overloaded so it is commented out
     //  function TokenCreation(
-        //  uint _minValue,
+        //  uint _minTokensTocreate,
         //  uint _closingTime,
         //  address _privateCreation
     //  );
@@ -836,11 +838,15 @@ contract TokenCreationInterface {
 
 
 contract TokenCreation is TokenCreationInterface, Token {
-    function TokenCreation(uint _minValue, uint _closingTime, address _privateCreation) {
+    function TokenCreation(
+        uint _minTokensToCreate,
+        uint _closingTime,
+        address _privateCreation) {
+
         closingTime = _closingTime;
-        minValue = _minValue;
+        minTokensToCreate = _minTokensToCreate;
         privateCreation = _privateCreation;
-        extraBalance = new ManagedAccount(address(this));
+        extraBalance = new ManagedAccount(address(this), true);
     }
 
     function createTokenProxy(address _tokenHolder) returns (bool success) {
@@ -853,7 +859,7 @@ contract TokenCreation is TokenCreationInterface, Token {
             totalSupply += token;
             weiGiven[_tokenHolder] += msg.value;
             CreatedToken(_tokenHolder, token);
-            if (totalSupply >= minValue && !isFueled) {
+            if (totalSupply >= minTokensToCreate && !isFueled) {
                 isFueled = true;
                 FuelingToDate(totalSupply);
             }
@@ -1025,7 +1031,8 @@ contract DAOInterface {
     /// @param _curator The Curator
     /// @param _daoCreator The contract able to (re)create this DAO
     /// @param _proposalDeposit The deposit to be paid for a regular proposal
-    /// @param _minValue Minimal value for a successful DAO Token Creation
+    /// @param _minTokensToCreate Minimum required tokens to be created
+    ///        for a successful DAO Token Creation
     /// @param _closingTime Date (in Unix time) of the end of the DAO Token Creation
     /// @param _privateCreation If zero the DAO Token Creation is open to public, a
     /// non-zero address means that the DAO Token Creation is only for the address
@@ -1034,7 +1041,7 @@ contract DAOInterface {
         //  address _curator,
         //  DAO_Creator _daoCreator,
         //  uint _proposalDeposit,
-        //  uint _minValue,
+        //  uint _minTokensToCreate,
         //  uint _closingTime,
         //  address _privateCreation
     //  );
@@ -1228,16 +1235,16 @@ contract DAO is DAOInterface, Token, TokenCreation {
         address _curator,
         DAO_Creator _daoCreator,
         uint _proposalDeposit,
-        uint _minValue,
+        uint _minTokensToCreate,
         uint _closingTime,
         address _privateCreation
-    ) TokenCreation(_minValue, _closingTime, _privateCreation) {
+    ) TokenCreation(_minTokensToCreate, _closingTime, _privateCreation) {
 
         curator = _curator;
         daoCreator = _daoCreator;
         proposalDeposit = _proposalDeposit;
-        rewardAccount = new ManagedAccount(address(this));
-        DAOrewardAccount = new ManagedAccount(address(this));
+        rewardAccount = new ManagedAccount(address(this), false);
+        DAOrewardAccount = new ManagedAccount(address(this), false);
         if (address(rewardAccount) == 0)
             throw;
         if (address(DAOrewardAccount) == 0)
@@ -1740,7 +1747,7 @@ contract DAO_Creator {
     function createDAO(
         address _curator,
         uint _proposalDeposit,
-        uint _minValue,
+        uint _minTokensToCreate,
         uint _closingTime
     ) returns (DAO _newDAO) {
 
@@ -1748,7 +1755,7 @@ contract DAO_Creator {
             _curator,
             DAO_Creator(this),
             _proposalDeposit,
-            _minValue,
+            _minTokensToCreate,
             _closingTime,
             msg.sender
         );

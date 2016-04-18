@@ -154,7 +154,8 @@ contract DAOInterface {
     /// @param _curator The Curator
     /// @param _daoCreator The contract able to (re)create this DAO
     /// @param _proposalDeposit The deposit to be paid for a regular proposal
-    /// @param _minValue Minimal value for a successful DAO Token Creation
+    /// @param _minTokensToCreate Minimum required wei-equivalent tokens
+    ///        to be created for a successful DAO Token Creation
     /// @param _closingTime Date (in Unix time) of the end of the DAO Token Creation
     /// @param _privateCreation If zero the DAO Token Creation is open to public, a
     /// non-zero address means that the DAO Token Creation is only for the address
@@ -163,7 +164,7 @@ contract DAOInterface {
         //  address _curator,
         //  DAO_Creator _daoCreator,
         //  uint _proposalDeposit,
-        //  uint _minValue,
+        //  uint _minTokensToCreate,
         //  uint _closingTime,
         //  address _privateCreation
     //  );
@@ -357,10 +358,10 @@ contract DAO is DAOInterface, Token, TokenCreation {
         address _curator,
         DAO_Creator _daoCreator,
         uint _proposalDeposit,
-        uint _minValue,
+        uint _minTokensToCreate,
         uint _closingTime,
         address _privateCreation
-    ) TokenCreation(_minValue, _closingTime, _privateCreation) {
+    ) TokenCreation(_minTokensToCreate, _closingTime, _privateCreation) {
 
         curator = _curator;
         daoCreator = _daoCreator;
@@ -869,7 +870,7 @@ contract DAO_Creator {
     function createDAO(
         address _curator,
         uint _proposalDeposit,
-        uint _minValue,
+        uint _minTokensToCreate,
         uint _closingTime
     ) returns (DAO _newDAO) {
 
@@ -877,7 +878,7 @@ contract DAO_Creator {
             _curator,
             DAO_Creator(this),
             _proposalDeposit,
-            _minValue,
+            _minTokensToCreate,
             _closingTime,
             msg.sender
         );

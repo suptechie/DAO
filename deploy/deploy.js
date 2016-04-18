@@ -4,7 +4,7 @@
 
 personal.unlockAccount(eth.accounts[0]);
 var daoContract = web3.eth.contract(dao_abi);
-var min_value = 1;
+var min_tokens_to_create = 1;
 var closing_time = Math.floor(Date.now() / 1000) + seconds_from_now;
 
 var creatorContract = web3.eth.contract(creator_abi);
@@ -23,7 +23,7 @@ var _daoCreatorContract = creatorContract.new(
 	            curator,
 	            contract.address,
                 web3.toWei(default_proposal_deposit, "ether"),
-	            web3.toWei(min_value, "ether"),
+	            web3.toWei(min_tokens_to_create, "ether"),
                 closing_time,
                 0,
 		        {
