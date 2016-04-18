@@ -39,5 +39,5 @@ def run(ctx):
 
     ctx.execute(expected={
         "grandchild_curator_dao_balance": ctx.grandchild_dao_curator_before,
-        "proposal_passed": True
+        "split_proposal_passed": True
     })

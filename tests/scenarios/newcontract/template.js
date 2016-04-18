@@ -37,10 +37,13 @@ checkWork();
 
 setTimeout(function() {
     miner.stop(0);
-    console.log("Executing proposal ...");
-    dao.executeProposal.sendTransaction(prop_id, '$transaction_bytecode', {from:curator, gas:1000000});
-    checkWork();
-    addToTest('proposal_passed', dao.proposals(prop_id)[5]);
+    attempt_execute_proposal(
+        dao, // target DAO
+        prop_id, // proposal ID
+        '$transaction_bytecode', // transaction bytecode
+        curator, // proposal creator
+        true // should the proposal pass?
+    );
 
     addToTest('new_contract_balance_after', web3.fromWei(eth.getBalance(newContract)));
     addToTest('dao_balance_after', web3.fromWei(eth.getBalance(dao.address)));

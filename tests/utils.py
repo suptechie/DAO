@@ -334,7 +334,8 @@ def edit_dao_source(
         contracts_dir,
         keep_limits,
         halve_minquorum,
-        split_exec_period):
+        split_exec_period,
+        normal_pricing):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
 
@@ -405,7 +406,8 @@ def edit_dao_source(
     # now edit TokenSale source
     with open(os.path.join(contracts_dir, 'TokenSale.sol'), 'r') as f:
         contents = f.read()
-    if not keep_limits:
+
+    if (not keep_limits) and (not normal_pricing):
         contents = str_replace_or_die(
             contents, 'closingTime - 2 weeks > now', 'true'
         )
@@ -470,3 +472,7 @@ def available_scenarios():
     dir = "scenarios"
     return [name for name in os.listdir(dir)
             if os.path.isdir(os.path.join(dir, name))]
+
+
+def to_wei(val_in_ether):
+    return val_in_ether * 1000000000000000000

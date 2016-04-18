@@ -39,7 +39,7 @@ setTimeout(function() {
     );
     checkWork();
     console.log("After split execution");
-    addToTest('proposal_passed', child_dao.proposals(child_prop_id)[5]);
+    addToTest('split_proposal_passed', child_dao.proposals(child_prop_id)[5]);
     addToTest('proposal_newdao', child_dao.splitProposalNewAddress(child_prop_id, 0));
 
 
