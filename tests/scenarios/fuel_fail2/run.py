@@ -3,8 +3,8 @@ from utils import constrained_sum_sample_pos, arr_str
 
 
 scenario_description = (
-    "During the fueling period of the DAO, buy DAO tokens from all accounts "
-    "with both normal buying and with createTokenProxy(). When the goal "
+    "During the fueling period of the DAO, create DAO tokens from all accounts "
+    "with both normal creation and with createTokenProxy(). When the goal "
     "is not reached make sure that the refunds when having used "
     "createTokenProxy() are distributed back to the users correctly"
 )

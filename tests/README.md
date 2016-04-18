@@ -94,8 +94,8 @@ succesfully. Also assert that the reward tokens are succesfully
 transferred.
 
 - *fuel_fail2*
-During the fueling period of the DAO, buy DAO tokens from all accounts
-with both normal buying and with createTokenProxy(). When the goal is
+During the fueling period of the DAO, create DAO tokens from all accounts
+with both normal creation and with createTokenProxy(). When the goal is
 not reached make sure that the refunds when having used
 createTokenProxy() are distributed back to the users correctly.
 

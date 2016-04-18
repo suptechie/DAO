@@ -145,19 +145,19 @@ with the multiplier $m$ defined as:
 \begin{equation}
  m(t) = (t - (t_c - 2 \cdot \text{w})) / \text{d}
 \end{equation}
-Here $t$ is the unix time in seconds, $t_c$ is the closing time of the funding period (see \ref{app:TokenSale} \verb|closingTime|), $w$ is a week in seconds and $d$ a day in seconds.
-Hence the number of tokens (in its base unit) each buyer Creates is calculated as: $P(t) \cdot \Xi_c$. Here $\Xi_c$ stands for the amount of ether sent to fuel a DAO, denoted in wei.
+Here $t$ is the unix time in seconds, $t_c$ is the closing time of the funding period (see \ref{app:TokenCreation} \verb|closingTime|), $w$ is a week in seconds and $d$ a day in seconds.
+Hence the number of tokens (in its base unit) each person Creates is calculated as: $P(t) \cdot \Xi_c$. Here $\Xi_c$ stands for the amount of ether sent to fuel a DAO, denoted in wei.
 This results in a constant Creation rate in the beginning, until $2$ weeks before the end of the DAO Creation Phase. At this time the amount of ether required to Create DAO tokens increases daily by $0.05 \: \Xi_c$ per base unit of DAO token. Until $4$ days before the closing time when there will be a constant Creation rate of $1.5 \: \Xi_c$ per base unit of DAO token.
 
 Creation rate decreases during the Creation Phase could lead to a situation where a single contributor, having Created DAO tokens at the initial Creation rate, could split the DAO immediately after the Creation Phase ends, thereby receiving more ether than they put in due to other contributors having fueled a DAO at a higher Creation rate (\cite{GriffDiscussion}).
-In order to avoid that possibility, all ether that is used to fuel a DAO above the initial Creation rate, will be sent to an extra account. Denoted as \verb|extraBalance| in \ref{app:TokenSale}. This ether can be sent back to the DAO through a proposal after the DAO has spent at least this amount of ether.
+In order to avoid that possibility, all ether that is used to fuel a DAO above the initial Creation rate, will be sent to an extra account. Denoted as \verb|extraBalance| in \ref{app:TokenCreation}. This ether can be sent back to the DAO through a proposal after the DAO has spent at least this amount of ether.
 This rule is implemented in the internal function \verb|isRecipientAllowed| in section \ref{DAO}.
 
 \section{Contracts}
 This section will detail the smart contracts implementing the aforementioned concept. The contracts are written in the programming language Solidity (\cite{ReitwiessnerWoodSolidity}).
 Each contract has member variables and functions which can be externally called by sending a transaction to the Ethereum network with the DAO contract address as the recipient and the method ID (optional with parameters) as data. This section will discuss the meaning of the variables and the functions in detail.
 
-The main contract is called 'DAO'. It defines the inner workings of the DAO and it derives the member variables and functions from 'Token' and 'TokenSale'. ‘Token’ defines the inner workings of the DAO Token and ‘TokenSale’ defines how the DAO token is purchased for ether. In addition to these three contracts, there is the 'ManagedAccount' contract, which acts as a helper contract to store the rewards which are to be distributed to the token holders and the \verb|extraBalance| (see section \ref{TokenPrice}).
+The main contract is called 'DAO'. It defines the inner workings of the DAO and it derives the member variables and functions from 'Token' and 'TokenCreation'. ‘Token’ defines the inner workings of the DAO Token and ‘TokenCreation’ defines how the DAO token is purchased for ether. In addition to these three contracts, there is the 'ManagedAccount' contract, which acts as a helper contract to store the rewards which are to be distributed to the token holders and the \verb|extraBalance| (see section \ref{TokenPrice}).
 The contract 'SampleOffer' (\ref{app:SampleOffer}) is an example of what a proposal from a contractor to the DAO could look like.
 \end{multicols}
 
@@ -182,7 +182,7 @@ contract TokenInterface {
 Above is the interface of the ‘Token’ contract. The interfaces of these contracts are used in the text of this document to give a simple overview of the functions and variables used in the contract, the full implementation can be found in the appendix (\ref{app:Token}). This contract represents the standard token as described here:
 \url{https://github.com/ethereum/wiki/wiki/Standardized_Contract_APIs}, and the contract \url{https://github.com/ConsenSys/Tokens/blob/master/Token_Contracts/contracts/Standard_Token.sol} was used as a starting point for the contract’s creation.
 
-The map \verb|balances| stores the number of DAO tokens which are controlled by an address. All contracts which derive from \verb|TokenInterface| can directly modify this map, but only $4$ functions do so: \verb|buyTokenProxy|, \verb|transfer| , \verb|transferFrom| and \verb|splitDAO|.
+The map \verb|balances| stores the number of DAO tokens which are controlled by an address. All contracts which derive from \verb|TokenInterface| can directly modify this map, but only $4$ functions do so: \verb|createTokenProxy|, \verb|transfer| , \verb|transferFrom| and \verb|splitDAO|.
 
 The map \verb|allowed| is used to track the previously specified addresses that are allowed to send tokens on someone else's behalf.
 
@@ -201,28 +201,28 @@ The event \verb|Transfer| is used to inform lightweight clients about changes in
 The event \verb|Approval| is used to inform lightweight clients about changes in \verb|allowed|.
 \end{multicols}
 
-\subsection{TokenSale}
+\subsection{TokenCreation}
 \begin{verbatim}
-contract TokenSaleInterface {
+contract TokenCreationInterface {
     uint public closingTime;   
     uint public minValue;  
     bool public isFueled;
-    address public privateSale;
+    address public privateCreation;
     ManagedAccount extraBalance;
     mapping (address => uint256) weiGiven;
 
-    function TokenSale(uint _minValue, uint _closingTime);
-    function buyTokenProxy(address _tokenHolder) returns (bool success);
+    function TokenCreation(uint _minValue, uint _closingTime);
+    function createTokenProxy(address _tokenHolder) returns (bool success);
     function refund();
     function divisor() returns (uint divisor);
 
-    event FundingToDate(uint value);
-    event SoldToken(address indexed to, uint amount);
+    event FuelingToDate(uint value);
+    event CreatedToken(address indexed to, uint amount);
     event Refund(address indexed to, uint value);
 }
 \end{verbatim}
 \begin{multicols}{2}
-Above is the interface of the \verb|TokenSale| contract (\ref{app:TokenSale}). 
+Above is the interface of the \verb|TokenCreation| contract (\ref{app:TokenCreation}).
 
 The integer \verb|closingTime| is the (unix) time at which the Creation Phase ends.
 
@@ -230,16 +230,16 @@ The integer \verb|minValue| is the number of wei which are needed to be received
 
 The boolean \verb|isFueled| is true if DAO has reached its minimum fueling goal, false otherwise.
 
-The address \verb|privateSale| is used for DAO splits - if it is set to 0, then it is a public Creation, otherwise, only the address stored in \verb|privateSale| is allowed to purchase tokens.
+The address \verb|privateCreation| is used for DAO splits - if it is set to 0, then it is a public Creation, otherwise, only the address stored in \verb|privateCreation| is allowed to purchase tokens.
 
 The managed account (\ref{app:ManagedAccount}) \verb|extraBalance| is used to hold the excess ether which is received after the Creation rate is decreased during the Creation Phase. Anything that has been paid above the initial price goes to this account.
 
 The map \verb|weiGiven| stores the amount of wei given by each contributor during the Creation Phase and is only used to refund the contributors if the Creation Phase does not reach its funding goal.
 
-The constructor \verb|TokenSale| initiates the Creation Phase with the arguments \verb|minValue|, \verb|closingtime| and \verb|privateSale|, which will be set in the constructor of the DAO contract (\ref{app:DAO}) which is only executed once, when the DAO is deployed. 
+The constructor \verb|TokenCreation| initiates the Creation Phase with the arguments \verb|minValue|, \verb|closingtime| and \verb|privateCreation|, which will be set in the constructor of the DAO contract (\ref{app:DAO}) which is only executed once, when the DAO is deployed. 
 In order to interact with the contract the following functions can be used:
 
-\subsubsection*{buyTokenProxy}
+\subsubsection*{createTokenProxy}
 This function creates one unit of the DAO token’s minimum denomination for every wei sent. The price is calculated as $$\Xi_c \cdot 20 / \text{divisor}$$ Here $\Xi_c$ is the amount of wei given in order to purchase tokens, and \verb|divisor| is calculated depending on the time: $20 / P(t)$ , as described in section \ref{TokenPrice}.
 The parameter \verb|tokenHolder| defines the receiver of the newly minted tokens. 
 
@@ -247,9 +247,9 @@ The parameter \verb|tokenHolder| defines the receiver of the newly minted tokens
 This function can be called by any contributor to receive their wei back if the Creation Phase failed to meet its funding goal.
 
 \subsubsection*{divisor}
-This function is used to calculate the price of the token during the Creation Phase in the function \verb|buyTokenProxy|.
+This function is used to calculate the price of the token during the Creation Phase in the function \verb|createTokenProxy|.
 
-The events \verb|FundingToDate|, \verb|SoldToken| and \verb|Refund| are used to inform lightweight clients of the status of the Creation Phase.
+The events \verb|FuelingToDate|, \verb|CreatedToken| and \verb|Refund| are used to inform lightweight clients of the status of the Creation Phase.
 \end{multicols}
 
 \subsection{DAO} \label{DAO}
@@ -304,7 +304,7 @@ contract DAOInterface {
         uint _proposalDeposit,
         uint _minValue,
         uint _closingTime,
-        address _privateSale
+        address _privateCreation
     )
     function () returns (bool success);
     function receiveEther() returns(bool);
@@ -442,7 +442,7 @@ In the DAO constructor, the following variables are set:
  \item \verb|DAOrewardAccount|
  \item \verb|minValue|
  \item \verb|closingTime|
- \item \verb|privateSale|
+ \item \verb|privateCreation|
  \item \verb|lastTimeMinQuorumMet|
  \item \verb|minQuorumDivisor|
  \item \verb|allowedRecipients|
@@ -452,7 +452,7 @@ In order to interact with the smart contract the following functions are used:
 
 \subsubsection*{fallback function}
 The fallback function is a function without a specific name. It is called when the contract receives a transaction without data (a pure value transfer). There are no direct arguments for this function.
-The fallback function will call \verb|buyTokenProxy| passing the address of the sender as an argument during the Creation Phase. This will trigger the immediate purchase of tokens. In order to protect users, this function will send the ether received after the end of the Creation Phase back to the sender for a time period of $40$ days. After which this function is repurposed to receive ether as simple deposit to the DAO using the function \verb|receiveEther|.
+The fallback function will call \verb|createTokenProxy| passing the address of the sender as an argument during the Creation Phase. This will trigger the immediate purchase of tokens. In order to protect users, this function will send the ether received after the end of the Creation Phase back to the sender for a time period of $40$ days. After which this function is repurposed to receive ether as simple deposit to the DAO using the function \verb|receiveEther|.
 
 \subsubsection*{receiveEther}
 A simple function used to receive ether. It does nothing but return true when the DAO receives ether.
@@ -513,7 +513,7 @@ This function moves the portion of ether that belongs to the caller of this func
  \Xi_{\text{sender}} = \Xi_{\text{DAO}} \cdot T_{\text{sender}} / T_{\text{total}}
 \end{equation}
 Here $T_{\text{sender}}$ is the amount of tokens of the caller of the function and $\Xi_{\text{DAO}}$ is the balance of the DAO at the time of the split.
-This will be used to effectively buy tokens of the newly created DAO and fund the new DAO just as the original DAO was funded.
+This will be used to effectively create tokens in the newly created DAO and fuel the new DAO just as the original DAO was fueled.
 In addition to the ether which is moved to the new DAO, the reward tokens $R_{\text{sender}}$ are also transferred. 
 They are calculated as follows:
 \begin{equation}
@@ -782,77 +782,80 @@ contract Token is TokenInterface {
 }
 \end{verbatim} 
 
-\subsection{TokenSale}\label{app:TokenSale}
+\subsection{TokenCreation}\label{app:TokenCreation}
 \begin{verbatim}
-contract TokenSaleInterface {
+contract TokenCreationInterface {
 
-    // End of token sale, in Unix time
+    // End of token creation, in Unix time
     uint public closingTime;
-    // Minimum fueling goal of the token sale, denominated in ether
+    // Minimum fueling goal of the token creation, denominated in ether
     uint public minValue;
     // True if the DAO reached its minimum fueling goal, false otherwise
     bool public isFueled;
-    // For DAO splits - if privateSale is 0, then it is a public sale, otherwise
-    // only the address stored in privateSale is allowed to purchase tokens
-    address public privateSale;
-    // hold extra ether which has been paid after the DAO token price has increased
+    // For DAO splits - if privateCreation is 0, then it is a public token
+    // creation, otherwise only the address stored in privateCreation is
+    // allowed to create tokens
+    address public privateCreation;
+    // hold extra ether which has been sent after the DAO token
+    // creation rate has increased
     ManagedAccount public extraBalance;
     // tracks the amount of wei given from each contributor (used for refund)
     mapping (address => uint256) weiGiven;
 
     /// @dev Constructor setting the minimum fueling goal and the
-    /// end of the Token Sale
-    /// @param _minValue Token Sale minimum fueling goal
-    /// @param _closingTime Date (in Unix time) of the end of the Token Sale
-    /// @param _privateSale Zero means that the sale is public.  A non-zero
-    /// address represents the only address that can buy Tokens (the address
-    /// can also buy Tokens on behalf of other accounts)
+    /// end of the Token Creation
+    /// @param _minValue Token Creation minimum fueling goal
+    /// @param _closingTime Date (in Unix time) of the end of the Token Creation
+    /// @param _privateCreation Zero means that the creation is public.  A
+    /// non-zero address represents the only address that can create Tokens
+    /// (the address can also create Tokens on behalf of other accounts)
     // This is the constructor: it can not be overloaded so it is commented out
-    //  function TokenSale(
+    //  function TokenCreation(
         //  uint _minValue,
         //  uint _closingTime,
-        //  address _privateSale
+        //  address _privateCreation
     //  );
 
-    /// @notice Buy Token with `_tokenHolder` as the initial owner of the Token
+    /// @notice Create Token with `_tokenHolder` as the initial owner of the Token
     /// @param _tokenHolder The address of the Tokens's recipient
     /// @return Whether the purchase was successful
-    function buyTokenProxy(address _tokenHolder) returns (bool success);
+    function createTokenProxy(address _tokenHolder) returns (bool success);
 
-    /// @notice Refund `msg.sender` in the case the Token Sale didn't reach its
-    /// minimum fueling goal
+    /// @notice Refund `msg.sender` in the case the Token Creation did
+    /// not reach its minimum fueling goal
     function refund();
 
-    /// @return The divisor used to calculate the token price during the sale
+    /// @return The divisor used to calculate the token creation rate during
+    /// the creation phase
     function divisor() returns (uint divisor);
 
-    event FundingToDate(uint value);
-    event SoldToken(address indexed to, uint amount);
+    event FuelingToDate(uint value);
+    event CreatedToken(address indexed to, uint amount);
     event Refund(address indexed to, uint value);
 }
 
 
-contract TokenSale is TokenSaleInterface, Token {
-    function TokenSale(uint _minValue, uint _closingTime, address _privateSale) {
+contract TokenCreation is TokenCreationInterface, Token {
+    function TokenCreation(uint _minValue, uint _closingTime, address _privateCreation) {
         closingTime = _closingTime;
         minValue = _minValue;
-        privateSale = _privateSale;
+        privateCreation = _privateCreation;
         extraBalance = new ManagedAccount(address(this));
     }
 
-    function buyTokenProxy(address _tokenHolder) returns (bool success) {
+    function createTokenProxy(address _tokenHolder) returns (bool success) {
         if (now < closingTime && msg.value > 0
-            && (privateSale == 0 || privateSale == msg.sender)) {
+            && (privateCreation == 0 || privateCreation == msg.sender)) {
 
             uint token = (msg.value * 20) / divisor();
             extraBalance.call.value(msg.value - token)();
             balances[_tokenHolder] += token;
             totalSupply += token;
             weiGiven[_tokenHolder] += msg.value;
-            SoldToken(_tokenHolder, token);
+            CreatedToken(_tokenHolder, token);
             if (totalSupply >= minValue && !isFueled) {
                 isFueled = true;
-                FundingToDate(totalSupply);
+                FuelingToDate(totalSupply);
             }
             return true;
         }
@@ -880,10 +883,10 @@ contract TokenSale is TokenSaleInterface, Token {
         // The fueling period starts with a 1:1 ratio
         if (closingTime - 2 weeks > now) {
             return 20;
-        // Followed by 10 days with a daily price increase of 5%
+        // Followed by 10 days with a daily creation rate increase of 5%
         } else if (closingTime - 4 days > now) {
             return (20 + (now - (closingTime - 2 weeks)) / (1 days));
-        // The last 4 days there is a constant price ratio of 1:1.5
+        // The last 4 days there is a constant creation rate ratio of 1:1.5
         } else {
             return 30;
         }
@@ -894,9 +897,9 @@ contract TokenSale is TokenSaleInterface, Token {
 \begin{verbatim}
 contract DAOInterface {
 
-    // The amount of days for which people who try to participate in the sale
-    // by calling the fallback function will still get their ether back
-    uint constant saleGracePeriod = 40 days;
+    // The amount of days for which people who try to participate in the
+    // creation by calling the fallback function will still get their ether back
+    uint constant creationGracePeriod = 40 days;
     // The minimum debate period that a generic proposal can have
     uint constant minProposalDebatePeriod = 2 weeks;
     // The minimum debate period that a split proposal can have
@@ -905,19 +908,22 @@ contract DAOInterface {
     uint constant splitExecutionPeriod = 27 days;
     // Period of time after which the minimum Quorum is halved
     uint constant quorumHalvingPeriod = 52 weeks;
-    // Period after which a proposal can be closed (used in the case `executeProposal`
-    // fails because it throws)
+    // Period after which a proposal can be closed
+    // (used in the case `executeProposal` fails because it throws)
     uint constant executeProposalPeriod = 5 days;
+    // Denotes the maximum proposal deposit that can be given. It is given as
+    // a fraction of total Ether spent plus balance of the DAO
+    uint constant maxDepositDivisor = 100;
 
     // Proposals to spend the DAO's ether or to choose a new Curator
     Proposal[] public proposals;
     // The quorum needed for each proposal is partially calculated by
     // totalSupply / minQuorumDivisor
-    uint minQuorumDivisor;
+    uint public minQuorumDivisor;
     // The unix time of the last time quorum was reached on a proposal
-    uint lastTimeMinQuorumMet;
+    uint  public lastTimeMinQuorumMet;
 
-    // Address of the Curator
+    // Address of the curator
     address public curator;
     // The whitelist: List of addresses the DAO is allowed to send ether to
     mapping (address => bool) public allowedRecipients;
@@ -1015,14 +1021,14 @@ contract DAOInterface {
 
     /// @dev Constructor setting the Curator and the address
     /// for the contract able to create another DAO as well as the parameters
-    /// for the DAO Token Sale
+    /// for the DAO Token Creation
     /// @param _curator The Curator
     /// @param _daoCreator The contract able to (re)create this DAO
     /// @param _proposalDeposit The deposit to be paid for a regular proposal
-    /// @param _minValue Minimal value for a successful DAO Token Sale
-    /// @param _closingTime Date (in Unix time) of the end of the DAO Token Sale
-    /// @param _privateSale If zero the DAO Token Sale is open to public, a
-    /// non-zero address means that the DAO Token Sale is only for the address
+    /// @param _minValue Minimal value for a successful DAO Token Creation
+    /// @param _closingTime Date (in Unix time) of the end of the DAO Token Creation
+    /// @param _privateCreation If zero the DAO Token Creation is open to public, a
+    /// non-zero address means that the DAO Token Creation is only for the address
     // This is the constructor: it can not be overloaded so it is commented out
     //  function DAO(
         //  address _curator,
@@ -1030,10 +1036,10 @@ contract DAOInterface {
         //  uint _proposalDeposit,
         //  uint _minValue,
         //  uint _closingTime,
-        //  address _privateSale
+        //  address _privateCreation
     //  );
 
-    /// @notice Buy Token with `msg.sender` as the beneficiary
+    /// @notice Create Token with `msg.sender` as the beneficiary
     /// @return Whether the purchase was successful
     function () returns (bool success);
 
@@ -1206,11 +1212,11 @@ contract DAOInterface {
     event Voted(uint indexed proposalID, bool position, address indexed voter);
     event ProposalTallied(uint indexed proposalID, bool result, uint quorum);
     event NewCurator(address indexed _newCurator);
-    event AllowedRecipientAdded(address indexed _recipient);
+    event AllowedRecipientChanged(address indexed _recipient, bool _allowed);
 }
 
 // The DAO contract itself
-contract DAO is DAOInterface, Token, TokenSale {
+contract DAO is DAOInterface, Token, TokenCreation {
 
     // Modifier that allows only shareholders to vote and create new proposals
     modifier onlyTokenholders {
@@ -1224,8 +1230,8 @@ contract DAO is DAOInterface, Token, TokenSale {
         uint _proposalDeposit,
         uint _minValue,
         uint _closingTime,
-        address _privateSale
-    ) TokenSale(_minValue, _closingTime, _privateSale) {
+        address _privateCreation
+    ) TokenCreation(_minValue, _closingTime, _privateCreation) {
 
         curator = _curator;
         daoCreator = _daoCreator;
@@ -1245,8 +1251,8 @@ contract DAO is DAOInterface, Token, TokenSale {
     }
 
     function () returns (bool success) {
-        if (now < closingTime + saleGracePeriod)
-            return buyTokenProxy(msg.sender);
+        if (now < closingTime + creationGracePeriod)
+            return createTokenProxy(msg.sender);
         else
             return receiveEther();
     }
@@ -1395,7 +1401,7 @@ contract DAO is DAOInterface, Token, TokenSale {
 
         // If the curator removed the recipient from the whitelist, close the proposal
         // in order to free the deposit and allow unblocking of voters
-        if (!allowedRecipients[p.recipient] && p.open) {
+        if (!isRecipientAllowed(p.recipient) && p.open) {
             closeProposal(_proposalID);
             p.creator.send(p.proposalDeposit);
             return;
@@ -1501,7 +1507,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         uint fundsToBeMoved =
             (balances[msg.sender] * p.splitData[0].splitBalance) /
             p.splitData[0].totalSupply;
-        if (p.splitData[0].newDAO.buyTokenProxy.value(fundsToBeMoved)(msg.sender) == false)
+        if (p.splitData[0].newDAO.createTokenProxy.value(fundsToBeMoved)(msg.sender) == false)
             throw;
 
 
@@ -1650,8 +1656,11 @@ contract DAO is DAOInterface, Token, TokenSale {
 
 
     function changeProposalDeposit(uint _proposalDeposit) noEther external {
-        if (msg.sender != address(this) || _proposalDeposit > actualBalance() / 10)
+        if (msg.sender != address(this) || _proposalDeposit > (actualBalance() + rewardToken[address(this)])
+            / maxDepositDivisor) {
+
             throw;
+        }
         proposalDeposit = _proposalDeposit;
     }
 
@@ -1660,6 +1669,7 @@ contract DAO is DAOInterface, Token, TokenSale {
         if (msg.sender != curator)
             throw;
         allowedRecipients[_recipient] = _allowed;
+        AllowedRecipientChanged(_recipient, _allowed);
         return true;
     }
 
@@ -1675,7 +1685,7 @@ contract DAO is DAOInterface, Token, TokenSale {
             return false;
     }
 
-    function actualBalance() internal constant returns (uint _actualBalance) {
+    function actualBalance() constant returns (uint _actualBalance) {
         return this.balance - sumOfProposalDeposits;
     }
 
@@ -1744,7 +1754,6 @@ contract DAO_Creator {
         );
     }
 }
-
 \end{verbatim}
 
 \subsection{Sample Offer}\label{app:SampleOffer}
