@@ -49,8 +49,8 @@ Generic smart contract for a Decentralized Autonomous Organization (DAO) to auto
 ### Token.sol: 
 Defines the functions to check token balances, send tokens, send tokens on behalf of a 3rd party and its corresponding approval process.
 
-### TokenSale.sol: 
-Token Sale contract, used by the DAO to sell its tokens and initialize its ether.
+### TokenCreation.sol: 
+Token Creation contract, used by the DAO to sell its tokens and initialize its ether.
 
 ### SampleOffer.sol
 Sample Proposal from a Contractor to the DAO. Feel free to use as a template for your own proposal.
@@ -58,8 +58,8 @@ Sample Proposal from a Contractor to the DAO. Feel free to use as a template for
 ### ManagedAccount.sol
 Basic account, used by the DAO contract to separately manage both the rewards and the extraBalance accounts. 
 
-### DAOTokenSaleProxyTransferer.sol
-This contract is used as a fall back in case an exchange doesn't implement the "add data to a transaction" feature in a timely manner, preventing it from calling buyTokenProxy().
+### DAOTokenCreationProxyTransferer.sol
+This contract is used as a fall back in case an exchange doesn't implement the "add data to a transaction" feature in a timely manner, preventing it from calling createTokenProxy().
 
 
 

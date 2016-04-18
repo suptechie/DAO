@@ -2,9 +2,9 @@ var proxy_amounts = $proxy_amounts;
 var normal_amounts = $normal_amounts;
 
 var dao = web3.eth.contract($dao_abi).at('$dao_address');
-console.log("Buying DAO tokens");
+console.log("Creating DAO tokens");
 for (i = 0; i < eth.accounts.length; i++) {
-    dao.buyTokenProxy.sendTransaction(
+    dao.createTokenProxy.sendTransaction(
         eth.accounts[eth.accounts.length - 1 - i],
         {
         from:eth.accounts[i],
@@ -68,5 +68,5 @@ setTimeout(function() {
 
     testResults();
 }, $wait_ms);
-console.log("Wait for end of sale");
+console.log("Wait for end of creation");
 miner.start(1);

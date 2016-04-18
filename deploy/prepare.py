@@ -45,7 +45,9 @@ class TestDeployContext():
     def cleanup(self):
         if self.args.no_limits:
             rm_file(os.path.join(self.args.contracts_dir, "DAOcopy.sol"))
-            rm_file(os.path.join(self.args.contracts_dir, "TokenSaleCopy.sol"))
+            rm_file(
+                os.path.join(self.args.contracts_dir, "TokenCreationCopy.sol")
+            )
 
 
 if __name__ == "__main__":
@@ -55,10 +57,10 @@ if __name__ == "__main__":
         help='Full path to the solc binary to use'
     )
     p.add_argument(
-        '--sale-duration-mins',
+        '--creation-duration-mins',
         type=int,
         default=60,
-        help='Deployed DAO sale duration in minutes'
+        help='Deployed DAO creation duration in minutes'
     )
     p.add_argument(
         '--contracts-dir',
@@ -104,7 +106,7 @@ if __name__ == "__main__":
           comp['contracts']['DAO_Creator']['bin'])
         )
         f.write("seconds_from_now = {};\n".format(
-          args.sale_duration_mins * 60)
+          args.creation_duration_mins * 60)
         )
         f.write("curator = \"{}\";\n".format(args.curator))
         f.write("default_proposal_deposit = {};\n".format(

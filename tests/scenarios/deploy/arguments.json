@@ -1,7 +1,7 @@
 [{
-    "name": "sale_seconds",
+    "name": "creation_seconds",
     "default": 35,
-    "description":"Number of seconds from now when the newly created DAO sale ends",
+    "description":"Number of seconds from now when the newly created DAO creation ends",
     "type":"int"
 }, {
     "name": "min_value",

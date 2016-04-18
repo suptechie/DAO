@@ -3,10 +3,10 @@ from utils import constrained_sum_sample_pos, arr_str
 
 
 scenario_description = (
-    "During the fueling period of the DAO, buy DAO tokens from all accounts "
-    "with both normal buying and with buyTokenProxy(). When the goal "
-    "is not reached make sure that the refunds when having used buyTokenProxy "
-    "are distributed back to the users correctly"
+    "During the fueling period of the DAO, create DAO tokens from all accounts "
+    "with both normal creation and with createTokenProxy(). When the goal "
+    "is not reached make sure that the refunds when having used "
+    "createTokenProxy() are distributed back to the users correctly"
 )
 
 
@@ -18,7 +18,7 @@ def run(ctx):
         print("Please increase the minimum fueling goal for the scenario.")
         sys.exit(1)
 
-    sale_secs = ctx.remaining_time()
+    creation_secs = ctx.remaining_time()
     total_supply = ctx.args.deploy_min_value - 4
     proxy_amounts = constrained_sum_sample_pos(
         accounts_num, total_supply / 2
@@ -34,14 +34,14 @@ def run(ctx):
         substitutions={
             "dao_abi": ctx.dao_abi,
             "dao_address": ctx.dao_addr,
-            "wait_ms": (sale_secs-3)*1000,
+            "wait_ms": (creation_secs-3)*1000,
             "proxy_amounts": arr_str(proxy_amounts),
             "normal_amounts": arr_str(normal_amounts)
         }
     )
     print(
         "Notice: Fueling period is {} seconds so the test will wait "
-        "as much".format(sale_secs)
+        "as much".format(creation_secs)
     )
     ctx.execute(expected={
         "dao_fueled": False,

@@ -20,7 +20,7 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 Basic, standardized Token contract with no "premine". Defines the functions to
 check token balances, send tokens, send tokens on behalf of a 3rd party and the
 corresponding approval process. Tokens need to be created by a derived
-contract (e.g. TokenSale.sol).
+contract (e.g. TokenCreation.sol).
 
 Thank you ConsenSys, this contract originated from:
 https://github.com/ConsenSys/Tokens/blob/master/Token_Contracts/contracts/Standard_Token.sol
