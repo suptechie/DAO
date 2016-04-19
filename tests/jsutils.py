@@ -123,6 +123,7 @@ function attempt_execute_proposal(
     prop_id,
     bytecode,
     prop_creator,
+    expect_closed,
     expect_pass) {
     desc = argdao.proposals(prop_id)[2];
     vote_deadline = argdao.proposals(prop_id)[3];
@@ -138,10 +139,11 @@ function attempt_execute_proposal(
         {from: prop_creator, gas:4000000}
     );
     checkWork();
-    if (argdao.proposals(prop_id)[4] == true) {
+    if (argdao.proposals(prop_id)[4] == expect_closed) {
         testFail(
-            "Failed to execute proposal for: '" +desc +"'. Proposal is still "+
-            "open. Perhaps provide more gas?"
+            "Failed to execute proposal for: '" +desc +"'. Expected the " +
+            "proposal to be " + (expect_closed ? "closed" : "open") +
+            " but it's not"
         );
     }
     if (argdao.proposals(prop_id)[5] != expect_pass) {

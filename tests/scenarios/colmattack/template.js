@@ -70,6 +70,7 @@ setTimeout(function() {
             attack_prop_id, // proposal ID
             '', // transaction bytecode
             attacker, // proposal creator
+            true, // should the proposal be closed after this call?
             true // should the proposal pass?
         );
 
