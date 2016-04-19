@@ -37,9 +37,9 @@ contract DAOInterface {
     uint constant splitExecutionPeriod = 27 days;
     // Period of time after which the minimum Quorum is halved
     uint constant quorumHalvingPeriod = 52 weeks;
-    // Period after which a proposal can be closed
+    // Period after which a proposal is closed
     // (used in the case `executeProposal` fails because it throws)
-    uint constant executeProposalPeriod = 5 days;
+    uint constant executeProposalPeriod = 10 days;
     // Denotes the maximum proposal deposit that can be given. It is given as
     // a fraction of total Ether spent plus balance of the DAO
     uint constant maxDepositDivisor = 100;
@@ -236,12 +236,6 @@ contract DAOInterface {
         uint _proposalID,
         bytes _transactionData
     ) returns (bool _success);
-
-    /// @notice close the proposal (used in the case `executeProposal`
-    /// fails because it throws)
-    /// @param _proposalID The proposal ID
-    function emergenyCloseProposal(uint _proposalID) external;
-
 
     /// @notice ATTENTION! I confirm to move my remaining ether to a new DAO
     /// with `_newCurator` as the new Curator, as has been
@@ -512,10 +506,12 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         Proposal p = proposals[_proposalID];
 
-        if (p.newCurator) {
-            if (now > p.votingDeadline + splitExecutionPeriod) {
-                p.open = false;
-            }
+        uint waitPeriod = p.newCurator
+            ? splitExecutionPeriod
+            : executeProposalPeriod;
+        // If we are over deadline and waiting period, assert proposal is closed
+        if (p.open && now > p.votingDeadline + waitPeriod) {
+            closeProposal(_proposalID);
             return;
         }
 
@@ -585,12 +581,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
         if (p.open)
             sumOfProposalDeposits -= p.proposalDeposit;
         p.open = false;
-    }
-
-    function emergenyCloseProposal(uint _proposalID) external {
-        Proposal p = proposals[_proposalID];
-        if (p.votingDeadline + executeProposalPeriod < now && p.open)
-            closeProposal(_proposalID);
     }
 
     function splitDAO(
