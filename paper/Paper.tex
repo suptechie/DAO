@@ -330,7 +330,6 @@ contract DAOInterface {
         uint _proposalID,
         bytes _transactionData
     ) returns (bool _success);
-    function emergenyCloseProposal(uint _proposalID) external;
     function splitDAO(
         uint _proposalID,
         address _newServiceProvider
