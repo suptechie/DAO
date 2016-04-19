@@ -237,12 +237,6 @@ contract DAOInterface {
         bytes _transactionData
     ) returns (bool _success);
 
-    /// @notice close the proposal (used in the case `executeProposal`
-    /// fails because it throws)
-    /// @param _proposalID The proposal ID
-    function emergenyCloseProposal(uint _proposalID) external;
-
-
     /// @notice ATTENTION! I confirm to move my remaining ether to a new DAO
     /// with `_newCurator` as the new Curator, as has been
     /// proposed in proposal `_proposalID`. This will burn my tokens. This can
@@ -512,10 +506,12 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         Proposal p = proposals[_proposalID];
 
-        if (p.newCurator) {
-            if (now > p.votingDeadline + splitExecutionPeriod) {
-                p.open = false;
-            }
+        uint waitPeriod = p.newCurator
+            ? splitExecutionPeriod
+            : executeProposalPeriod;
+        // If we are over deadline and waiting period, assert proposal is closed
+        if (now > p.votingDeadline + waitPeriod) {
+            closeProposal(_proposalID);
             return;
         }
 
@@ -585,12 +581,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
         if (p.open)
             sumOfProposalDeposits -= p.proposalDeposit;
         p.open = false;
-    }
-
-    function emergenyCloseProposal(uint _proposalID) external {
-        Proposal p = proposals[_proposalID];
-        if (p.votingDeadline + executeProposalPeriod < now && p.open)
-            closeProposal(_proposalID);
     }
 
     function splitDAO(
