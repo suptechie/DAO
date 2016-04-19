@@ -17,7 +17,7 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /*
-Generic smart contract for a Decentralized Autonomous Organization (DAO)
+Standard smart contract for a Decentralized Autonomous Organization (DAO)
 to automate organizational governance and decision-making.
 */
 
