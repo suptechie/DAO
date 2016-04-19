@@ -12,7 +12,7 @@ Feel free to reuse to create your own Decentralized Autonomous Organization usin
 
 ## Disclaimer
 
-The future remains a work in progress. Our vision exists in a world where laws vary widely. It is important to remember that anyone who uses DAO code will do so at their own risk. We can’t speculate about the legal status of DAOs worldwide. Whatever our personal beliefs may be, people must draw their own conclusions, relying on legal advice where appropriate. The Authors are not law firm and we are not in the business of offering legal advice. 
+The future remains a work in progress. Our vision exists in a world where laws vary widely. It is important to remember that anyone who uses the generic DAO framework for The DAO or any other DAO will do so at their own risk. One can only speculate about the legal status of DAOs worldwide. Whatever one’s personal beliefs may be, people must draw their own conclusions, relying on legal advice where appropriate. The authors are not a law firm and are not in the business of offering legal advice.
 
 **If you create a DAO it will be your DAO, and you will be responsible for its operation.**
 
@@ -34,7 +34,7 @@ We are making the Standard DAO Framework we developed free and open source, so i
 
 This DAO model is open source under the LGPL, so it can be reused by anyone wishing to put together a transparent organization where governance and decision making system are immutably programmed in the Blockchain.
 
-Note: Although the word "contract" is used in the DAO code, the term is a programming convention and is not being used as a legal term of art.  The DAO does not practice law and the authors of this code do not practice law are not your lawyers.  The term is a programming convention, not a representation that the code is in and of itself a legally binding and enforceable contract. If you have questions about legal enforceability, consult with legal counsel.
+Note: Although the word "contract" is used in The DAO’s code, the term is a programming convention and is not being used as a legal term of art. The term is a programming convention, not a representation that the code is in and of itself a legally binding and enforceable contract. If you have questions about legal enforceability, consult with legal counsel.
 
 
 
