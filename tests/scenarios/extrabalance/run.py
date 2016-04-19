@@ -1,13 +1,13 @@
 from utils import calculate_bytecode, to_wei
 
 scenario_description = (
-    "The DAO spends all its money and has to resort to retrieving money from "
+    "The DAO spent all its money and has to resort to retrieving money from "
     "the extra balance account. This test checks that this is succesful."
 )
 
 
 def run(ctx):
-    ctx.assert_scenario_ran('fuel')
+    ctx.assert_scenario_ran('spendall')
     extra_balance_ether_to_get = 5
     bytecode = calculate_bytecode(
         'payOut',

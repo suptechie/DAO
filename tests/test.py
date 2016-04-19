@@ -210,6 +210,9 @@ class TestContext():
         output = self.run_script('{}.js'.format(self.running_scenario()))
         return eval_test(self.running_scenario(), output, expected)
 
+    def scenario_uses_extrabalance(self):
+        return ctx.args.scenario in ["extrabalance"]
+
     def running_scenario(self):
         """Get the currently running scenario name"""
         return self.running_scenarios[-1]

@@ -28,6 +28,7 @@ tests/colmattack.js
 tests/newcontract.js
 tests/newcontractfail.js
 tests/multisplitrewards.js
+tests/spendall.js
 tests/extrabalance.js
 
 # Ignore deployment related file
