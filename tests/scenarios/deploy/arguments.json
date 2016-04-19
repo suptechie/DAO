@@ -4,9 +4,9 @@
     "description":"Number of seconds from now when the newly created DAO creation ends",
     "type":"int"
 }, {
-    "name": "min_value",
+    "name": "min_tokens_to_create",
     "default": 40,
-    "description": "Minimum value in Ether to consider the DAO fueled",
+    "description": "Minimum value in tokens for the DAO to create in order to be considered fueled",
     "type": "int"
 },{
     "name": "onetime_costs",

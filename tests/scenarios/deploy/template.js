@@ -17,7 +17,7 @@ var _daoCreatorContract = creatorContract.new(
 	        _curator,
 	        contract.address,
             $default_proposal_deposit,
-	        web3.toWei($min_value, "ether"),
+	        web3.toWei($min_tokens_to_create, "ether"),
 	        $closing_time,
             0,
 		    {

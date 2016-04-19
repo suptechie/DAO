@@ -13,7 +13,9 @@ def run(ctx):
     ctx.assert_scenario_ran('deploy')
 
     creation_secs = ctx.remaining_time()
-    ctx.total_supply = ctx.args.deploy_min_value + random.randint(1, 100)
+    ctx.total_supply = (
+        ctx.args.deploy_min_tokens_to_create + random.randint(1, 100)
+    )
     ctx.token_amounts = constrained_sum_sample_pos(
         len(ctx.accounts), ctx.total_supply
     )

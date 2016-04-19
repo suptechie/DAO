@@ -29,8 +29,9 @@ contract TokenCreationInterface {
 
     // End of token creation, in Unix time
     uint public closingTime;
-    // Minimum fueling goal of the token creation, denominated in ether
-    uint public minValue;
+    // Minimum fueling goal of the token creation, denominated in tokens to
+    // be created
+    uint public minTokensToCreate;
     // True if the DAO reached its minimum fueling goal, false otherwise
     bool public isFueled;
     // For DAO splits - if privateCreation is 0, then it is a public token
@@ -45,14 +46,15 @@ contract TokenCreationInterface {
 
     /// @dev Constructor setting the minimum fueling goal and the
     /// end of the Token Creation
-    /// @param _minValue Token Creation minimum fueling goal
+    /// @param _minTokensToCreate Minimum fueling goal in number of
+    ///        Tokens to be created
     /// @param _closingTime Date (in Unix time) of the end of the Token Creation
     /// @param _privateCreation Zero means that the creation is public.  A
     /// non-zero address represents the only address that can create Tokens
     /// (the address can also create Tokens on behalf of other accounts)
     // This is the constructor: it can not be overloaded so it is commented out
     //  function TokenCreation(
-        //  uint _minValue,
+        //  uint _minTokensTocreate,
         //  uint _closingTime,
         //  address _privateCreation
     //  );
@@ -77,9 +79,13 @@ contract TokenCreationInterface {
 
 
 contract TokenCreation is TokenCreationInterface, Token {
-    function TokenCreation(uint _minValue, uint _closingTime, address _privateCreation) {
+    function TokenCreation(
+        uint _minTokensToCreate,
+        uint _closingTime,
+        address _privateCreation) {
+
         closingTime = _closingTime;
-        minValue = _minValue;
+        minTokensToCreate = _minTokensToCreate;
         privateCreation = _privateCreation;
         extraBalance = new ManagedAccount(address(this), true);
     }
@@ -94,7 +100,7 @@ contract TokenCreation is TokenCreationInterface, Token {
             totalSupply += token;
             weiGiven[_tokenHolder] += msg.value;
             CreatedToken(_tokenHolder, token);
-            if (totalSupply >= minValue && !isFueled) {
+            if (totalSupply >= minTokensToCreate && !isFueled) {
                 isFueled = true;
                 FuelingToDate(totalSupply);
             }

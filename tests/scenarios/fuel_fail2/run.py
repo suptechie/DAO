@@ -14,12 +14,12 @@ def run(ctx):
     ctx.assert_scenario_ran('deploy')
 
     accounts_num = len(ctx.accounts)
-    if accounts_num * 2 >= ctx.args.deploy_min_value - 4:
+    if accounts_num * 2 >= ctx.args.deploy_min_tokens_to_create - 4:
         print("Please increase the minimum fueling goal for the scenario.")
         sys.exit(1)
 
     creation_secs = ctx.remaining_time()
-    total_supply = ctx.args.deploy_min_value - 4
+    total_supply = ctx.args.deploy_min_tokens_to_create - 4
     proxy_amounts = constrained_sum_sample_pos(
         accounts_num, total_supply / 2
     )

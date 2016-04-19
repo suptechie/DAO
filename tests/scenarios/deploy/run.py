@@ -26,7 +26,7 @@ def run(ctx):
             "offer_bin": ctx.offer_bin,
             "offer_onetime": ctx.args.deploy_onetime_costs,
             "offer_total": ctx.args.deploy_total_costs,
-            "min_value": ctx.args.deploy_min_value,
+            "min_tokens_to_create": ctx.args.deploy_min_tokens_to_create,
             "default_proposal_deposit": ctx.args.deploy_proposal_deposit
         },
         cb_before_creation=calculate_closing_time
@@ -54,3 +54,10 @@ def run(ctx):
             "offer_addr": ctx.offer_addr,
             "closing_time": ctx.closing_time
         }))
+
+    # after deployment recalculate for the subsequent tests what the min
+    # amount of tokens is in the case of extrabalance tests
+    if ctx.args.scenario == "extrabalance":
+        ctx.args.deploy_min_tokens_to_create = (
+            int(ctx.args.deploy_min_tokens_to_create * 1.5)
+        )

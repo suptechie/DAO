@@ -449,8 +449,6 @@ def calculate_bytecode(function_name, *args):
 
     bytecode = function_hash
     for arg in args:
-        # import pdb
-        # pdb.set_trace()
         arg_type = arg[0]
         arg_val = arg[1]
         if arg_type == "bool" or arg_type == "uint256":

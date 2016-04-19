@@ -7,7 +7,7 @@ For the full array of arguments available run `test.py --help`
 ```
 usage: test.py [-h] [--solc SOLC] [--geth GETH] [--keep-limits]
                [--clean-chain] [--verbose] [--closing-time CLOSING_TIME]
-               [--min-value MIN_VALUE] [--scenario {none,deploy,fund}]
+               [--scenario {none,deploy,fund}]
 
 DAO contracts test framework
 
@@ -24,8 +24,6 @@ optional arguments:
   --closing-time CLOSING_TIME
                         Number of minutes from now when the newly created DAO
                         creation ends
-  --min-value MIN_VALUE
-                        Minimum value to consider the DAO crowdfunded
   --scenario {none,deploy,fund}
                         Test scenario to play out
 ```
