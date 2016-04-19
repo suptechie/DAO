@@ -2,7 +2,7 @@
 
 
 ## What is it?
-A generic DAO (Decentralized Autonomous Organization) framework written in Solidity to run on the Ethereum blockchain. 
+A Standard DAO (Decentralized Autonomous Organization) framework written in Solidity to run on the Ethereum blockchain. 
 
 Feel free to reuse to create your own Decentralized Autonomous Organization using this framework.
 
@@ -28,9 +28,9 @@ A very active community can be found on  [slack](http://slack.slock.it:3000)
 
 ## Overview
 
-Our generic DAO framework allows people to create Decentralized Autonomous Organizations (DAOs) governed by the code in this repository written immutably to the blockchain.
+Our Standard DAO Framework allows people to create Decentralized Autonomous Organizations (DAOs) governed by the code in this repository written immutably to the blockchain.
 
-We are making the generic DAO model we developed free and open source, so it can be reused by anyone wishing to put together a transparent organization where governance and decision making systems are immutably programmed in the Ethereum blockchain. This code been reviewed by hundreds of pairs of eyes from our community and by one of the most respected auditing companies in the world, Deja Vu.
+We are making the Standard DAO Framework we developed free and open source, so it can be reused by anyone wishing to put together a transparent organization where governance and decision making systems are immutably programmed in the Ethereum blockchain. This code been reviewed by hundreds of pairs of eyes from our community and by one of the most respected auditing companies in the world, Deja Vu.
 
 This DAO model is open source under the LGPL, so it can be reused by anyone wishing to put together a transparent organization where governance and decision making system are immutably programmed in the Blockchain.
 
@@ -44,7 +44,7 @@ Note: Although the word "contract" is used in the DAO code, the term is a progra
 ## Solidity files
 
 ### DAO.sol:
-Generic smart contract for a Decentralized Autonomous Organization (DAO) to automate organizational governance and decision-making.
+Standard smart contract for a Decentralized Autonomous Organization (DAO) to automate organizational governance and decision-making.
 
 ### Token.sol: 
 Defines the functions to check token balances, send tokens, send tokens on behalf of a 3rd party and its corresponding approval process.
