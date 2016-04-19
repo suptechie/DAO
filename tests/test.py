@@ -211,7 +211,11 @@ class TestContext():
         return eval_test(self.running_scenario(), output, expected)
 
     def scenario_uses_extrabalance(self):
-        return ctx.args.scenario in ["extrabalance"]
+        """
+        Check if the target scenario requires late sale, in order to
+        populate the extraBalance account
+        """
+        return ctx.args.scenario in ["extrabalance", "stealextrabalance"]
 
     def running_scenario(self):
         """Get the currently running scenario name"""

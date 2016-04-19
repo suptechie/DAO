@@ -30,6 +30,7 @@ tests/newcontractfail.js
 tests/multisplitrewards.js
 tests/spendall.js
 tests/extrabalance.js
+tests/stealextrabalance.js
 
 # Ignore deployment related file
 deploy/code.js
