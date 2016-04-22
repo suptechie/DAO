@@ -78,7 +78,7 @@ contract SampleOffer {
     }
 
     function sign() {
-        if (msg.value < totalCosts && dateOfSignature != 0)
+        if (msg.value < totalCosts || dateOfSignature != 0)
             throw;
         if (!contractor.send(oneTimeCosts))
             throw;
