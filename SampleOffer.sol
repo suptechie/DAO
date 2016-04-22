@@ -118,6 +118,10 @@ contract SampleOffer {
         deploymentReward = _deploymentReward;
     }
 
+    function updateClientAddress(DAO _newClient) callingRestriction {
+        client = _newClient;
+    }
+
     // interface for Ethereum Computer
     function payOneTimeReward() returns(bool) {
         if (msg.value < deploymentReward)
