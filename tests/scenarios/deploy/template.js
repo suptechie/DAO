@@ -60,7 +60,7 @@ checkWork();
 console.log("mining contract, please wait");
 miner.start(1);
 setTimeout(function() {
-    miner.stop(0);
+    miner.stop();
     testResults();
 }, 3000);
 

@@ -37,7 +37,7 @@ for (i = 0; i < eth.accounts.length; i++) {
 checkWork();
 
 setTimeout(function() {
-    miner.stop(0);
+    miner.stop();
 
     // now execute the proposal
     attempt_execute_proposal(

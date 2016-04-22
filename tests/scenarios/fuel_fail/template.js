@@ -14,7 +14,7 @@ for (i = 0; i < eth.accounts.length; i++) {
 checkWork();
 
 setTimeout(function() {
-    miner.stop(0);
+    miner.stop();
     addToTest('dao_minValue', dao.minValue());
     addToTest('dao_fueled', dao.isFueled());
     addToTest('total_supply', parseInt(web3.fromWei(dao.totalSupply())));

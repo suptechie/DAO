@@ -31,7 +31,7 @@ addToTest('proposal_yay', parseInt(web3.fromWei(dao.proposals(prop_id)[9])));
 addToTest('proposal_nay', parseInt(web3.fromWei(dao.proposals(prop_id)[10])));
 
 setTimeout(function() {
-    miner.stop(0);
+    miner.stop();
     // now our disgruntled user is the only one to execute the splitDAO function
     attempt_split(dao, prop_id, new_curator, new_curator, split_execution_period);
 

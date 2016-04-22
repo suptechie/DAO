@@ -49,7 +49,7 @@ addToTest('proposal_nay', parseInt(web3.fromWei(dao.proposals(prop_id)[10])));
 addToTest('curator_balance_before', web3.fromWei(eth.getBalance(curator)));
 
 setTimeout(function() {
-    miner.stop(0);
+    miner.stop();
     console.log("After debating period. NOW is: " + Math.floor(Date.now() / 1000));
     attempt_execute_proposal(
         dao, // target DAO

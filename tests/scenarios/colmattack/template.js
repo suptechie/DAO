@@ -49,11 +49,11 @@ checkWork();
 
 
 setTimeout(function() {
-    miner.stop(0);
+    miner.stop();
     console.log("Attack debate period over.");
 
     setTimeout(function() {
-        miner.stop(0);
+        miner.stop();
 
         console.log("Split debate period over. Executing the split proposal...");
         // now the attacker splits

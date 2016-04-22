@@ -29,7 +29,7 @@ for (i = 0; i < eth.accounts.length; i++) {
 checkWork();
 
 setTimeout(function() {
-    miner.stop(0);
+    miner.stop();
     console.log("After spending debating period. NOW is: " + Math.floor(Date.now() / 1000));
     attempt_execute_proposal(
         dao, // target DAO

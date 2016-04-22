@@ -17,7 +17,7 @@ var testMap = {};
 function checkWork() {
     miner.start(1);
     admin.sleepBlocks(3);
-    miner.stop(0);
+    miner.stop();
 }
 
 function time_now() {

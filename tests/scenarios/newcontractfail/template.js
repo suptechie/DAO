@@ -35,7 +35,7 @@ for (i = 0; i < votes.length; i++) {
 checkWork();
 
 setTimeout(function() {
-    miner.stop(0);
+    miner.stop();
     attempt_execute_proposal(
         dao, // target DAO
         prop_id, // proposal ID

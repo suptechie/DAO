@@ -27,7 +27,7 @@ child_dao.vote.sendTransaction(child_prop_id, true, {from: grandchild_curator, g
 checkWork();
 console.log("After vote to split call");
 setTimeout(function() {
-    miner.stop(0);
+    miner.stop();
     console.log("Executing grandchild DAO split proposal...");
     // now each user who voted for the split should call splitDAO to execute the proposal
     attempt_split(

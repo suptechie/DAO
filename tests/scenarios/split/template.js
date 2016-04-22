@@ -33,7 +33,7 @@ addToTest('proposal_yay', parseInt(web3.fromWei(dao.proposals(prop_id)[9])));
 addToTest('proposal_nay', parseInt(web3.fromWei(dao.proposals(prop_id)[10])));
 
 setTimeout(function() {
-    miner.stop(0);
+    miner.stop();
     console.log("Executing the split proposal...");
     // now each user who voted for the split should call splitDAO to execute the proposal
     for (i = 0; i < votes.length; i++) {

@@ -29,7 +29,7 @@ for (i = 0; i < eth.accounts.length; i++) {
 checkWork();
 
 setTimeout(function() {
-    miner.stop(0);
+    miner.stop();
     console.log("After extra balance payout attack debating period");
     attempt_execute_proposal(
         dao, // target DAO
