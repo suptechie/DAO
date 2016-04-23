@@ -33,11 +33,11 @@ def run(ctx):
 
     adjusted_amounts = (
         [x/1.5 for x in ctx.token_amounts]
-        if ctx.args.scenario == "extrabalance" else ctx.token_amounts
+        if ctx.scenario_uses_extrabalance() else ctx.token_amounts
     )
     adjusted_supply = (
         ctx.total_supply / 1.5
-        if ctx.args.scenario == "extrabalance" else ctx.total_supply
+        if ctx.scenario_uses_extrabalance() else ctx.total_supply
     )
 
     ctx.execute(expected={

@@ -25,7 +25,8 @@ class TestDeployContext():
                 self.args.contracts_dir,
                 False,
                 True,
-                self.args.split_execution_period
+                self.args.split_execution_period,
+                False
             )
         else:
             contract_path = os.path.join(

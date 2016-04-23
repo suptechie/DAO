@@ -153,7 +153,8 @@ class TestContext():
             keep_limits,
             self.args.proposal_halveminquorum,
             self.args.split_execution_period,
-            self.args.scenario == "extrabalance"
+            self.scenario_uses_extrabalance(),
+            self.args.scenario == "fuel_fail_extrabalance"
         )
 
         res = self.compile_contract(dao_contract)
@@ -215,7 +216,11 @@ class TestContext():
         Check if the target scenario requires late sale, in order to
         populate the extraBalance account
         """
-        return ctx.args.scenario in ["extrabalance", "stealextrabalance"]
+        return ctx.args.scenario in [
+            "extrabalance",
+            "stealextrabalance",
+            "fuel_fail_extrabalance"
+        ]
 
     def running_scenario(self):
         """Get the currently running scenario name"""

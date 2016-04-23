@@ -335,7 +335,8 @@ def edit_dao_source(
         keep_limits,
         halve_minquorum,
         split_exec_period,
-        normal_pricing):
+        normal_pricing,
+        extra_balance_refund):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
 
@@ -349,6 +350,8 @@ def edit_dao_source(
             "splitExecutionPeriod",
             str(split_exec_period)
         )
+
+    if not extra_balance_refund:
         contents = re_replace_or_die(contents, "creationGracePeriod", "1")
 
     if halve_minquorum:  # if we are testing halve_minquorum remove year limit

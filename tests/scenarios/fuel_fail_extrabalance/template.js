@@ -1,23 +1,13 @@
-var proxy_amounts = $proxy_amounts;
-var normal_amounts = $normal_amounts;
+var amounts = $amounts;
 
 var dao = web3.eth.contract($dao_abi).at('$dao_address');
 console.log("Creating DAO tokens");
-for (i = 0; i < eth.accounts.length; i++) {
-    dao.createTokenProxy.sendTransaction(
-        eth.accounts[eth.accounts.length - 1 - i],
-        {
-        from:eth.accounts[i],
-        gas:200000,
-        value:web3.toWei(proxy_amounts[i], "ether")
-    });
-}
 for (i = 0; i < eth.accounts.length; i++) {
     web3.eth.sendTransaction({
         from:eth.accounts[i],
         to: dao.address,
         gas:200000,
-        value:web3.toWei(normal_amounts[i], "ether")
+        value:web3.toWei(amounts[i], "ether")
     });
 }
 
@@ -27,7 +17,7 @@ setTimeout(function() {
     miner.stop();
     addToTest('dao_min_tokens_to_create', dao.minTokensToCreate());
     addToTest('dao_fueled', dao.isFueled());
-    addToTest('total_supply', parseInt(web3.fromWei(dao.totalSupply())));
+    addToTest('total_supply', parseFloat(web3.fromWei(dao.totalSupply())));
 
     // since fueling failed let's get a refund
     var eth_balance_before_refund = [];

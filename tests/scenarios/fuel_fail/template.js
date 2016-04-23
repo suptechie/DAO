@@ -15,9 +15,9 @@ checkWork();
 
 setTimeout(function() {
     miner.stop();
-    addToTest('dao_minValue', dao.minValue());
+    addToTest('dao_min_tokens_to_create', dao.minTokensToCreate());
     addToTest('dao_fueled', dao.isFueled());
-    addToTest('total_supply', parseInt(web3.fromWei(dao.totalSupply())));
+    addToTest('total_supply', parseFloat(web3.fromWei(dao.totalSupply())));
 
     // since fueling failed let's get a refund
     var eth_balance_before_refund = [];
