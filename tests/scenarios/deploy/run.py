@@ -57,7 +57,7 @@ def run(ctx):
 
     # after deployment recalculate for the subsequent tests what the min
     # amount of tokens is in the case of extrabalance tests
-    if ctx.args.scenario == "extrabalance":
+    if ctx.scenario_uses_extrabalance():
         ctx.args.deploy_min_tokens_to_create = (
             int(ctx.args.deploy_min_tokens_to_create * 1.5)
         )

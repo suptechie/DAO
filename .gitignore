@@ -20,6 +20,7 @@ tests/fund_fail2.js
 tests/fuel.js
 tests/fuel_fail.js
 tests/fuel_fail2.js
+tests/fuel_fail_extrabalance.js
 tests/proposal.js
 tests/accounts.js
 tests/rewards.js
