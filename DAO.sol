@@ -602,7 +602,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
             // Have you voted for this split?
             || !p.votedYes[msg.sender]
             // Did you already vote on another proposal?
-            || blocked[msg.sender] != _proposalID) {
+            || (blocked[msg.sender] != _proposalID && blocked[msg.sender] != 0) )  {
 
             throw;
         }
