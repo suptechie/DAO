@@ -320,11 +320,14 @@ contract DAOInterface {
     /// @return Address of the new DAO
     function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO);
 
-
     /// @param _account The address of the account which is checked.
     /// @return Whether the account is blocked (not allowed to transfer tokens) or not.
-    function isBlocked(address _account) returns (bool);
+    function isBlocked(address _account) internal returns (bool);
 
+    /// @notice If the caller is blocked by a proposal whose voting deadline
+    /// has exprired then unblock him.
+    /// @return Whether the account is blocked (not allowed to transfer tokens) or not.
+    function unblockMe() returns (bool);
 
     event ProposalAdded(
         uint indexed proposalID,
@@ -832,7 +835,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
         return daoCreator.createDAO(_newCurator, 0, 0, now + splitExecutionPeriod);
     }
 
-
     function numberOfProposals() constant returns (uint _numberOfProposals) {
         // Don't count index 0. It's used by isBlocked() and exists from start
         return proposals.length - 1;
@@ -842,8 +844,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         return proposals[_proposalID].splitData[0].newDAO;
     }
 
-
-    function isBlocked(address _account) returns (bool) {
+    function isBlocked(address _account) internal returns (bool) {
         if (blocked[_account] == 0)
             return false;
         Proposal p = proposals[blocked[_account]];
@@ -853,6 +854,10 @@ contract DAO is DAOInterface, Token, TokenCreation {
         } else {
             return true;
         }
+    }
+
+    function unblockMe() returns (bool) {
+        return isBlocked(msg.sender);
     }
 }
 
