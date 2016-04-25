@@ -825,7 +825,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         // this can only be called after `quorumHalvingPeriod` has passed or at anytime
         // by the curator with a delay of at least `minProposalDebatePeriod` between the calls
         if ((lastTimeMinQuorumMet < (now - quorumHalvingPeriod) || msg.sender == curator)
-			&& lastTimeMinQuorumMet < (now + minProposalDebatePeriod)) {
+			&& lastTimeMinQuorumMet < (now - minProposalDebatePeriod)) {
             lastTimeMinQuorumMet = now;
             minQuorumDivisor *= 2;
             return true;
