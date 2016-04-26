@@ -569,8 +569,17 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
             p.proposalPassed = true;
             _success = true;
-            rewardToken[address(this)] += p.amount;
-            totalRewardToken += p.amount;
+
+            // only create reward tokens when ether is not sent to the DAO itself and
+            // related addresses. Proxy addresses should be forbidden by the curator.
+            if (p.recipient != address(this) && p.recipient != address(rewardAccount)
+                && p.recipient != address(DAOrewardAccount)
+                && p.recipient != address(extraBalance)
+                && p.recipient != address(curator)) {
+
+                rewardToken[address(this)] += p.amount;
+                totalRewardToken += p.amount;
+            }
         }
 
         closeProposal(_proposalID);
@@ -825,7 +834,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         // this can only be called after `quorumHalvingPeriod` has passed or at anytime
         // by the curator with a delay of at least `minProposalDebatePeriod` between the calls
         if ((lastTimeMinQuorumMet < (now - quorumHalvingPeriod) || msg.sender == curator)
-			&& lastTimeMinQuorumMet < (now - minProposalDebatePeriod)) {
+            && lastTimeMinQuorumMet < (now - minProposalDebatePeriod)) {
             lastTimeMinQuorumMet = now;
             minQuorumDivisor *= 2;
             return true;
