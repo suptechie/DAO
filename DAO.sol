@@ -275,7 +275,7 @@ contract DAOInterface {
     function changeProposalDeposit(uint _proposalDeposit) external;
 
     /// @notice Move rewards from the DAORewards managed account
-    /// @param _toMembers If true rewards are move to the actual reward account
+    /// @param _toMembers If true rewards are moved to the actual reward account
     ///                   for the DAO. If not then it's moved to the DAO itself
     /// @return Whether the call was successful
     function retrieveDAOReward(bool _toMembers) external returns (bool _success);
