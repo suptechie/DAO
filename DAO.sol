@@ -530,7 +530,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         // If the curator removed the recipient from the whitelist, close the proposal
         // in order to free the deposit and allow unblocking of voters
-        if (!isRecipientAllowed(p.recipient) && p.open) {
+        if (!isRecipientAllowed(p.recipient)) {
             closeProposal(_proposalID);
             p.creator.send(p.proposalDeposit);
             return;
