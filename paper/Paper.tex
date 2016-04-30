@@ -349,7 +349,8 @@ contract DAOInterface {
     function halveMinQuorum() returns (bool _success);
     function numberOfProposals() constant returns (uint _numberOfProposals);
     function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO);
-    function isBlocked(address _account) returns (bool);
+    function isBlocked(address _account) internal returns (bool);
+    function unblockMe() returns (bool);
 
     event ProposalAdded(
         uint indexed proposalID,
@@ -553,7 +554,7 @@ This function, when called by a DAO, sends the rewards which belong to this DAO 
 This function can add/remove an address to/from the whitelist, \verb|allowedRecipients|. It can only be executed by the Curator.
 
 \subsubsection*{halveMinQuorum}
-When called, halves the minimum quorum in the case it has not been met for over 52 weeks, by doubling \verb|minQuorumDivisor|.
+When called, halves the minimum quorum in the case it has not been met for over 52 weeks, by doubling \verb|minQuorumDivisor|. Also the curator can call this function without the 52 weeks limit, but not more than once every other week.
 
 \subsubsection*{numberOfProposals}
 Returns the total number of proposals ever created.
@@ -563,6 +564,9 @@ This is just a helper function to read the address of a newly created `split DAO
 
 \subsubsection*{isBlocked}
 This function returns true when the address given as parameter is currently blocked to transfer tokens due to an ongoing vote it has participated in, otherwise it returns false. It also unblocks the tokens in the case the voting deadline of the proposal is over.
+
+\subsubsection*{unblockMe}
+Calling \verb|isBlocked| with the address of the sender.
 
 \subsubsection*{changeProposalDeposit}
 This function changes the parameter \verb|proposalDeposit|. It can only be called by the DAO through a transaction which was proposed and voted for by a majority of the token holders.
@@ -574,6 +578,7 @@ This function changes the parameter \verb|proposalDeposit|. It can only be calle
 \begin{verbatim}
  contract ManagedAccountInterface {
     address public owner;
+    bool public payOwnerOnly;
     uint public accumulatedInput;
 
     function payOut(address _recipient, uint _amount) returns (bool);
@@ -585,6 +590,8 @@ This function changes the parameter \verb|proposalDeposit|. It can only be calle
 This contract is used to manage the rewards and the \verb|extraBalance| (as explained in section \ref{TokenPrice}). It has two member variables:
 
 The address \verb|owner|, is the only address with permission to withdraw from that account (in our case the DAO) and send ether to another address using the \verb|payOut| function.
+
+The bool \verb|payOwnerOnly| specifies whether the owner is the only address which can receive ether from this account.
 
 The integer, \verb|accumulatedInput|, represents the total sum of ether (in wei) which has been sent to this contract so far.
 
@@ -910,7 +917,7 @@ contract DAOInterface {
     // Period of days inside which it's possible to execute a DAO split
     uint constant splitExecutionPeriod = 27 days;
     // Period of time after which the minimum Quorum is halved
-    uint constant quorumHalvingPeriod = 52 weeks;
+    uint constant quorumHalvingPeriod = 25 weeks;
     // Period after which a proposal is closed
     // (used in the case `executeProposal` fails because it throws)
     uint constant executeProposalPeriod = 10 days;
@@ -1028,8 +1035,8 @@ contract DAOInterface {
     /// @param _curator The Curator
     /// @param _daoCreator The contract able to (re)create this DAO
     /// @param _proposalDeposit The deposit to be paid for a regular proposal
-    /// @param _minTokensToCreate Minimum required tokens to be created
-    ///        for a successful DAO Token Creation
+    /// @param _minTokensToCreate Minimum required wei-equivalent tokens
+    ///        to be created for a successful DAO Token Creation
     /// @param _closingTime Date (in Unix time) of the end of the DAO Token Creation
     /// @param _privateCreation If zero the DAO Token Creation is open to public, a
     /// non-zero address means that the DAO Token Creation is only for the address
@@ -1149,7 +1156,7 @@ contract DAOInterface {
     function changeProposalDeposit(uint _proposalDeposit) external;
 
     /// @notice Move rewards from the DAORewards managed account
-    /// @param _toMembers If true rewards are move to the actual reward account
+    /// @param _toMembers If true rewards are moved to the actual reward account
     ///                   for the DAO. If not then it's moved to the DAO itself
     /// @return Whether the call was successful
     function retrieveDAOReward(bool _toMembers) external returns (bool _success);
@@ -1192,13 +1199,16 @@ contract DAOInterface {
 
     /// @param _proposalID Id of the new curator proposal
     /// @return Address of the new DAO
-    function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO);
-
+    function getNewDAOAddress(uint _proposalID) constant returns (address _newDAO);
 
     /// @param _account The address of the account which is checked.
     /// @return Whether the account is blocked (not allowed to transfer tokens) or not.
-    function isBlocked(address _account) returns (bool);
+    function isBlocked(address _account) internal returns (bool);
 
+    /// @notice If the caller is blocked by a proposal whose voting deadline
+    /// has exprired then unblock him.
+    /// @return Whether the account is blocked (not allowed to transfer tokens) or not.
+    function unblockMe() returns (bool);
 
     event ProposalAdded(
         uint indexed proposalID,
@@ -1249,7 +1259,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     }
 
     function () returns (bool success) {
-        if (now < closingTime + creationGracePeriod)
+        if (now < closingTime + creationGracePeriod && msg.sender != address(extraBalance))
             return createTokenProxy(msg.sender);
         else
             return receiveEther();
@@ -1401,7 +1411,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         // If the curator removed the recipient from the whitelist, close the proposal
         // in order to free the deposit and allow unblocking of voters
-        if (!isRecipientAllowed(p.recipient) && p.open) {
+        if (!isRecipientAllowed(p.recipient)) {
             closeProposal(_proposalID);
             p.creator.send(p.proposalDeposit);
             return;
@@ -1423,24 +1433,34 @@ contract DAO is DAOInterface, Token, TokenCreation {
                 proposalCheck = false;
         }
 
-        // Execute result
-        if (quorum >= minQuorum(p.amount) && p.yea > p.nay && proposalCheck) {
+        if (quorum >= minQuorum(p.amount)) {
             if (!p.creator.send(p.proposalDeposit))
                 throw;
 
             lastTimeMinQuorumMet = now;
+            // set the minQuorum to 20% again, in the case it has been reached
+            if (quorum > totalSupply / 5)
+                minQuorumDivisor = 5;
+        }
 
+        // Execute result
+        if (quorum >= minQuorum(p.amount) && p.yea > p.nay && proposalCheck) {
             if (!p.recipient.call.value(p.amount)(_transactionData))
                 throw;
 
             p.proposalPassed = true;
             _success = true;
-            rewardToken[address(this)] += p.amount;
-            totalRewardToken += p.amount;
-        } else if (quorum >= minQuorum(p.amount) && p.nay >= p.yea || !proposalCheck) {
-            if (!p.creator.send(p.proposalDeposit))
-                throw;
-            lastTimeMinQuorumMet = now;
+
+            // only create reward tokens when ether is not sent to the DAO itself and
+            // related addresses. Proxy addresses should be forbidden by the curator.
+            if (p.recipient != address(this) && p.recipient != address(rewardAccount)
+                && p.recipient != address(DAOrewardAccount)
+                && p.recipient != address(extraBalance)
+                && p.recipient != address(curator)) {
+
+                rewardToken[address(this)] += p.amount;
+                totalRewardToken += p.amount;
+            }
         }
 
         closeProposal(_proposalID);
@@ -1476,7 +1496,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
             // Have you voted for this split?
             || !p.votedYes[msg.sender]
             // Did you already vote on another proposal?
-            || blocked[msg.sender] != _proposalID) {
+            || (blocked[msg.sender] != _proposalID && blocked[msg.sender] != 0) )  {
 
             throw;
         }
@@ -1692,7 +1712,10 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
 
     function halveMinQuorum() returns (bool _success) {
-        if (lastTimeMinQuorumMet < (now - quorumHalvingPeriod)) {
+        // this can only be called after `quorumHalvingPeriod` has passed or at anytime
+        // by the curator with a delay of at least `minProposalDebatePeriod` between the calls
+        if ((lastTimeMinQuorumMet < (now - quorumHalvingPeriod) || msg.sender == curator)
+            && lastTimeMinQuorumMet < (now - minProposalDebatePeriod)) {
             lastTimeMinQuorumMet = now;
             minQuorumDivisor *= 2;
             return true;
@@ -1706,18 +1729,16 @@ contract DAO is DAOInterface, Token, TokenCreation {
         return daoCreator.createDAO(_newCurator, 0, 0, now + splitExecutionPeriod);
     }
 
-
     function numberOfProposals() constant returns (uint _numberOfProposals) {
         // Don't count index 0. It's used by isBlocked() and exists from start
         return proposals.length - 1;
     }
 
-    function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO) {
+    function getNewDAOAddress(uint _proposalID) constant returns (address _newDAO) {
         return proposals[_proposalID].splitData[0].newDAO;
     }
 
-
-    function isBlocked(address _account) returns (bool) {
+    function isBlocked(address _account) internal returns (bool) {
         if (blocked[_account] == 0)
             return false;
         Proposal p = proposals[blocked[_account]];
@@ -1727,6 +1748,10 @@ contract DAO is DAOInterface, Token, TokenCreation {
         } else {
             return true;
         }
+    }
+
+    function unblockMe() returns (bool) {
+        return isBlocked(msg.sender);
     }
 }
 
@@ -1807,7 +1832,7 @@ contract SampleOffer {
     }
 
     function sign() {
-        if (msg.value < totalCosts && dateOfSignature != 0)
+        if (msg.value < totalCosts || dateOfSignature != 0)
             throw;
         if (!contractor.send(oneTimeCosts))
             throw;
@@ -1845,6 +1870,10 @@ contract SampleOffer {
         if (deploymentReward > 10 ether)
             throw; // TODO, set a max defined by Curator, or ideally oracle (set in euro)
         deploymentReward = _deploymentReward;
+    }
+
+    function updateClientAddress(DAO _newClient) callingRestriction {
+        client = _newClient;
     }
 
     // interface for Ethereum Computer
@@ -1889,9 +1918,17 @@ contract SampleOffer {
 \subsection{Managed Account}\label{app:ManagedAccount}
 \begin{verbatim}
 contract ManagedAccountInterface {
+    // The only address with permission to withdraw from this account
     address public owner;
+    // If true, only the owner of the account can receive ether from it
+    bool public payOwnerOnly;
+    // The sum of ether (in wei) which has been sent to this contract
     uint public accumulatedInput;
 
+    /// @notice Sends `_amount` of wei to _recipient
+    /// @param _amount The amount of wei to send to `_recipient`
+    /// @param _recipient The address to receive `_amount` of wei
+    /// @return True if the send completed
     function payOut(address _recipient, uint _amount) returns (bool);
 
     event PayOut(address indexed _recipient, uint _amount);
@@ -1899,24 +1936,32 @@ contract ManagedAccountInterface {
 
 
 contract ManagedAccount is ManagedAccountInterface{
-    function ManagedAccount(address _owner){
+
+    // The constructor sets the owner of the account
+    function ManagedAccount(address _owner, bool _payOwnerOnly) {
         owner = _owner;
+        payOwnerOnly = _payOwnerOnly;
     }
 
-    function(){
+    // When the contract receives a transaction without data this is called. 
+    // It counts the amount of ether it receives and stores it in 
+    // accumulatedInput.
+    function() {
         accumulatedInput += msg.value;
     }
 
-    function payOut(address _recipient, uint _amount) returns (bool){
-        if (msg.sender != owner || msg.value > 0) throw;
-        if (_recipient.call.value(_amount)()){
+    function payOut(address _recipient, uint _amount) returns (bool) {
+        if (msg.sender != owner || msg.value > 0 || (payOwnerOnly && _recipient != owner))
+            throw;
+        if (_recipient.call.value(_amount)()) {
             PayOut(_recipient, _amount);
             return true;
-        }
-        else
+        } else {
             return false;
+        }
     }
 }
+
 \end{verbatim}
 \end{appendix}
 \end{document}
