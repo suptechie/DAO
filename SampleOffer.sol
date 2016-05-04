@@ -25,18 +25,18 @@ import "./DAO.sol";
 
 contract SampleOffer {
 
-    uint totalCosts;
-    uint oneTimeCosts;
-    uint dailyCosts;
+    uint public totalCosts;
+    uint public oneTimeCosts;
+    uint public dailyCosts;
 
 
-    address contractor;
-    bytes32 hashOfTheTerms;
-    uint minDailyCosts;
-    uint paidOut;
+    address public contractor;
+    bytes32 public hashOfTheTerms;
+    uint public minDailyCosts;
+    uint public paidOut;
 
-    uint dateOfSignature;
-    DAO client; // address of DAO
+    uint public dateOfSignature;
+    DAO public client; // address of DAO
 
     bool public promiseValid;
     uint public rewardDivisor;
@@ -63,9 +63,7 @@ contract SampleOffer {
         bytes32 _hashOfTheTerms,
         uint _totalCosts,
         uint _oneTimeCosts,
-        uint _minDailyCosts,
-        uint _rewardDivisor,
-        uint _deploymentReward
+        uint _minDailyCosts
     ) {
         contractor = _contractor;
         hashOfTheTerms = _hashOfTheTerms;
@@ -73,8 +71,6 @@ contract SampleOffer {
         oneTimeCosts = _oneTimeCosts;
         minDailyCosts = _minDailyCosts;
         dailyCosts = _minDailyCosts;
-        rewardDivisor = _rewardDivisor;
-        deploymentReward = _deploymentReward;
     }
 
     function sign() {
@@ -88,11 +84,11 @@ contract SampleOffer {
     }
 
     function setDailyCosts(uint _dailyCosts) onlyClient {
-        dailyCosts = _dailyCosts;
-        if (dailyCosts < minDailyCosts)
-            promiseValid = false;
+        if (dailyCosts >= minDailyCosts)
+            dailyCosts = _dailyCosts;
     }
 
+    // "fire the contractor"
     function returnRemainingMoney() onlyClient {
         if (client.receiveEther.value(this.balance)())
             promiseValid = false;
@@ -107,8 +103,8 @@ contract SampleOffer {
     }
 
     function setRewardDivisor(uint _rewardDivisor) callingRestriction {
-        if (_rewardDivisor < 50)
-            throw; // 2% is the default max reward
+        if (_rewardDivisor < 20)
+            throw; // 5% is the default max reward
         rewardDivisor = _rewardDivisor;
     }
 
