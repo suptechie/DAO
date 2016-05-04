@@ -90,7 +90,7 @@ contract SampleOffer {
 
     // "fire the contractor"
     function returnRemainingMoney() onlyClient {
-        if (client.receiveEther.value(this.balance)())
+        if (client.DAOrewardAccount().call.value(this.balance)())
             promiseValid = false;
     }
 
