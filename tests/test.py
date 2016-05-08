@@ -43,11 +43,11 @@ class TestContext():
         # keep this at end since any data loaded should override constructor
         if not os.path.isdir(datadir) or args.clean_chain:
             self.clean_blockchain()
-            self.create_accounts(args.users_num)
+            self.init_data(args.users_num)
         else:
             self.attemptLoad()
 
-    def create_accounts(self, accounts_num):
+    def init_data(self, accounts_num):
         print("Creating accounts and genesis block ...")
         with open(
                 os.path.join(self.templates_dir, 'accounts.template.js'),
@@ -62,6 +62,10 @@ class TestContext():
         self.accounts = json.loads(output)
         # creating genesis block with a generous allocation for all accounts
         create_genesis(self.accounts)
+        # now initialize geth with the new blockchain
+        subprocess.check_output([
+            self.geth, "--datadir", "./data", "init", "./genesis_block.json"
+        ])
         print("Done!")
 
     def remaining_time(self):
@@ -117,8 +121,6 @@ class TestContext():
                 "--nodiscover",
                 "--maxpeers",
                 "0",
-                "--genesis",
-                "./genesis_block.json",
                 "--datadir",
                 "./data",
                 "--verbosity",
