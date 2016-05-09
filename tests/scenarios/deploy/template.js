@@ -42,8 +42,6 @@ var offer = offerContract.new(
     web3.toWei($offer_total, "ether"), //total costs
     web3.toWei($offer_onetime, "ether"), //one time costs
     web3.toWei(1, "ether"), //min daily costs
-    web3.toWei(1, "ether"), //reward divison
-    web3.toWei(1, "ether"), //deployment rewards
     {
 	    from: web3.eth.accounts[0],
 	    data: '$offer_bin',
