@@ -71,7 +71,7 @@ setTimeout(function() {
         'deposit_returned',
         Math.round(testMap['creator_balance_after_execution']) == Math.round(testMap['creator_balance_before'])
     );
-    addToTest('offer_promise_valid', offer.promiseValid());
+    addToTest('offer_promise_valid', offer.isContractValid());
 
     testResults();
 }, $debating_period * 1000);
