@@ -34,6 +34,7 @@ tests/spendall.js
 tests/extrabalance.js
 tests/stealextrabalance.js
 tests/firecontractor.js
+tests/sampleoffer_dailypayment.js
 
 # Ignore deployment related file
 deploy/code.js
