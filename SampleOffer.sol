@@ -72,13 +72,13 @@ contract SampleOffer {
         isContractValid = true;
     }
 
-    function setDailyCosts(uint _dailyWithdrawLimit) onlyClient {
-        if (dailyWithdrawLimit >= minDailyWithdrawLimit)
+    function setDailyWithdrawLimit(uint _dailyWithdrawLimit) onlyClient {
+        if (_dailyWithdrawLimit >= minDailyWithdrawLimit)
             dailyWithdrawLimit = _dailyWithdrawLimit;
     }
 
     // "fire the contractor"
-    function returnRemainingMoney() onlyClient {
+    function returnRemainingEther() onlyClient {
         if (client.DAOrewardAccount().call.value(this.balance)())
             isContractValid = false;
     }
@@ -95,7 +95,7 @@ contract SampleOffer {
         rewardDivisor = _rewardDivisor;
     }
 
-    function setDeploymentFee(uint _deploymentReward) onlyClient {
+    function setDeploymentReward(uint _deploymentReward) onlyClient {
         deploymentReward = _deploymentReward;
     }
 
