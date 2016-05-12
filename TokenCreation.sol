@@ -57,6 +57,9 @@ contract TokenCreationInterface {
         //  uint _minTokensTocreate,
         //  uint _closingTime,
         //  address _privateCreation
+        //  string _tokenName,
+        //  string _tokenSymbol,
+        //  uint _decimalPlaces
     //  );
 
     /// @notice Create Token with `_tokenHolder` as the initial owner of the Token
@@ -82,12 +85,19 @@ contract TokenCreation is TokenCreationInterface, Token {
     function TokenCreation(
         uint _minTokensToCreate,
         uint _closingTime,
-        address _privateCreation) {
+        address _privateCreation,
+        string _tokenName,
+        string _tokenSymbol,
+        uint _decimalPlaces) {
 
         closingTime = _closingTime;
         minTokensToCreate = _minTokensToCreate;
         privateCreation = _privateCreation;
         extraBalance = new ManagedAccount(address(this), true);
+        name = _tokenName;
+        symbol = _tokenSymbol;
+        decimals = _decimalPlaces;
+        
     }
 
     function createTokenProxy(address _tokenHolder) returns (bool success) {
