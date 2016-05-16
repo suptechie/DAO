@@ -86,7 +86,7 @@ contract SampleOffer {
     function getDailyPayment() {
         if (msg.sender != contractor)
             throw;
-        uint amount = (now - dateOfSignature) / (1 days) * dailyWithdrawLimit - paidOut;
+        uint amount = (now - dateOfSignature + 1 days) / (1 days) * dailyWithdrawLimit - paidOut;
         if (contractor.send(amount))
             paidOut += amount;
     }

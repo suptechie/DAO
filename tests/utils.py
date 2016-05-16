@@ -197,12 +197,10 @@ def extract_test_dict(name, output):
 
 def compare_values(got, expect):
     if isinstance(got, float) ^ isinstance(expect, float):
-        if isinstance(got, int) and expect % 1 <= 0.01:
-            return int(expect) == got
-        elif isinstance(expect, int) and got % 1 <= 0.01:
-            return int(got) == expect
+        if isinstance(got, int) or isinstance(expect, int):
+            return abs(expect - got) % 1 <= 0.01
         else:
-            print("ERROR: float compared with non-float")
+            print("ERROR: float comparison failure")
             return False
     if isinstance(got, float):
         return abs(got - expect) <= 0.01
