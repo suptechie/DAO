@@ -331,6 +331,8 @@ def re_replace_or_die(string, varname, value):
 def edit_dao_source(
         contracts_dir,
         keep_limits,
+        min_proposal_debate,
+        min_split_debate,
         halve_minquorum,
         split_exec_period,
         normal_pricing,
@@ -339,15 +341,21 @@ def edit_dao_source(
         contents = f.read()
 
     # remove all limits that would make testing impossible
-    if not keep_limits:
-        re.sub
-        contents = re_replace_or_die(contents, "minProposalDebatePeriod", "1")
-        contents = re_replace_or_die(contents, "minSplitDebatePeriod", "1")
-        contents = re_replace_or_die(
-            contents,
-            "splitExecutionPeriod",
-            str(split_exec_period)
-        )
+    contents = re_replace_or_die(
+        contents,
+        "minProposalDebatePeriod",
+        str(min_proposal_debate)
+    )
+    contents = re_replace_or_die(
+        contents,
+        "minSplitDebatePeriod",
+        "1"
+    )
+    contents = re_replace_or_die(
+        contents,
+        "splitExecutionPeriod",
+        str(split_exec_period)
+    )
 
     if not extra_balance_refund:
         contents = re_replace_or_die(contents, "creationGracePeriod", "1")
