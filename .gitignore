@@ -35,6 +35,7 @@ tests/extrabalance.js
 tests/stealextrabalance.js
 tests/firecontractor.js
 tests/sampleoffer_dailypayment.js
+tests/curator_halveminquorum_fueling.js
 
 # Ignore deployment related file
 deploy/code.js
