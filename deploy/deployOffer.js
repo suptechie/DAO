@@ -7,6 +7,7 @@ var offerContract = web3.eth.contract(offer_abi);
 
 var _offerrContract = offerContract.new(
     contractor,
+    offer_client_dao_address,
     "0x0",
     offer_total_costs,
     offer_onetime_costs,

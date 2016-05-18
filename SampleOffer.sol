@@ -49,12 +49,14 @@ contract SampleOffer {
 
     function SampleOffer(
         address _contractor,
+        address _client,
         bytes32 _IPFSHashOfTheProposalDocument,
         uint _totalCosts,
         uint _oneTimeCosts,
         uint _minDailyWithdrawLimit
     ) {
         contractor = _contractor;
+        client = DAO(_client);
         IPFSHashOfTheProposalDocument = _IPFSHashOfTheProposalDocument;
         totalCosts = _totalCosts;
         oneTimeCosts = _oneTimeCosts;
@@ -63,11 +65,12 @@ contract SampleOffer {
     }
 
     function sign() {
-        if (msg.value != totalCosts || dateOfSignature != 0)
+        if (msg.sender != address(client) // no good samaritans give us money
+            || msg.value != totalCosts    // no under/over payment
+            || dateOfSignature != 0)      // don't sign twice
             throw;
         if (!contractor.send(oneTimeCosts))
             throw;
-        client = DAO(msg.sender);
         dateOfSignature = now;
         isContractValid = true;
     }
