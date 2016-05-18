@@ -49,12 +49,14 @@ contract SampleOffer {
 
     function SampleOffer(
         address _contractor,
+        address _client,
         bytes32 _IPFSHashOfTheProposalDocument,
         uint _totalCosts,
         uint _oneTimeCosts,
         uint _minDailyWithdrawLimit
     ) {
         contractor = _contractor;
+        client = DAO(_client);
         IPFSHashOfTheProposalDocument = _IPFSHashOfTheProposalDocument;
         totalCosts = _totalCosts;
         oneTimeCosts = _oneTimeCosts;
@@ -67,7 +69,6 @@ contract SampleOffer {
             throw;
         if (!contractor.send(oneTimeCosts))
             throw;
-        client = DAO(msg.sender);
         dateOfSignature = now;
         isContractValid = true;
     }
