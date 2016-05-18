@@ -137,6 +137,11 @@ if __name__ == "__main__":
         default=1,
         help='Minimum daily withrdawal limit'
     )
+    p.add_argument(
+        '--offer-client-dao-address',
+        default="0x159fe90ac850c895e4fd144e705923cfa042d974",  # A testnet DAO
+        help='The address of the DAO to set as the client of the SampleOffer'
+    )
     args = p.parse_args()
     ctx = TestDeployContext(args)
     comp = ctx.compile_contract("DAO.sol")
@@ -173,6 +178,9 @@ if __name__ == "__main__":
         ))
         f.write("offer_min_daily_withdraw = {};\n".format(
             to_wei(args.offer_min_daily_withdraw)
+        ))
+        f.write("offer_client_dao_address = '{}';\n".format(
+            args.offer_client_dao_address
         ))
 
     ctx.cleanup()
