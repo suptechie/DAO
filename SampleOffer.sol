@@ -65,7 +65,9 @@ contract SampleOffer {
     }
 
     function sign() {
-        if (msg.value != totalCosts || dateOfSignature != 0)
+        if (msg.sender != address(client) // no good samaritans give us money
+            || msg.value != totalCosts    // no under/over payment
+            || dateOfSignature != 0)      // don't sign twice
             throw;
         if (!contractor.send(oneTimeCosts))
             throw;
