@@ -106,6 +106,10 @@ contract SampleOffer {
         client = _newClient;
     }
 
+    function () {
+        throw; // this is a business contract, no donations
+    }
+
     // interface for Ethereum Computer
     function payOneTimeReward() returns(bool) {
         if (msg.value < deploymentReward)

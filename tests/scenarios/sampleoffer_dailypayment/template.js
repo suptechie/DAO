@@ -12,6 +12,13 @@ addToTest(
 );
 
 
+var offer_balance_before = eth.getBalance(offer.address);
+// also let's sneak in a check that SampleOffer does not accept random donations
+web3.eth.sendTransaction({from:eth.accounts[3], to:offer.address, value:web3.toWei(10), gas:24000});
+var offer_balance_after = eth.getBalance(offer.address);
+addToTest('sample_offer_no_donations', offer_balance_after.eq(offer_balance_before));
+
+
 // The DAO will now set the daily withdrawal limit
 var prop_id = attempt_proposal(
     dao, // DAO in question
