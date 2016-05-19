@@ -700,6 +700,9 @@ contract DAO is DAOInterface, Token, TokenCreation {
         uint reward =
             (rewardToken[msg.sender] * DAOrewardAccount.accumulatedInput()) /
             totalRewardToken - DAOpaidOut[msg.sender];
+
+        reward = DAOrewardAccount.balance < reward ? DAOrewardAccount.balance : reward;
+
         if(_toMembers) {
             if (!DAOrewardAccount.payOut(dao.rewardAccount(), reward))
                 throw;
@@ -723,6 +726,9 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         uint reward =
             (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply - paidOut[_account];
+
+        reward = rewardAccount.balance < reward ? rewardAccount.balance : reward;
+
         if (!rewardAccount.payOut(_account, reward))
             throw;
         paidOut[_account] += reward;
