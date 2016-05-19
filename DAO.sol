@@ -50,7 +50,7 @@ contract DAOInterface {
     // totalSupply / minQuorumDivisor
     uint public minQuorumDivisor;
     // The unix time of the last time quorum was reached on a proposal
-    uint  public lastTimeMinQuorumMet;
+    uint public lastTimeMinQuorumMet;
 
     // Address of the curator
     address public curator;
@@ -430,6 +430,10 @@ contract DAO is DAOInterface, Token, TokenCreation {
         // to prevent a 51% attacker to convert the ether into deposit
         if (msg.sender == address(this))
             throw;
+
+        // to prevent curator from halving quorum before first proposal
+        if (proposals.length == 1) // initial length is 1 (see constructor)
+            lastTimeMinQuorumMet = now;
 
         _proposalID = proposals.length++;
         Proposal p = proposals[_proposalID];
@@ -831,10 +835,13 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
 
     function halveMinQuorum() returns (bool _success) {
-        // this can only be called after `quorumHalvingPeriod` has passed or at anytime
-        // by the curator with a delay of at least `minProposalDebatePeriod` between the calls
+        // this can only be called after `quorumHalvingPeriod` has passed or at anytime after
+        // fueling by the curator with a delay of at least `minProposalDebatePeriod`
+        // between the calls
         if ((lastTimeMinQuorumMet < (now - quorumHalvingPeriod) || msg.sender == curator)
-            && lastTimeMinQuorumMet < (now - minProposalDebatePeriod)) {
+            && lastTimeMinQuorumMet < (now - minProposalDebatePeriod)
+            && now >= closingTime
+            && proposals.length > 1) {
             lastTimeMinQuorumMet = now;
             minQuorumDivisor *= 2;
             return true;
