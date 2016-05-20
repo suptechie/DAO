@@ -30,5 +30,6 @@ def run(ctx):
     ctx.execute(expected={
         "offer_daily_withdraw_limit": daily_limit_in_ether,
         "contractor_diff": daily_limit_in_ether,
-        "dao_rewardaccount_diff": pay_reward_amount
+        "dao_rewardaccount_diff": pay_reward_amount,
+        "sample_offer_no_donations": True
     })

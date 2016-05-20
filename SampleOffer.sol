@@ -47,6 +47,9 @@ contract SampleOffer {
         _
     }
 
+    // Prevents methods from perfoming any value transfer
+    modifier noEther() {if (msg.value > 0) throw; _}
+
     function SampleOffer(
         address _contractor,
         address _client,
@@ -75,7 +78,7 @@ contract SampleOffer {
         isContractValid = true;
     }
 
-    function setDailyWithdrawLimit(uint _dailyWithdrawLimit) onlyClient {
+    function setDailyWithdrawLimit(uint _dailyWithdrawLimit) onlyClient noEther {
         if (_dailyWithdrawLimit >= minDailyWithdrawLimit)
             dailyWithdrawLimit = _dailyWithdrawLimit;
     }
@@ -94,16 +97,20 @@ contract SampleOffer {
             paidOut += amount;
     }
 
-    function setRewardDivisor(uint _rewardDivisor) onlyClient {
+    function setRewardDivisor(uint _rewardDivisor) onlyClient noEther {
         rewardDivisor = _rewardDivisor;
     }
 
-    function setDeploymentReward(uint _deploymentReward) onlyClient {
+    function setDeploymentReward(uint _deploymentReward) onlyClient noEther {
         deploymentReward = _deploymentReward;
     }
 
-    function updateClientAddress(DAO _newClient) onlyClient {
+    function updateClientAddress(DAO _newClient) onlyClient noEther {
         client = _newClient;
+    }
+
+    function () {
+        throw; // this is a business contract, no donations
     }
 
     // interface for Ethereum Computer
