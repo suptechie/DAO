@@ -16,8 +16,8 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-/* 
-Sample Proposal from a Contractor to the DAO. 
+/*
+Sample Proposal from a Contractor to the DAO.
 Feel free to use as a template for your own proposal.
 */
 
@@ -115,6 +115,11 @@ contract SampleOffer {
 
     // interface for Ethereum Computer
     function payOneTimeReward() returns(bool) {
+        // client DAO should not be able to pay itself generating
+        // "free" reward tokens
+        if (msg.sender == address(client))
+            throw;
+
         if (msg.value < deploymentReward)
             throw;
 
@@ -127,6 +132,11 @@ contract SampleOffer {
 
     // pay reward
     function payReward() returns(bool) {
+        // client DAO should not be able to pay itself generating
+        // "free" reward tokens
+        if (msg.sender == address(client))
+            throw;
+
         if (client.DAOrewardAccount().call.value(msg.value)()) {
             return true;
         } else {
