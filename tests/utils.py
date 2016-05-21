@@ -195,18 +195,22 @@ def extract_test_dict(name, output):
     return result
 
 
+def is_int(v):
+    return isinstance(v, (int, long))
+
+
 def compare_values(got, expect):
     if isinstance(got, float) ^ isinstance(expect, float):
-        if isinstance(got, int) or isinstance(expect, int):
+        if is_int(got) or is_int(expect):
             return abs(expect - got) % 1 <= 0.01
         else:
             print("ERROR: float comparison failure")
             return False
     if isinstance(got, float):
         return abs(got - expect) <= 0.01
-    elif isinstance(got, basestring) and isinstance(expect, int):
+    elif isinstance(got, basestring) and is_int(expect):
         return int(got) == expect
-    elif isinstance(expect, basestring) and isinstance(got, int):
+    elif isinstance(expect, basestring) and is_int(got):
         return got == int(expect)
     else:
         return got == expect
