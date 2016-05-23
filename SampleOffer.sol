@@ -36,6 +36,7 @@ contract SampleOffer {
 
     uint public dateOfSignature;
     DAO public client; // address of DAO
+    DAO public originalClient; // address of DAO who signed the contract
     bool public isContractValid;
 
     uint public rewardDivisor;
@@ -59,6 +60,7 @@ contract SampleOffer {
         uint _minDailyWithdrawLimit
     ) {
         contractor = _contractor;
+        originalClient = DAO(_client);
         client = DAO(_client);
         IPFSHashOfTheProposalDocument = _IPFSHashOfTheProposalDocument;
         totalCosts = _totalCosts;
@@ -68,7 +70,7 @@ contract SampleOffer {
     }
 
     function sign() {
-        if (msg.sender != address(client) // no good samaritans give us money
+        if (msg.sender != address(originalClient) // no good samaritans give us money
             || msg.value != totalCosts    // no under/over payment
             || dateOfSignature != 0)      // don't sign twice
             throw;
@@ -105,6 +107,9 @@ contract SampleOffer {
         deploymentReward = _deploymentReward;
     }
 
+    // Change the client DAO by giving the new DAO's address
+    // warning: The new DAO must come either from a split of the original
+    // DAO or an update via `newContract()` so that it can claim rewards
     function updateClientAddress(DAO _newClient) onlyClient noEther {
         client = _newClient;
     }
@@ -123,7 +128,7 @@ contract SampleOffer {
         if (msg.value < deploymentReward)
             throw;
 
-        if (client.DAOrewardAccount().call.value(msg.value)()) {
+        if (originalClient.DAOrewardAccount().call.value(msg.value)()) {
             return true;
         } else {
             throw;
@@ -137,7 +142,7 @@ contract SampleOffer {
         if (msg.sender == address(client))
             throw;
 
-        if (client.DAOrewardAccount().call.value(msg.value)()) {
+        if (originalClient.DAOrewardAccount().call.value(msg.value)()) {
             return true;
         } else {
             throw;
