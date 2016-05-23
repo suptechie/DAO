@@ -107,6 +107,9 @@ contract SampleOffer {
         deploymentReward = _deploymentReward;
     }
 
+    // Change the client DAO by giving the new DAO's address
+    // warning: The new DAO must come either from a split of the original
+    // DAO or an update via `newContract()` so that it can claim rewards
     function updateClientAddress(DAO _newClient) onlyClient noEther {
         client = _newClient;
     }
