@@ -95,6 +95,9 @@ contract SampleOffer {
         if (msg.sender != contractor)
             throw;
         uint amount = (now - dateOfSignature + 1 days) / (1 days) * dailyWithdrawLimit - paidOut;
+        if (amount > this.balance) {
+            amount = this.balance;
+        }
         if (contractor.send(amount))
             paidOut += amount;
     }
