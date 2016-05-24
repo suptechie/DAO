@@ -17,13 +17,15 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /*
-Sample Proposal from a Contractor to the DAO.
-Feel free to use as a template for your own proposal.
+  Sample Proposal from a Contractor to the DAO without any reward going back to
+  the DAO.
+
+  Feel free to use as a template for your own proposal.
 */
 
 import "./DAO.sol";
 
-contract SampleOfferWithoutRewards {
+contract SampleOfferWithoutReward {
 
     uint public totalCosts;
     uint public oneTimeCosts;
@@ -48,7 +50,7 @@ contract SampleOfferWithoutRewards {
     // Prevents methods from perfoming any value transfer
     modifier noEther() {if (msg.value > 0) throw; _}
 
-    function SampleOffer(
+    function SampleOfferWithoutReward(
         address _contractor,
         address _client,
         bytes32 _IPFSHashOfTheProposalDocument,
