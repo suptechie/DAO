@@ -87,7 +87,7 @@ contract SampleOffer {
 
     // "fire the contractor"
     function returnRemainingEther() onlyClient {
-        if (client.DAOrewardAccount().call.value(this.balance)())
+        if (originalClient.DAOrewardAccount().call.value(this.balance)())
             isContractValid = false;
     }
 
