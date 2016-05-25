@@ -23,7 +23,6 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
   Feel free to use as a template for your own proposal.
 */
 
-import "./DAO.sol";
 import "./SampleOfferWithoutReward.sol";
 
 contract SampleOffer is SampleOfferWithoutReward {
