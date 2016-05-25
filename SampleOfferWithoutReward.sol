@@ -109,13 +109,8 @@ contract SampleOfferWithoutReward {
     }
 
     function setDailyWithdrawLimit(uint128 _dailyWithdrawLimit) onlyClient noEther {
-        if (_dailyWithdrawLimit >= minDailyWithdrawLimit) {
-            // Before changing the limit withdraw the money the Contractor has
-            // right to. The payment may not be accepted by the Contractor but
-            // it is the Contractor's problem.
-            getDailyPayment();
+        if (_dailyWithdrawLimit >= minDailyWithdrawLimit)
             dailyWithdrawLimit = _dailyWithdrawLimit;
-        }
     }
 
     // "fire the contractor"
@@ -131,6 +126,8 @@ contract SampleOfferWithoutReward {
     // Executing this function before the Offer is signed off by the Client
     // makes no sense as this contract has no money.
     function getDailyPayment() noEther {
+        if (msg.sender != contractor)
+            throw;
         uint timeSinceLastPayment = now - lastPayment;
         // Calculate the amount using 1 second precision.
         uint amount = (timeSinceLastPayment * dailyWithdrawLimit) / (1 days);
