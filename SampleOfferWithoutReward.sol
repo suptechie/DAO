@@ -48,12 +48,12 @@ contract SampleOfferWithoutReward {
 
     // The minimal daily withdraw limit that the Contractor accepts.
     // Set once by the Offerer.
-    uint public minDailyWithdrawLimit;
+    uint128 public minDailyWithdrawLimit;
 
     // The amount of money the Contractor has right to withdraw daily above the
     // initial withdraw. The Contractor does not have to do the withdraws every
     // day as this amount accumulates.
-    uint public dailyWithdrawLimit;
+    uint128 public dailyWithdrawLimit;
 
     // The address of the Contractor.
     address public contractor;
@@ -61,8 +61,8 @@ contract SampleOfferWithoutReward {
     // The address of the Proposal/Offer document.
     bytes32 public IPFSHashOfTheProposalDocument;
 
-
-    uint public paidOut;
+    // The time of the last withdraw to the Contractor.
+    uint public lastPayment;
 
     uint public dateOfSignature;
     DAO public client; // address of DAO
@@ -84,7 +84,7 @@ contract SampleOfferWithoutReward {
         bytes32 _IPFSHashOfTheProposalDocument,
         uint _totalCosts,
         uint _oneTimeCosts,
-        uint _minDailyWithdrawLimit
+        uint128 _minDailyWithdrawLimit
     ) {
         contractor = _contractor;
         originalClient = DAO(_client);
@@ -105,11 +105,17 @@ contract SampleOfferWithoutReward {
             throw;
         dateOfSignature = now;
         isContractValid = true;
+        lastPayment = now;
     }
 
-    function setDailyWithdrawLimit(uint _dailyWithdrawLimit) onlyClient noEther {
-        if (_dailyWithdrawLimit >= minDailyWithdrawLimit)
+    function setDailyWithdrawLimit(uint128 _dailyWithdrawLimit) onlyClient noEther {
+        if (_dailyWithdrawLimit >= minDailyWithdrawLimit) {
+            // Before changing the limit withdraw the money the Contractor has
+            // right to. The payment may not be accepted by the Contractor but
+            // it is the Contractor's problem.
+            getDailyPayment();
             dailyWithdrawLimit = _dailyWithdrawLimit;
+        }
     }
 
     // "fire the contractor"
@@ -118,15 +124,21 @@ contract SampleOfferWithoutReward {
             isContractValid = false;
     }
 
-    function getDailyPayment() {
-        if (msg.sender != contractor)
-            throw;
-        uint amount = (now - dateOfSignature + 1 days) / (1 days) * dailyWithdrawLimit - paidOut;
+    // Withdraw to the Contractor.
+    //
+    // Withdraw the amount of money the Contractor has right to according to
+    // the current withdraw limit.
+    // Executing this function before the Offer is signed off by the Client
+    // makes no sense as this contract has no money.
+    function getDailyPayment() noEther {
+        uint timeSinceLastPayment = now - lastPayment;
+        // Calculate the amount using 1 second precision.
+        uint amount = (timeSinceLastPayment * dailyWithdrawLimit) / (1 days);
         if (amount > this.balance) {
             amount = this.balance;
         }
         if (contractor.send(amount))
-            paidOut += amount;
+            lastPayment = now;
     }
 
     // Change the client DAO by giving the new DAO's address

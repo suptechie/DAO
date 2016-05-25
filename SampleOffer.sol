@@ -37,7 +37,7 @@ contract SampleOffer is SampleOfferWithoutReward {
             bytes32 _IPFSHashOfTheProposalDocument,
             uint _totalCosts,
             uint _oneTimeCosts,
-            uint _minDailyWithdrawLimit
+            uint128 _minDailyWithdrawLimit
         ) SampleOfferWithoutReward(
             _contractor,
             _client,
@@ -46,7 +46,7 @@ contract SampleOffer is SampleOfferWithoutReward {
             _oneTimeCosts,
             _minDailyWithdrawLimit) {
         }
-    
+
     // interface for Ethereum Computer
     function payOneTimeReward() returns(bool) {
         // client DAO should not be able to pay itself generating
