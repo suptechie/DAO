@@ -158,7 +158,8 @@ class TestContext():
             self.args.proposal_halveminquorum,
             self.args.split_execution_period,
             self.scenario_uses_extrabalance(),
-            self.args.scenario == "fuel_fail_extrabalance"
+            self.args.scenario == "fuel_fail_extrabalance",
+            self.args.deploy_offer_payment_period
         )
 
         res = self.compile_contract(dao_contract)
@@ -169,7 +170,7 @@ class TestContext():
         self.dao_abi = contract["abi"]
         self.dao_bin = contract["bin"]
 
-        offer = os.path.join(self.contracts_dir, "SampleOffer.sol")
+        offer = os.path.join(self.contracts_dir, "SampleOfferCopy.sol")
         res = self.compile_contract(offer)
         self.offer_abi = res["contracts"]["SampleOffer"]["abi"]
         self.offer_bin = res["contracts"]["SampleOffer"]["bin"]
@@ -177,6 +178,8 @@ class TestContext():
         # also delete the temporary created files
         rm_file(os.path.join(self.contracts_dir, "DAOcopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "TokenCreationCopy.sol"))
+        rm_file(os.path.join(self.contracts_dir, "SampleOfferCopy.sol"))
+        rm_file(os.path.join(self.contracts_dir, "SampleOfferWithoutRewardCopy.sol"))
 
     def create_js_file(self, substitutions, cb_before_creation=None):
         """

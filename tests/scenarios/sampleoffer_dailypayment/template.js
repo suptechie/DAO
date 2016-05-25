@@ -63,14 +63,22 @@ setTimeout(function() {
     addToTest('contractor_before', eth.getBalance(contractor));
     // now the contractor can attempt to withdraw some money and we should check that this
     // occurs and is equal to the daily limit
+    console.log("-->OfferBalance: " + web3.fromWei(eth.getBalance(offer.address)));
     offer.getDailyPayment.sendTransaction({from: contractor, gas: 100000});
+    var withdrawTime = new BigNumber(Math.floor(Date.now() / 1000));
     checkWork();
+    var expectedWei = ((withdrawTime.sub(offer.dateOfSignature())).mul(offer.dailyWithdrawLimit()))
+        .div(new BigNumber($offer_payment_period));
+    console.log("-->ExpectedWei: " + expectedWei);
+    console.log("-->OfferBalanceAfter: " + web3.fromWei(eth.getBalance(offer.address)));
     addToTest('contractor_after', eth.getBalance(contractor));
     addToTest('contractor_diff',
-              parseFloat(web3.fromWei(bigDiff(testMap['contractor_after'], testMap['contractor_before'])))
+              bigDiff(testMap['contractor_after'], testMap['contractor_before'])
              );
-    
-
+    // check that the contractor gets the Wei expected, within a 0.1 Ether difference
+    addToTest('contractor_paid_expected',
+              testMap['contractor_diff'].sub(expectedWei).abs().lt(new BigNumber(100000000000000000))
+             );
     testResults();
 }, $debating_period * 1000);
 console.log("Wait for end of debating period");
