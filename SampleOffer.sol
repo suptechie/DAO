@@ -27,8 +27,8 @@ import "./SampleOfferWithoutReward.sol";
 
 contract SampleOffer is SampleOfferWithoutReward {
 
-    uint public rewardDivisor;
-    uint public deploymentReward;
+    uint rewardDivisor;
+    uint deploymentReward;
 
     function SampleOffer(
         address _contractor,
@@ -52,6 +52,16 @@ contract SampleOffer is SampleOfferWithoutReward {
 
     function setDeploymentReward(uint _deploymentReward) onlyClient noEther {
         deploymentReward = _deploymentReward;
+    }
+
+    // non-value-transfer getters
+
+    function getRewardDivisor() noEther constant returns (uint) {
+        return rewardDivisor;
+    }
+
+    function getDeploymentReward() noEther constant returns (uint) {
+        return deploymentReward;
     }
 
     // interface for USN

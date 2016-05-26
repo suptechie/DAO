@@ -71,7 +71,7 @@ setTimeout(function() {
         'deposit_returned',
         testMap['creator_balance_after_execution'].sub(testMap['creator_balance_before']).lt(new BigNumber(100000000000000000))
     );
-    addToTest('offer_promise_valid', offer.isContractValid());
+    addToTest('offer_promise_valid', offer.getIsContractValid());
 
     testResults();
 }, $debating_period * 1000);
