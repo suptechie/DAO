@@ -71,8 +71,8 @@ setTimeout(function() {
     );
 
     // test that the variables are set appropriately
-    addToTest('offer_reward_divisor', offer.rewardDivisor());
-    addToTest('offer_deployment_reward', offer.deploymentReward());
+    addToTest('offer_reward_divisor', offer.getRewardDivisor());
+    addToTest('offer_deployment_reward', offer.getDeploymentReward());
 
     var actor = eth.accounts[0];
     // emulate a USN node with onetimerward payment smaller than the set deployment reward.

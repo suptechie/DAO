@@ -43,8 +43,8 @@ setTimeout(function() {
         true // should the proposal pass?
     );
 
-    addToTest('offer_original_client', offer.originalClient());
-    addToTest('offer_client', offer.client());
+    addToTest('offer_original_client', offer.getOriginalClient());
+    addToTest('offer_client', offer.getClient());
 
     console.log("Add offer contract as allowed recipient for the Child DAO");
 child_dao.changeAllowedRecipients.sendTransaction('$offer_address', true, {from: child_curator, gas: 1000000});
