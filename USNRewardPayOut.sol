@@ -3,7 +3,7 @@ import "./SampleOffer.sol";
 
 contract USNRewardPayOut {
      
-     SampleOffer usnContract;
+     SampleOffer public usnContract;
      
      function USNRewardPayOut(SampleOffer _usnContract) {
           usnContract = _usnContract;
