@@ -30,21 +30,21 @@ contract SampleOffer is SampleOfferWithoutReward {
     uint public rewardDivisor;
     uint public deploymentReward;
 
-        function SampleOffer(
-            address _contractor,
-            address _client,
-            bytes32 _IPFSHashOfTheProposalDocument,
-            uint _totalCosts,
-            uint _oneTimeCosts,
-            uint128 _minDailyWithdrawLimit
-        ) SampleOfferWithoutReward(
-            _contractor,
-            _client,
-            _IPFSHashOfTheProposalDocument,
-            _totalCosts,
-            _oneTimeCosts,
-            _minDailyWithdrawLimit) {
-        }
+    function SampleOffer(
+        address _contractor,
+        address _client,
+        bytes32 _IPFSHashOfTheProposalDocument,
+        uint _totalCosts,
+        uint _oneTimeCosts,
+        uint128 _minDailyWithdrawLimit
+    ) SampleOfferWithoutReward(
+        _contractor,
+        _client,
+        _IPFSHashOfTheProposalDocument,
+        _totalCosts,
+        _oneTimeCosts,
+        _minDailyWithdrawLimit) {
+    }
 
     function setRewardDivisor(uint _rewardDivisor) onlyClient noEther {
         rewardDivisor = _rewardDivisor;
@@ -58,7 +58,7 @@ contract SampleOffer is SampleOfferWithoutReward {
     function payOneTimeReward() returns(bool) {
         // client DAO should not be able to pay itself generating
         // "free" reward tokens
-        if (msg.sender == address(client) || msg.sender == address(originalClient))
+        if (originalClient.rewardToken(msg.sender) != 0)
             throw;
 
         if (msg.value < deploymentReward)
@@ -75,7 +75,7 @@ contract SampleOffer is SampleOfferWithoutReward {
     function payReward() returns(bool) {
         // client DAO should not be able to pay itself generating
         // "free" reward tokens
-        if (msg.sender == address(client) || msg.sender == address(originalClient))
+        if (originalClient.rewardToken(msg.sender) != 0)
             throw;
 
         if (originalClient.DAOrewardAccount().call.value(msg.value)()) {
