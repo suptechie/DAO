@@ -58,7 +58,7 @@ contract SampleOffer is SampleOfferWithoutReward {
     function payOneTimeReward() returns(bool) {
         // client DAO should not be able to pay itself generating
         // "free" reward tokens
-        if (originalClient.rewardToken(msg.sender) != 0)
+		if (originalClient.rewardToken(msg.sender) != 0 || msg.sender == address(originalClient))
             throw;
 
         if (msg.value < deploymentReward)
@@ -75,7 +75,7 @@ contract SampleOffer is SampleOfferWithoutReward {
     function payReward() returns(bool) {
         // client DAO should not be able to pay itself generating
         // "free" reward tokens
-        if (originalClient.rewardToken(msg.sender) != 0)
+        if (originalClient.rewardToken(msg.sender) != 0 || msg.sender == address(originalClient))
             throw;
 
         if (originalClient.DAOrewardAccount().call.value(msg.value)()) {
