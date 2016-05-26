@@ -46,6 +46,14 @@ contract SampleOffer is SampleOfferWithoutReward {
             _minDailyWithdrawLimit) {
         }
 
+    function setRewardDivisor(uint _rewardDivisor) onlyClient noEther {
+        rewardDivisor = _rewardDivisor;
+    }
+
+    function setDeploymentReward(uint _deploymentReward) onlyClient noEther {
+        deploymentReward = _deploymentReward;
+    }
+
     // interface for Ethereum Computer
     function payOneTimeReward() returns(bool) {
         // client DAO should not be able to pay itself generating
