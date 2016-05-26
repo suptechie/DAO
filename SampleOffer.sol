@@ -55,43 +55,11 @@ contract SampleOffer is SampleOfferWithoutReward {
     }
 
     // non-value-transfer getters
-
     function getRewardDivisor() noEther constant returns (uint) {
         return rewardDivisor;
     }
 
     function getDeploymentReward() noEther constant returns (uint) {
         return deploymentReward;
-    }
-
-    // interface for USN
-    function payOneTimeReward() returns(bool) {
-        // client DAO should not be able to pay itself generating
-        // "free" reward tokens
-        if (originalClient.rewardToken(msg.sender) != 0 || msg.sender == address(originalClient))
-            throw;
-
-        if (msg.value < deploymentReward)
-            throw;
-
-        if (originalClient.DAOrewardAccount().call.value(msg.value)()) {
-            return true;
-        } else {
-            throw;
-        }
-    }
-
-    // pay reward
-    function payReward() returns(bool) {
-        // client DAO should not be able to pay itself generating
-        // "free" reward tokens
-        if (originalClient.rewardToken(msg.sender) != 0 || msg.sender == address(originalClient))
-            throw;
-
-        if (originalClient.DAOrewardAccount().call.value(msg.value)()) {
-            return true;
-        } else {
-            throw;
-        }
     }
 }
