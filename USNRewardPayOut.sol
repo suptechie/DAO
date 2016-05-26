@@ -1,10 +1,11 @@
 import "./SampleOffer.sol";
 
-contract USN_RewardPayOut {
 
+contract USNRewardPayOut {
+     
      SampleOffer usnContract;
-
-     function USN_RewardPayOut(SampleOffer _usnContract) {
+     
+     function USNRewardPayOut(SampleOffer _usnContract) {
           usnContract = _usnContract;
      }
 
