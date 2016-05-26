@@ -199,6 +199,17 @@ def is_int(v):
     return isinstance(v, (int, long))
 
 
+def cmp_floats(a, b):
+    return abs(a - b) <= 0.01
+
+
+def cmp_string_to_int(string, num):
+    try:
+        return int(string) == num
+    except:
+        return cmp_floats(float(string), float(num))
+
+
 def compare_values(got, expect):
     if isinstance(got, float) ^ isinstance(expect, float):
         if is_int(got) or is_int(expect):
@@ -207,11 +218,13 @@ def compare_values(got, expect):
             print("ERROR: float comparison failure")
             return False
     if isinstance(got, float):
-        return abs(got - expect) <= 0.01
+        return cmp_floats(got, expect)
     elif isinstance(got, basestring) and is_int(expect):
-        return int(got) == expect
+        return cmp_string_to_int(got, expect)
     elif isinstance(expect, basestring) and is_int(got):
-        return got == int(expect)
+        return cmp_string_to_int(expect, got)
+    elif isinstance(expect, basestring) and isinstance(got, float):
+        return cmp_floats(float(expect), got)
     else:
         return got == expect
 

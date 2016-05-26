@@ -3,7 +3,7 @@ var offer = web3.eth.contract($offer_abi).at('$offer_address');
 
 addToTest('dao_rewardaccount_before', eth.getBalance(dao.DAOrewardAccount()));
 // 'emulate' a USN node payment
-offer.payReward.sendTransaction({from:eth.accounts[2], value: web3.toWei($pay_reward_amount), gas: 100000});
+offer.payReward.sendTransaction({from:eth.accounts[3], value: web3.toWei($pay_reward_amount), gas: 100000});
 checkWork();
 addToTest('dao_rewardaccount_after', eth.getBalance(dao.DAOrewardAccount()));
 addToTest(
