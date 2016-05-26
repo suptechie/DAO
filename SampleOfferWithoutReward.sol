@@ -25,9 +25,9 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
   Actors:
   - Offerer:    the entity that creates the Offer. Usually it is the initial
                 Contractor.
-  - Contractor: the entity that has rights to withdraw money to perform
+  - Contractor: the entity that has rights to withdraw ether to perform
                 its project.
-  - Client:     the DAO that gives money to the Contractor. It signs off
+  - Client:     the DAO that gives ether to the Contractor. It signs off
                 the Offer, can adjust daily withdraw limit or even fire the
                 Contractor.
 */
@@ -50,7 +50,7 @@ contract SampleOfferWithoutReward {
     // Set once by the Offerer.
     uint128 public minDailyWithdrawLimit;
 
-    // The amount of money the Contractor has right to withdraw daily above the
+    // The amount of wei the Contractor has right to withdraw daily above the
     // initial withdraw. The Contractor does not have to do the withdraws every
     // day as this amount accumulates.
     uint128 public dailyWithdrawLimit;
@@ -58,8 +58,8 @@ contract SampleOfferWithoutReward {
     // The address of the Contractor.
     address public contractor;
 
-    // The address of the Proposal/Offer document.
-    bytes32 public IPFSHashOfTheProposalDocument;
+    // The hash of the Proposal/Offer document.
+    bytes32 public hashOfTheProposalDocument;
 
     // The time of the last withdraw to the Contractor.
     uint public lastPayment;
@@ -81,7 +81,7 @@ contract SampleOfferWithoutReward {
     function SampleOfferWithoutReward(
         address _contractor,
         address _client,
-        bytes32 _IPFSHashOfTheProposalDocument,
+        bytes32 _hashOfTheProposalDocument,
         uint _totalCosts,
         uint _oneTimeCosts,
         uint128 _minDailyWithdrawLimit
@@ -89,7 +89,7 @@ contract SampleOfferWithoutReward {
         contractor = _contractor;
         originalClient = DAO(_client);
         client = DAO(_client);
-        IPFSHashOfTheProposalDocument = _IPFSHashOfTheProposalDocument;
+        hashOfTheProposalDocument = _hashOfTheProposalDocument;
         totalCosts = _totalCosts;
         oneTimeCosts = _oneTimeCosts;
         minDailyWithdrawLimit = _minDailyWithdrawLimit;
@@ -97,7 +97,7 @@ contract SampleOfferWithoutReward {
     }
 
     function sign() {
-        if (msg.sender != address(originalClient) // no good samaritans give us money
+        if (msg.sender != address(originalClient) // no good samaritans give us ether
             || msg.value != totalCosts    // no under/over payment
             || dateOfSignature != 0)      // don't sign twice
             throw;
@@ -121,10 +121,10 @@ contract SampleOfferWithoutReward {
 
     // Withdraw to the Contractor.
     //
-    // Withdraw the amount of money the Contractor has right to according to
+    // Withdraw the amount of ether the Contractor has right to according to
     // the current withdraw limit.
     // Executing this function before the Offer is signed off by the Client
-    // makes no sense as this contract has no money.
+    // makes no sense as this contract has no ether.
     function getDailyPayment() noEther {
         if (msg.sender != contractor)
             throw;

@@ -33,14 +33,14 @@ contract SampleOffer is SampleOfferWithoutReward {
     function SampleOffer(
         address _contractor,
         address _client,
-        bytes32 _IPFSHashOfTheProposalDocument,
+        bytes32 _hashOfTheProposalDocument,
         uint _totalCosts,
         uint _oneTimeCosts,
         uint128 _minDailyWithdrawLimit
     ) SampleOfferWithoutReward(
         _contractor,
         _client,
-        _IPFSHashOfTheProposalDocument,
+        _hashOfTheProposalDocument,
         _totalCosts,
         _oneTimeCosts,
         _minDailyWithdrawLimit) {
@@ -54,7 +54,7 @@ contract SampleOffer is SampleOfferWithoutReward {
         deploymentReward = _deploymentReward;
     }
 
-    // interface for Ethereum Computer
+    // interface for USN
     function payOneTimeReward() returns(bool) {
         // client DAO should not be able to pay itself generating
         // "free" reward tokens
