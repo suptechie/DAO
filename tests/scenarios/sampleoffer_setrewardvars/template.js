@@ -74,6 +74,7 @@ setTimeout(function() {
     addToTest('offer_reward_divisor', offer.rewardDivisor());
     addToTest('offer_deployment_reward', offer.deploymentReward());
 
+    var actor = eth.accounts[0];
     // emulate a USN node with onetimerward payment smaller than the set deployment reward.
     var dao_rewardaccount_before = eth.getBalance(dao.DAOrewardAccount());
     offer.payOneTimeReward.sendTransaction({from:actor, value: $deployment_reward - 10000, gas: 200000});
