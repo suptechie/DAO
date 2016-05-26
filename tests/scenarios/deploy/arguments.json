@@ -1,6 +1,6 @@
 [{
     "name": "creation_seconds",
-    "default": 35,
+    "default": 38,
     "description":"Number of seconds from now when the newly created DAO creation ends",
     "type":"int"
 }, {
