@@ -39,35 +39,35 @@ contract SampleOfferWithoutReward {
     // The total cost of the Offer. Exactly this amount is transfered from the
     // Client to the Offer contract when the Offer is signed by the Client.
     // Set once by the Offerer.
-    uint public totalCosts;
+    uint totalCosts;
 
     // Initial withdraw to the Contractor. It is done the moment the Offer is
     // signed.
     // Set once by the Offerer.
-    uint public oneTimeCosts;
+    uint oneTimeCosts;
 
     // The minimal daily withdraw limit that the Contractor accepts.
     // Set once by the Offerer.
-    uint128 public minDailyWithdrawLimit;
+    uint128 minDailyWithdrawLimit;
 
     // The amount of wei the Contractor has right to withdraw daily above the
     // initial withdraw. The Contractor does not have to do the withdraws every
     // day as this amount accumulates.
-    uint128 public dailyWithdrawLimit;
+    uint128 dailyWithdrawLimit;
 
     // The address of the Contractor.
-    address public contractor;
+    address contractor;
 
     // The hash of the Proposal/Offer document.
-    bytes32 public hashOfTheProposalDocument;
+    bytes32 hashOfTheProposalDocument;
 
     // The time of the last withdraw to the Contractor.
-    uint public lastPayment;
+    uint lastPayment;
 
-    uint public dateOfSignature;
-    DAO public client; // address of DAO
-    DAO public originalClient; // address of DAO who signed the contract
-    bool public isContractValid;
+    uint dateOfSignature;
+    DAO client; // address of DAO
+    DAO originalClient; // address of DAO who signed the contract
+    bool isContractValid;
 
     modifier onlyClient {
         if (msg.sender != address(client))
@@ -94,6 +94,51 @@ contract SampleOfferWithoutReward {
         oneTimeCosts = _oneTimeCosts;
         minDailyWithdrawLimit = _minDailyWithdrawLimit;
         dailyWithdrawLimit = _minDailyWithdrawLimit;
+    }
+
+    // non-value-transfer getters
+    function getTotalCosts() noEther constant returns (uint) {
+        return totalCosts;
+    }
+
+    function getOneTimeCosts() noEther constant returns (uint) {
+        return oneTimeCosts;
+    }
+
+    function getMinDailyWithdrawLimit() noEther constant returns (uint128) {
+        return minDailyWithdrawLimit;
+    }
+
+    function getDailyWithdrawLimit() noEther constant returns (uint128) {
+        return dailyWithdrawLimit;
+    }
+
+    function getContractor() noEther constant returns (address) {
+        return contractor;
+    }
+
+    function getHashOfTheProposalDocument() noEther constant returns (bytes32) {
+        return hashOfTheProposalDocument;
+    }
+
+    function getLastPayment() noEther constant returns (uint) {
+        return lastPayment;
+    }
+
+    function getDateOfSignature() noEther constant returns (uint) {
+        return dateOfSignature;
+    }
+
+    function getClient() noEther constant returns (DAO) {
+        return client;
+    }
+
+    function getOriginalClient() noEther constant returns (DAO) {
+        return originalClient;
+    }
+
+    function getIsContractValid() noEther constant returns (bool) {
+        return isContractValid;
     }
 
     function sign() {
