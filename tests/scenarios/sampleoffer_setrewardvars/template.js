@@ -70,8 +70,24 @@ setTimeout(function() {
         true // should the proposal pass?
     );
 
+    // test that the variables are set appropriately
     addToTest('offer_reward_divisor', offer.rewardDivisor());
     addToTest('offer_deployment_reward', offer.deploymentReward());
+
+    // emulate a USN node with onetimerward payment smaller than the set deployment reward.
+    var dao_rewardaccount_before = eth.getBalance(dao.DAOrewardAccount());
+    offer.payOneTimeReward.sendTransaction({from:actor, value: $deployment_reward - 10000, gas: 200000});
+    checkWork();
+    var dao_rewardaccount_after = eth.getBalance(dao.DAOrewardAccount());
+    addToTest('pay_less_fails', dao_rewardaccount_after.eq(dao_rewardaccount_before));
+
+    // emulate a USN node with onetimerward payment bigger than the set deployment reward.
+    dao_rewardaccount_before = eth.getBalance(dao.DAOrewardAccount());
+    offer.payOneTimeReward.sendTransaction({from:actor, value: $test_deployment_payment, gas: 200000});
+    checkWork();
+    dao_rewardaccount_after = eth.getBalance(dao.DAOrewardAccount());
+    addToTest('reward_payment', dao_rewardaccount_after.sub(dao_rewardaccount_before));
+
     testResults();
 }, $debating_period * 1000);
 console.log("Wait for end of debating period");
