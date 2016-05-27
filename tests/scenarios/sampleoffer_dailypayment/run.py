@@ -19,6 +19,8 @@ def run(ctx):
         "dao_address": ctx.dao_addr,
         "offer_abi": ctx.offer_abi,
         "offer_address": ctx.offer_addr,
+        "usn_abi": ctx.usn_abi,
+        "usn_address": ctx.usn_addr,
         "proposal_deposit": ctx.args.proposal_deposit,
         "pay_reward_amount": pay_reward_amount,
         "transaction_bytecode": bytecode,

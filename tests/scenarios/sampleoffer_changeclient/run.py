@@ -2,9 +2,7 @@ from utils import arr_str, calculate_bytecode
 import time
 
 scenario_description = (
-    """Test that the offer's client can be properly changed to a split DAO.
-Also test that the new client can't pay its own rewards just like the previous
-client. """
+    """Test that the offer's client can be properly changed to a split DAO."""
 )
 
 
@@ -23,7 +21,6 @@ def run(ctx):
     transaction_bytecode = calculate_bytecode(
         'updateClientAddress', ('address', ctx.child_dao_address)
     )
-    pay_reward_bytecode = calculate_bytecode('payReward')
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,
         "dao_address": ctx.dao_addr,
@@ -35,8 +32,7 @@ def run(ctx):
         "child_dao_members": arr_str(ctx.child_dao_members),
         "proposal_deposit": ctx.args.proposal_deposit,
         "debating_period": ctx.args.proposal_debate_seconds,
-        "transaction_bytecode": transaction_bytecode,
-        "pay_reward_bytecode": pay_reward_bytecode
+        "transaction_bytecode": transaction_bytecode
         }
     )
     print(
@@ -46,6 +42,5 @@ def run(ctx):
 
     ctx.execute(expected={
         "offer_client": ctx.child_dao_address,
-        "offer_original_client": ctx.dao_addr,
-        "dao_rewardaccount_diff": 0,
+        "offer_original_client": ctx.dao_addr
     })

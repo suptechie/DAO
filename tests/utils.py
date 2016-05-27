@@ -466,6 +466,18 @@ def edit_dao_source(
     with open(os.path.join(contracts_dir, 'SampleOfferCopy.sol'), "w") as f:
         f.write(contents)
 
+    # edit USNRewardPayOut.sol
+    with open(os.path.join(contracts_dir, 'USNRewardPayOut.sol'), 'r') as f:
+        contents = f.read()
+
+    contents = str_replace_or_die(
+        contents,
+        'import "./SampleOffer.sol";',
+        'import "./SampleOfferCopy.sol";'
+    )
+    with open(os.path.join(contracts_dir, 'USNRewardPayOutCopy.sol'), "w") as f:
+        f.write(contents)
+
     return new_path
 
 
