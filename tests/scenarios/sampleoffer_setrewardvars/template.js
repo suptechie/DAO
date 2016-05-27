@@ -1,5 +1,6 @@
 var dao = web3.eth.contract($dao_abi).at('$dao_address');
 var offer = web3.eth.contract($offer_abi).at('$offer_address');
+var usn = web3.eth.contract($usn_abi).at('$usn_address');
 
 var dao_rewardaccount_before = eth.getBalance(dao.DAOrewardAccount());
 var dao_balance_before = eth.getBalance(dao.address);
@@ -77,14 +78,14 @@ setTimeout(function() {
     var actor = eth.accounts[0];
     // emulate a USN node with onetimerward payment smaller than the set deployment reward.
     var dao_rewardaccount_before = eth.getBalance(dao.DAOrewardAccount());
-    offer.payOneTimeReward.sendTransaction({from:actor, value: $deployment_reward - 10000, gas: 200000});
+    usn.payOneTimeReward.sendTransaction({from:actor, value: $deployment_reward - 10000, gas: 200000});
     checkWork();
     var dao_rewardaccount_after = eth.getBalance(dao.DAOrewardAccount());
     addToTest('pay_less_fails', dao_rewardaccount_after.eq(dao_rewardaccount_before));
 
     // emulate a USN node with onetimerward payment bigger than the set deployment reward.
     dao_rewardaccount_before = eth.getBalance(dao.DAOrewardAccount());
-    offer.payOneTimeReward.sendTransaction({from:actor, value: $test_deployment_payment, gas: 200000});
+    usn.payOneTimeReward.sendTransaction({from:actor, value: $test_deployment_payment, gas: 200000});
     checkWork();
     dao_rewardaccount_after = eth.getBalance(dao.DAOrewardAccount());
     addToTest('reward_payment', dao_rewardaccount_after.sub(dao_rewardaccount_before));
