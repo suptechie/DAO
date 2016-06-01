@@ -43,7 +43,7 @@ def which(program):
     return None
 
 
-def determine_binary(given_binary, name):
+def determine_binary(given_binary, name, is_mandatory):
     """
     Determines if a path to a binary is correct and if not tries to
     get a generic one by looking at the system PATH. If all fails, then
@@ -57,7 +57,7 @@ def determine_binary(given_binary, name):
         # try to find binary in the PATH
         ret_binary = which(name)
 
-    if not ret_binary:
+    if is_mandatory and not ret_binary:
         print("ERROR: Could not find binary '{}'".format(given_binary))
         sys.exit(1)
     return ret_binary

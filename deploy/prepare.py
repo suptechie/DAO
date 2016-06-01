@@ -17,7 +17,7 @@ from tests.utils import determine_binary, edit_dao_source, rm_file, to_wei
 class TestDeployContext():
     def __init__(self, args):
         self.args = args
-        self.args.solc = determine_binary(args.solc, 'solc')
+        self.args.solc = determine_binary(args.solc, 'solc', True)
 
     def compile_contract(self, contract_name):
         if self.args.no_limits and contract_name == "DAO.sol":

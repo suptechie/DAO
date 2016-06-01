@@ -33,8 +33,8 @@ class TestContext():
         self.save_file = os.path.join(datadir, "saved")
         self.templates_dir = os.path.join(self.tests_dir, 'templates')
         self.contracts_dir = os.path.dirname(self.tests_dir)
-        self.solc = determine_binary(args.solc, 'solc')
-        self.geth = determine_binary(args.geth, 'geth')
+        self.solc = determine_binary(args.solc, 'solc', args.scenario != 'none')
+        self.geth = determine_binary(args.geth, 'geth', args.scenario != 'none')
 
         if args.describe_scenarios:
             self.describe_scenarios()
