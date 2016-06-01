@@ -46,15 +46,21 @@ def which(program):
 def determine_binary(given_binary, name):
     """
     Determines if a path to a binary is correct and if not tries to
-    get a generic one by looking at the system PATH
+    get a generic one by looking at the system PATH. If all fails, then
+    the tests will fail with an appropriate error message.
     """
+    ret_binary = None
     if given_binary:
         if is_exe(given_binary):
-            return given_binary
+            ret_binary = given_binary
     else:
         # try to find binary in the PATH
-        return which(name)
-    return None
+        ret_binary = which(name)
+
+    if not ret_binary:
+        print("ERROR: Could not find binary '{}'".format(given_binary))
+        sys.exit(1)
+    return ret_binary
 
 
 def ts_now():
