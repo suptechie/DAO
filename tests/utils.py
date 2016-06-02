@@ -447,8 +447,8 @@ def edit_dao_source(
     with open(os.path.join(contracts_dir, 'TokenCreationCopy.sol'), "w") as f:
         f.write(contents)
 
-    # edit SampleOfferWithoutRewards.sol
-    with open(os.path.join(contracts_dir, 'SampleOfferWithoutReward.sol'), 'r') as f:
+    # edit Offer.sol
+    with open(os.path.join(contracts_dir, 'Offer.sol'), 'r') as f:
         contents = f.read()
 
     contents = str_replace_or_die(
@@ -457,19 +457,19 @@ def edit_dao_source(
         'import "./DAOcopy.sol";'
     )
     contents = str_replace_or_die(contents, '(1 days)', str(offer_payment_period))
-    with open(os.path.join(contracts_dir, 'SampleOfferWithoutRewardCopy.sol'), "w") as f:
+    with open(os.path.join(contracts_dir, 'OfferCopy.sol'), "w") as f:
         f.write(contents)
 
-    # edit SampleOffer.sol
-    with open(os.path.join(contracts_dir, 'SampleOffer.sol'), 'r') as f:
+    # edit RewardOffer.sol
+    with open(os.path.join(contracts_dir, 'RewardOffer.sol'), 'r') as f:
         contents = f.read()
 
     contents = str_replace_or_die(
         contents,
-        'import "./SampleOfferWithoutReward.sol";',
-        'import "./SampleOfferWithoutRewardCopy.sol";'
+        'import "./Offer.sol";',
+        'import "./OfferCopy.sol";'
     )
-    with open(os.path.join(contracts_dir, 'SampleOfferCopy.sol'), "w") as f:
+    with open(os.path.join(contracts_dir, 'RewardOfferCopy.sol'), "w") as f:
         f.write(contents)
 
     # edit USNRewardPayOut.sol
@@ -478,8 +478,8 @@ def edit_dao_source(
 
     contents = str_replace_or_die(
         contents,
-        'import "./SampleOffer.sol";',
-        'import "./SampleOfferCopy.sol";'
+        'import "./RewardOffer.sol";',
+        'import "./RewardOfferCopy.sol";'
     )
     with open(os.path.join(contracts_dir, 'USNRewardPayOutCopy.sol'), "w") as f:
         f.write(contents)

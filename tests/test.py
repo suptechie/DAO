@@ -97,6 +97,7 @@ class TestContext():
         rm_file(os.path.join(data_dir, "saved"))
 
     def run_script(self, script):
+        print("Running '{}' script".format(script))
         if script == 'accounts.js':
             return subprocess.check_output([
                 self.geth,
@@ -113,7 +114,6 @@ class TestContext():
                 script
             ])
         else:
-            print("Running '{}' script".format(script))
             return subprocess.check_output([
                 self.geth,
                 "--networkid",
@@ -169,16 +169,16 @@ class TestContext():
         self.creator_bin = DAOCreator["bin"]
         self.dao_abi = contract["abi"]
         self.dao_bin = contract["bin"]
-        self.offer_abi = res["contracts"]["SampleOffer"]["abi"]
-        self.offer_bin = res["contracts"]["SampleOffer"]["bin"]
+        self.offer_abi = res["contracts"]["RewardOffer"]["abi"]
+        self.offer_bin = res["contracts"]["RewardOffer"]["bin"]
         self.usn_abi = res["contracts"]["USNRewardPayOut"]["abi"]
         self.usn_bin = res["contracts"]["USNRewardPayOut"]["bin"]
 
         # also delete the temporary created files
         rm_file(os.path.join(self.contracts_dir, "DAOcopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "TokenCreationCopy.sol"))
-        rm_file(os.path.join(self.contracts_dir, "SampleOfferCopy.sol"))
-        rm_file(os.path.join(self.contracts_dir, "SampleOfferWithoutRewardCopy.sol"))
+        rm_file(os.path.join(self.contracts_dir, "RewardOfferCopy.sol"))
+        rm_file(os.path.join(self.contracts_dir, "OfferCopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "USNRewardPayOutCopy.sol"))
 
     def create_js_file(self, substitutions, cb_before_creation=None):

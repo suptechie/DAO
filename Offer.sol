@@ -34,7 +34,7 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 
 import "./DAO.sol";
 
-contract SampleOfferWithoutReward {
+contract Offer {
 
     // The total cost of the Offer. Exactly this amount is transfered from the
     // Client to the Offer contract when the Offer is signed by the Client.
@@ -78,7 +78,7 @@ contract SampleOfferWithoutReward {
     // Prevents methods from perfoming any value transfer
     modifier noEther() {if (msg.value > 0) throw; _}
 
-    function SampleOfferWithoutReward(
+    function Offer(
         address _contractor,
         address _client,
         bytes32 _hashOfTheProposalDocument,
