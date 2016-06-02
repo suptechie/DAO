@@ -23,21 +23,21 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
   Feel free to use as a template for your own proposal.
 */
 
-import "./SampleOfferWithoutReward.sol";
+import "./Offer.sol";
 
-contract SampleOffer is SampleOfferWithoutReward {
+contract RewardOffer is Offer {
 
     uint rewardDivisor;
     uint deploymentReward;
 
-    function SampleOffer(
+    function RewardOffer(
         address _contractor,
         address _client,
         bytes32 _hashOfTheProposalDocument,
         uint _totalCosts,
         uint _oneTimeCosts,
         uint128 _minDailyWithdrawLimit
-    ) SampleOfferWithoutReward(
+    ) Offer(
         _contractor,
         _client,
         _hashOfTheProposalDocument,

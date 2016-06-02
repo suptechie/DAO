@@ -34,7 +34,7 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 
 import "./DAO.sol";
 
-contract SampleOfferWithoutReward {
+contract Offer {
 
     // The total cost of the Offer. Exactly this amount is transfered from the
     // Client to the Offer contract when the Offer is signed by the Client.
@@ -78,7 +78,7 @@ contract SampleOfferWithoutReward {
     // Prevents methods from perfoming any value transfer
     modifier noEther() {if (msg.value > 0) throw; _}
 
-    function SampleOfferWithoutReward(
+    function Offer(
         address _contractor,
         address _client,
         bytes32 _hashOfTheProposalDocument,
@@ -146,10 +146,11 @@ contract SampleOfferWithoutReward {
             || msg.value != totalCosts    // no under/over payment
             || dateOfSignature != 0)      // don't sign twice
             throw;
-
+        if (!contractor.send(oneTimeCosts))
+            throw;
         dateOfSignature = now;
         isContractValid = true;
-        lastPayment = now + 3 weeks;
+        lastPayment = now;
     }
 
     function setDailyWithdrawLimit(uint128 _dailyWithdrawLimit) onlyClient noEther {
@@ -170,7 +171,7 @@ contract SampleOfferWithoutReward {
     // Executing this function before the Offer is signed off by the Client
     // makes no sense as this contract has no ether.
     function getDailyPayment() noEther {
-        if (msg.sender != contractor || now < dateOfSignature + 3 weeks)
+        if (msg.sender != contractor)
             throw;
         uint timeSinceLastPayment = now - lastPayment;
         // Calculate the amount using 1 second precision.
@@ -180,14 +181,6 @@ contract SampleOfferWithoutReward {
         }
         if (contractor.send(amount))
             lastPayment = now;
-    }
-
-    function getOneTimePayment() noEther {
-        if (msg.sender != contractor || now < dateOfSignature + 3 weeks )
-            throw;
-
-        if (!contractor.send(oneTimeCosts))
-            throw;
     }
 
     // Change the client DAO by giving the new DAO's address
