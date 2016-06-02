@@ -921,7 +921,7 @@ contract DAO_Creator {
             _closingTime,
             _tokenName, 
             _tokenSymbol,
-            _decimalPlaces
+            _decimalPlaces,
             msg.sender
         );
     }
