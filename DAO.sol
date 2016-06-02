@@ -526,6 +526,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         if (now < p.votingDeadline  // has the voting deadline arrived?
             // Have the votes been counted?
             || !p.open
+            || p.proposalPassed // anyone trying to call us recursively?
             // Does the transaction code match the proposal?
             || p.proposalHash != sha3(p.recipient, p.amount, _transactionData)) {
 
@@ -568,10 +569,15 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         // Execute result
         if (quorum >= minQuorum(p.amount) && p.yea > p.nay && proposalCheck) {
+            // we are setting this here before the CALL() value transfer to
+            // assure that in the case of a malicious recipient contract trying
+            // to call executeProposal() recursively money can't be transferred
+            // multiple times out of the DAO
+            p.proposalPassed = true;
+
             if (!p.recipient.call.value(p.amount)(_transactionData))
                 throw;
 
-            p.proposalPassed = true;
             _success = true;
 
             // only create reward tokens when ether is not sent to the DAO itself and
