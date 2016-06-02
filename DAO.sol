@@ -357,8 +357,17 @@ contract DAO is DAOInterface, Token, TokenCreation {
         uint _proposalDeposit,
         uint _minTokensToCreate,
         uint _closingTime,
-        address _privateCreation
-    ) TokenCreation(_minTokensToCreate, _closingTime, _privateCreation) {
+        address _privateCreation,
+        string _tokenName, 
+        string _tokenSymbol,
+        uint _decimalPlaces
+    ) TokenCreation(
+        _minTokensToCreate, 
+        _closingTime, 
+        _privateCreation, 
+        _tokenName, 
+        _tokenSymbol,
+        _decimalPlaces) {
 
         curator = _curator;
         daoCreator = _daoCreator;
@@ -898,7 +907,10 @@ contract DAO_Creator {
         address _curator,
         uint _proposalDeposit,
         uint _minTokensToCreate,
-        uint _closingTime
+        uint _closingTime,
+        string _tokenName, 
+        string _tokenSymbol,
+        uint _decimalPlaces
     ) returns (DAO _newDAO) {
 
         return new DAO(
@@ -907,6 +919,9 @@ contract DAO_Creator {
             _proposalDeposit,
             _minTokensToCreate,
             _closingTime,
+            _tokenName, 
+            _tokenSymbol,
+            _decimalPlaces
             msg.sender
         );
     }
