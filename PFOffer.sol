@@ -45,6 +45,7 @@ contract PFOffer {
     // signed.
     // Set once by the Offerer.
     uint oneTimeCosts;
+    bool oneTimeCostsPayed;
 
     // The minimal daily withdraw limit that the Contractor accepts.
     // Set once by the Offerer.
@@ -183,11 +184,12 @@ contract PFOffer {
     }
 
     function getOneTimePayment() noEther {
-        if (msg.sender != contractor || now < dateOfSignature + 3 weeks )
+        if (msg.sender != contractor || now < dateOfSignature + 3 weeks || oneTimeCostsPayed )
             throw;
 
         if (!contractor.send(oneTimeCosts))
             throw;
+        oneTimeCostsPayed = true;
     }
 
     // Change the client DAO by giving the new DAO's address
