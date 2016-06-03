@@ -12,6 +12,11 @@ tests/out.log.geth
 
 # Ignore created javascript files
 tests/deploy.js
+tests/deploy_dao_creator.js
+tests/deploy_dao.js
+tests/deploy_offer.js
+tests/deploy_pfoffer.js
+tests/deploy_usn.js
 tests/deposit.js
 tests/depositnofunds.js
 tests/fund.js

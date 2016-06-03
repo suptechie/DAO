@@ -21,11 +21,11 @@ def run(ctx):
     )
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,
-        "dao_address": ctx.dao_addr,
+        "dao_address": ctx.dao_address,
         "offer_abi": ctx.offer_abi,
-        "offer_address": ctx.offer_addr,
+        "offer_address": ctx.offer_address,
         "usn_abi": ctx.usn_abi,
-        "usn_address": ctx.usn_addr,
+        "usn_address": ctx.usn_address,
         "proposal_deposit": ctx.args.proposal_deposit,
         "set_div_bytecode": set_div_bytecode,
         "set_deploy_bytecode": set_deploy_bytecode,

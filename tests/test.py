@@ -26,8 +26,8 @@ class TestContext():
         self.ran_scenarios = []
         self.args = args
         self.tests_ok = True
-        self.dao_addr = None
-        self.offer_addr = None
+        self.dao_address = None
+        self.offer_address = None
         self.token_amounts = None
         self.dao_sources = [
             "DAO.sol",
@@ -87,12 +87,12 @@ class TestContext():
             print("Loading DAO from a saved file...")
             with open(self.save_file, 'r') as f:
                 data = json.loads(f.read())
-            self.dao_addr = data['dao_addr']
-            self.dao_creator_addr = data['dao_creator_addr']
-            self.offer_addr = data['offer_addr']
+            self.dao_address = data['dao_address']
+            self.dao_creator_address = data['dao_creator_address']
+            self.offer_address = data['offer_address']
             self.closing_time = data['closing_time']
-            print("Loaded dao_addr: {}".format(self.dao_addr))
-            print("Loaded dao_creator_addr: {}".format(self.dao_creator_addr))
+            print("Loaded dao_address: {}".format(self.dao_address))
+            print("Loaded dao_creator_address: {}".format(self.dao_creator_address))
 
     def clean_blockchain(self):
         """Clean all blockchain data directories apart from the keystore"""
@@ -220,18 +220,27 @@ class TestContext():
         rm_file(os.path.join(self.contracts_dir, "PFOfferCopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "USNRewardPayOutCopy.sol"))
 
-    def create_js_file(self, substitutions, cb_before_creation=None):
+    def create_js_file(
+            self,
+            substitutions,
+            specific_name=None,
+            cb_before_creation=None
+    ):
         """
-        Creates a js file from a template
+        Creates a js file from a template called template.js found in the same
+        directory as the scenario. Alternatively if specific_name is given then
+        it creates a js file from that template.
 
         Parameters
         ----------
-        name : string
-        The name of the javascript file without the '.js' extension
-
         substitutions : dict
         A dict of the substitutions to make in the template
         file in order to produce the final js
+
+        specific_name : string
+        (Optional) If given then the generic template.js file is not chosen but
+        instead a file of the specific given name ending with _template.js is
+        used.
 
         cb_before_creation : function
         (Optional) A callback function to be called right before substitution.
@@ -239,13 +248,15 @@ class TestContext():
         (test_framework_object, name_of_js_file, substitutions_dict)
         and it returns the edited substitutions map
         """
-        name = self.running_scenario()
+        scenario_name = self.running_scenario()
+        name = specific_name if specific_name else self.running_scenario()
+        scenario_dir = os.path.join(self.tests_dir, "scenarios", scenario_name)
+        fullpath = os.path.join(
+            scenario_dir,
+            name + '_template.js' if specific_name else 'template.js'
+        )
         print("Creating {}.js".format(name))
-        scenario_dir = os.path.join(self.tests_dir, "scenarios", name)
-        with open(
-                os.path.join(scenario_dir, 'template.js'),
-                'r'
-        ) as f:
+        with open(fullpath, 'r') as f:
             data = f.read()
         tmpl = Template(data)
         if cb_before_creation:

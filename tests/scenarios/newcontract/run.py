@@ -16,7 +16,7 @@ def run(ctx):
     bytecode = calculate_bytecode('newContract', ('address', ctx.accounts[4]))
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,
-        "dao_address": ctx.dao_addr,
+        "dao_address": ctx.dao_address,
         "new_contract_address": newAddress,
         "proposal_deposit": ctx.args.proposal_deposit,
         "transaction_bytecode": bytecode,

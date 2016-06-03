@@ -33,7 +33,7 @@ def run(ctx):
     ctx.create_js_file(
         substitutions={
             "dao_abi": ctx.dao_abi,
-            "dao_address": ctx.dao_addr,
+            "dao_address": ctx.dao_address,
             "wait_ms": (creation_secs-3)*1000,
             "proxy_amounts": arr_str(proxy_amounts),
             "normal_amounts": arr_str(normal_amounts)

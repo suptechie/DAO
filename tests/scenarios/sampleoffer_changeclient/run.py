@@ -23,12 +23,12 @@ def run(ctx):
     )
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,
-        "dao_address": ctx.dao_addr,
+        "dao_address": ctx.dao_address,
         "split_execution_period": ctx.args.split_execution_period,
         "child_dao_curator": ctx.child_dao_curator,
         "child_dao_address": ctx.child_dao_address,
         "offer_abi": ctx.offer_abi,
-        "offer_address": ctx.offer_addr,
+        "offer_address": ctx.offer_address,
         "child_dao_members": arr_str(ctx.child_dao_members),
         "proposal_deposit": ctx.args.proposal_deposit,
         "debating_period": ctx.args.proposal_debate_seconds,
@@ -42,5 +42,5 @@ def run(ctx):
 
     ctx.execute(expected={
         "offer_client": ctx.child_dao_address,
-        "offer_original_client": ctx.dao_addr
+        "offer_original_client": ctx.dao_address
     })

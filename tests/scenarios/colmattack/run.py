@@ -13,8 +13,8 @@ def run(ctx):
 
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,
-        "dao_address": ctx.dao_addr,
-        "offer_address": ctx.offer_addr,
+        "dao_address": ctx.dao_address,
+        "offer_address": ctx.offer_address,
         "attack_debating_period": ctx.args.colmattack_attack_debate_secs,
         "split_debating_period": ctx.args.colmattack_split_debate_secs,
         "attack_deposit": ctx.args.colmattack_attack_deposit,

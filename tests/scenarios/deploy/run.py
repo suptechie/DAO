@@ -15,53 +15,95 @@ def calculate_closing_time(obj, script_name, substitutions):
     return substitutions
 
 
-def run(ctx):
+def deploy_contract(ctx, substitutions, name, result, cb=None):
     ctx.create_js_file(
+        substitutions=substitutions,
+        specific_name=name,
+        cb_before_creation=cb
+    )
+    output = ctx.run_script('{}.js'.format(name))
+    results = extract_test_dict(name, output)
+
+    try:
+        setattr(ctx, result, results[result])
+    except:
+        print(
+            "ERROR: Could not find '{}' in the deploy scenario"
+            ". The output was:\n{}".format(result, output)
+        )
+        sys.exit(1)
+
+
+def run(ctx):
+    deploy_contract(
+        ctx,
+        substitutions={
+            "creator_abi": ctx.creator_abi,
+            "creator_bin": ctx.creator_bin
+        },
+        name='deploy_dao_creator',
+        result='dao_creator_address'
+    )
+    deploy_contract(
+        ctx,
         substitutions={
             "dao_abi": ctx.dao_abi,
             "dao_bin": ctx.dao_bin,
-            "creator_abi": ctx.creator_abi,
-            "creator_bin": ctx.creator_bin,
-            "offer_abi": ctx.offer_abi,
-            "offer_bin": ctx.offer_bin,
-            "pfoffer_abi": ctx.pfoffer_abi,
-            "pfoffer_bin": ctx.pfoffer_bin,
-            "usn_abi": ctx.usn_abi,
-            "usn_bin": ctx.usn_bin,
-            "offer_onetime": ctx.args.deploy_onetime_costs,
-            "offer_total": ctx.args.deploy_total_costs,
+            "dao_creator_address": ctx.dao_creator_address,
             "min_tokens_to_create": ctx.args.deploy_min_tokens_to_create,
             "default_proposal_deposit": ctx.args.deploy_proposal_deposit
         },
-        cb_before_creation=calculate_closing_time
+        name='deploy_dao',
+        result='dao_address',
+        cb=calculate_closing_time
     )
-    output = ctx.run_script('deploy.js')
-    results = extract_test_dict('deploy', output)
+    deploy_contract(
+        ctx,
+        substitutions={
+            "dao_address": ctx.dao_address,
+            "offer_abi": ctx.offer_abi,
+            "offer_bin": ctx.offer_bin,
+            "offer_onetime": ctx.args.deploy_onetime_costs,
+            "offer_total": ctx.args.deploy_total_costs,
+        },
+        name='deploy_offer',
+        result='offer_address'
+    )
+    deploy_contract(
+        ctx,
+        substitutions={
+            "dao_address": ctx.dao_address,
+            "pfoffer_abi": ctx.pfoffer_abi,
+            "pfoffer_bin": ctx.pfoffer_bin,
+            "offer_onetime": ctx.args.deploy_onetime_costs,
+            "offer_total": ctx.args.deploy_total_costs,
+        },
+        name='deploy_pfoffer',
+        result='pfoffer_address'
+    )
+    deploy_contract(
+        ctx,
+        substitutions={
+            "offer_address": ctx.offer_address,
+            "usn_abi": ctx.usn_abi,
+            "usn_bin": ctx.usn_bin
+        },
+        name='deploy_usn',
+        result='usn_address'
+    )
 
-    try:
-        ctx.dao_creator_addr = results['dao_creator_address']
-        ctx.dao_addr = results['dao_address']
-        ctx.offer_addr = results['offer_address']
-        ctx.pfoffer_addr = results['pfoffer_address']
-        ctx.usn_addr = results['usn_address']
-    except:
-        print(
-            "ERROR: Could not find expected results in the deploy scenario"
-            ". The output was:\n{}".format(output)
-        )
-        sys.exit(1)
-    print("DAO Creator address is: {}".format(ctx.dao_creator_addr))
-    print("DAO address is: {}".format(ctx.dao_addr))
-    print("SampleOffer address is: {}".format(ctx.offer_addr))
-    print("PFOffer address is: {}".format(ctx.pfoffer_addr))
-    print("USNRewardPayOut address is: {}".format(ctx.usn_addr))
+    print("DAO Creator address is: {}".format(ctx.dao_creator_address))
+    print("DAO address is: {}".format(ctx.dao_address))
+    print("SampleOffer address is: {}".format(ctx.offer_address))
+    print("PFOffer address is: {}".format(ctx.pfoffer_address))
+    print("USNRewardPayOut address is: {}".format(ctx.usn_address))
     with open(ctx.save_file, "w") as f:
         f.write(json.dumps({
-            "dao_creator_addr": ctx.dao_creator_addr,
-            "dao_addr": ctx.dao_addr,
-            "offer_addr": ctx.offer_addr,
-            "pfoffer_addr": ctx.pfoffer_addr,
-            "usn_addr": ctx.usn_addr,
+            "dao_creator_address": ctx.dao_creator_address,
+            "dao_address": ctx.dao_address,
+            "offer_address": ctx.offer_address,
+            "pfoffer_address": ctx.pfoffer_address,
+            "usn_address": ctx.usn_address,
             "closing_time": ctx.closing_time
         }))
 

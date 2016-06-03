@@ -11,12 +11,12 @@ def run(ctx):
     extra_balance_ether_to_get = 5
     bytecode = calculate_bytecode(
         'payOut',
-        ('address', ctx.dao_addr),
+        ('address', ctx.dao_address),
         ('uint256', to_wei(extra_balance_ether_to_get))
     )
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,
-        "dao_address": ctx.dao_addr,
+        "dao_address": ctx.dao_address,
         "proposal_deposit": ctx.args.proposal_deposit,
         "debating_period": ctx.args.proposal_debate_seconds,
         "transaction_bytecode": bytecode

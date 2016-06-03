@@ -19,7 +19,7 @@ def run(ctx):
     bytecode = calculate_bytecode('retrieveDAOReward', ("bool", True))
     ctx.create_js_file(substitutions={
             "dao_abi": ctx.dao_abi,
-            "dao_address": ctx.dao_addr,
+            "dao_address": ctx.dao_address,
             "total_rewards": ctx.args.rewards_total_amount,
             "proposal_deposit": ctx.args.proposal_deposit,
             "transaction_bytecode": bytecode,

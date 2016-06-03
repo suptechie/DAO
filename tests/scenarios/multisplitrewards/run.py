@@ -22,7 +22,7 @@ def run(ctx):
         time.sleep(wait_for_secs)
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,
-        "dao_address": ctx.dao_addr,
+        "dao_address": ctx.dao_address,
         "split_execution_period": ctx.args.split_execution_period,
         "child_dao_curator": ctx.child_dao_curator,
         "grandchild_dao_curator": ctx.grandchild_dao_curator,

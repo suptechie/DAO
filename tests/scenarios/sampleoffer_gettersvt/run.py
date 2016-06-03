@@ -11,7 +11,7 @@ def run(ctx):
     ctx.assert_scenario_ran('proposal')
     ctx.create_js_file(substitutions={
         "offer_abi": ctx.offer_abi,
-        "offer_address": ctx.offer_addr,
+        "offer_address": ctx.offer_address,
     })
 
     ctx.execute(expected={

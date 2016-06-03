@@ -12,7 +12,7 @@ def run(ctx):
 
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,
-        "dao_address": ctx.dao_addr,
+        "dao_address": ctx.dao_address,
         "proposal_deposit": ctx.args.proposal_deposit,
         "debating_period": ctx.args.proposal_debate_seconds,
         "split_execution_period": ctx.args.split_execution_period
