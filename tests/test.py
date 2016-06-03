@@ -159,8 +159,10 @@ class TestContext():
             self.args.split_execution_period,
             self.scenario_uses_extrabalance(),
             self.args.scenario == "fuel_fail_extrabalance",
-            self.args.deploy_offer_payment_period
+            self.args.deploy_offer_payment_period,
+            self.args.deploy_pfoffer_payout_freeze_period
         )
+        # compile USNRewardPayout and all contracts it depends on
         usn = os.path.join(self.contracts_dir, "USNRewardPayOutCopy.sol")
         res = self.compile_contract(usn)
         contract = res["contracts"]["DAO"]
@@ -174,11 +176,18 @@ class TestContext():
         self.usn_abi = res["contracts"]["USNRewardPayOut"]["abi"]
         self.usn_bin = res["contracts"]["USNRewardPayOut"]["bin"]
 
+        # compile PFOffer
+        pfoffer = os.path.join(self.contracts_dir, "PFOfferCopy.sol")
+        res = self.compile_contract(pfoffer)
+        self.pfoffer_abi = DAOCreator["abi"]
+        self.pfoffer_bin = DAOCreator["bin"]
+
         # also delete the temporary created files
         rm_file(os.path.join(self.contracts_dir, "DAOcopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "TokenCreationCopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "RewardOfferCopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "OfferCopy.sol"))
+        rm_file(os.path.join(self.contracts_dir, "PFOfferCopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "USNRewardPayOutCopy.sol"))
 
     def create_js_file(self, substitutions, cb_before_creation=None):

@@ -24,6 +24,8 @@ def run(ctx):
             "creator_bin": ctx.creator_bin,
             "offer_abi": ctx.offer_abi,
             "offer_bin": ctx.offer_bin,
+            "pfoffer_abi": ctx.pfoffer_abi,
+            "pfoffer_bin": ctx.pfoffer_bin,
             "usn_abi": ctx.usn_abi,
             "usn_bin": ctx.usn_bin,
             "offer_onetime": ctx.args.deploy_onetime_costs,
@@ -50,12 +52,14 @@ def run(ctx):
     print("DAO Creator address is: {}".format(ctx.dao_creator_addr))
     print("DAO address is: {}".format(ctx.dao_addr))
     print("SampleOffer address is: {}".format(ctx.offer_addr))
+    print("PFOffer address is: {}".format(ctx.pfoffer_addr))
     print("USNRewardPayOut address is: {}".format(ctx.usn_addr))
     with open(ctx.save_file, "w") as f:
         f.write(json.dumps({
             "dao_creator_addr": ctx.dao_creator_addr,
             "dao_addr": ctx.dao_addr,
             "offer_addr": ctx.offer_addr,
+            "pfoffer_addr": ctx.pfoffer_addr,
             "usn_addr": ctx.usn_addr,
             "closing_time": ctx.closing_time
         }))

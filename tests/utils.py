@@ -360,7 +360,8 @@ def edit_dao_source(
         split_exec_period,
         normal_pricing,
         extra_balance_refund,
-        offer_payment_period):
+        offer_payment_period,
+        payout_freeze_period):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
 
@@ -458,6 +459,23 @@ def edit_dao_source(
     )
     contents = str_replace_or_die(contents, '(1 days)', str(offer_payment_period))
     with open(os.path.join(contracts_dir, 'OfferCopy.sol'), "w") as f:
+        f.write(contents)
+
+    # edit PFOffer.sol
+    with open(os.path.join(contracts_dir, 'PFOffer.sol'), 'r') as f:
+        contents = f.read()
+
+    contents = str_replace_or_die(
+        contents,
+        'import "./DAO.sol";',
+        'import "./DAOcopy.sol";'
+    )
+    contents = re_replace_or_die(
+        contents,
+        "payoutFreezePeriod",
+        str(payout_freeze_period)
+    )
+    with open(os.path.join(contracts_dir, 'PFOfferCopy.sol'), "w") as f:
         f.write(contents)
 
     # edit RewardOffer.sol

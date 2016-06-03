@@ -30,6 +30,27 @@ var _daoCreatorContract = creatorContract.new(
 		        if (typeof contract.address != 'undefined') {
                     addToTest('dao_address', contract.address);
 
+                    // now deploy the PFOffer
+                    var pfofferContract = web3.eth.contract($pfoffer_abi);
+                    var pfoffer = pfofferContract.new(
+                        contractor,
+                        contract.address, // client DAO address
+                        '0x0',  // This is a hash of the paper contract. Does not matter for testing
+                        web3.toWei($offer_total, "ether"), //total costs
+                        web3.toWei($offer_onetime, "ether"), //one time costs
+                        web3.toWei(1, "ether"), //min daily costs
+                        {
+	                        from: contractor,
+	                        data: '$pfoffer_bin',
+	                        gas: 3000000
+                        }, function (e, pfoffer_contract) {
+	                        if (e) {
+                                console.log(e + " at PFOffer Contract creation!");
+	                        } else if (typeof pfoffer_contract.address != 'undefined') {
+                                addToTest('pfoffer_address', pfoffer_contract.address);
+                            }
+                        });
+
                     // now deploy the Sample Offer
                     var offerContract = web3.eth.contract($offer_abi);
                     var offer = offerContract.new(
