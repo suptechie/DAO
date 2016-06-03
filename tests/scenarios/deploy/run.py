@@ -1,6 +1,6 @@
 import sys
 import json
-from utils import extract_test_dict, seconds_in_future
+from utils import extract_test_dict, seconds_in_future, bool_to_str
 
 
 scenario_description = (
@@ -51,7 +51,8 @@ def run(ctx):
             "dao_bin": ctx.dao_bin,
             "dao_creator_address": ctx.dao_creator_address,
             "min_tokens_to_create": ctx.args.deploy_min_tokens_to_create,
-            "default_proposal_deposit": ctx.args.deploy_proposal_deposit
+            "default_proposal_deposit": ctx.args.deploy_proposal_deposit,
+            "using_old_dao": bool_to_str(ctx.args.dao_version != "master")
         },
         name='deploy_dao',
         result='dao_address',

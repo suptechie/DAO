@@ -1,5 +1,5 @@
 import random
-from utils import arr_str, create_votes_array
+from utils import arr_str, create_votes_array, bool_to_str
 
 scenario_description = (
     "Create a proposal to send an amount of ether to the SampleOffer contract."
@@ -41,7 +41,7 @@ def run(ctx):
         "transaction_bytecode": '0x2ca15122',  # solc --hashes SampleOffer.sol
         "debating_period": ctx.args.proposal_debate_seconds,
         "votes": arr_str(votes),
-        "should_halve_minquorum": str(ctx.args.proposal_halveminquorum).lower()
+        "should_halve_minquorum": bool_to_str(ctx.args.proposal_halveminquorum)
     })
     print(
         "Notice: Debate period is {} seconds so the test will wait "

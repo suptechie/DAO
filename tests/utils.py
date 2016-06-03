@@ -183,6 +183,10 @@ def arr_str(arr):
     )
 
 
+def bool_to_str(b):
+    return str(b).lower()
+
+
 def extract_test_dict(name, output):
     split = output.split('Test Results: ', 1)
     if len(split) != 2:
