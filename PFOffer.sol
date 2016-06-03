@@ -36,6 +36,9 @@ import "./DAO.sol";
 
 contract PFOffer {
 
+    // Period of time after which money can be withdrawn from this contract
+    uint constant payoutFreezePeriod = 3 weeks;
+
     // The total cost of the Offer. Exactly this amount is transfered from the
     // Client to the Offer contract when the Offer is signed by the Client.
     // Set once by the Offerer.
@@ -150,7 +153,7 @@ contract PFOffer {
 
         dateOfSignature = now;
         isContractValid = true;
-        lastPayment = now + 3 weeks;
+        lastPayment = now + payoutFreezePeriod;
     }
 
     function setDailyWithdrawLimit(uint128 _dailyWithdrawLimit) onlyClient noEther {
@@ -171,7 +174,7 @@ contract PFOffer {
     // Executing this function before the Offer is signed off by the Client
     // makes no sense as this contract has no ether.
     function getDailyPayment() noEther {
-        if (msg.sender != contractor || now < dateOfSignature + 3 weeks)
+        if (msg.sender != contractor || now < dateOfSignature + payoutFreezePeriod)
             throw;
         uint timeSinceLastPayment = now - lastPayment;
         // Calculate the amount using 1 second precision.
@@ -184,8 +187,11 @@ contract PFOffer {
     }
 
     function getOneTimePayment() noEther {
-        if (msg.sender != contractor || now < dateOfSignature + 3 weeks || oneTimeCostsPaid )
+        if (msg.sender != contractor
+            || now < dateOfSignature + payoutFreezePeriod
+            || oneTimeCostsPaid ) {
             throw;
+        }
 
         if (!contractor.send(oneTimeCosts))
             throw;
