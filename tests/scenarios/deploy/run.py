@@ -42,6 +42,7 @@ def run(ctx):
         ctx.dao_creator_addr = results['dao_creator_address']
         ctx.dao_addr = results['dao_address']
         ctx.offer_addr = results['offer_address']
+        ctx.pfoffer_addr = results['pfoffer_address']
         ctx.usn_addr = results['usn_address']
     except:
         print(

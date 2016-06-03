@@ -50,6 +50,7 @@ var _daoCreatorContract = creatorContract.new(
                                 addToTest('pfoffer_address', pfoffer_contract.address);
                             }
                         });
+                    checkWork();
 
                     // now deploy the Sample Offer
                     var offerContract = web3.eth.contract($offer_abi);

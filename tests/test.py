@@ -208,8 +208,8 @@ class TestContext():
         # compile PFOffer
         pfoffer = os.path.join(self.contracts_dir, "PFOfferCopy.sol")
         res = self.compile_contract(pfoffer)
-        self.pfoffer_abi = DAOCreator["abi"]
-        self.pfoffer_bin = DAOCreator["bin"]
+        self.pfoffer_abi = res["contracts"]["PFOffer"]["abi"]
+        self.pfoffer_bin = res["contracts"]["PFOffer"]["bin"]
 
         # also delete the temporary created files
         self.reset_dao_version()
