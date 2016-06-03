@@ -136,6 +136,13 @@ def test_args():
             "test.py --abi \"transfer address foo uint256 5\""
         )
     )
+    p.add_argument(
+        '--dao-version',
+        type=str,
+        default="v1.0",
+        choices=["v1.0", "master"],
+        help="The version of the DAO code to run the tests against."
+    )
     args = p.parse_args()
 
     # Argument verification

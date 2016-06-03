@@ -14,7 +14,8 @@ import inspect
 from string import Template
 from utils import (
     rm_file, determine_binary, ts_now, write_js, available_scenarios,
-    create_genesis, edit_dao_source, eval_test,
+    create_genesis, edit_dao_source, eval_test, checkout_file, reset_file,
+    fail_if_outstanding_changes
 )
 from args import test_args
 
@@ -28,6 +29,13 @@ class TestContext():
         self.dao_addr = None
         self.offer_addr = None
         self.token_amounts = None
+        self.dao_sources = [
+            "DAO.sol",
+            "DAOTokenCreationProxyTransferer.sol",
+            "ManagedAccount.sol",
+            "Token.sol",
+            "TokenCreation.sol"
+        ]
         self.tests_dir = os.path.dirname(os.path.realpath(__file__))
         datadir = os.path.join(self.tests_dir, "data")
         self.save_file = os.path.join(datadir, "saved")
@@ -129,6 +137,25 @@ class TestContext():
                 script
             ])
 
+    def checkout_dao_version(self):
+        if self.args.dao_version == "master":
+            return
+        fail_if_outstanding_changes(self.contracts_dir, self.dao_sources)
+        print("Checking out '{}' DAO contracts ...".format(
+            self.args.dao_version)
+        )
+        for source in self.dao_sources:
+            checkout_file(
+                os.path.join(self.contracts_dir, source),
+                self.args.dao_version
+            )
+
+    def reset_dao_version(self):
+        if self.args.dao_version == "master":
+            return
+        for source in self.dao_sources:
+            reset_file(os.path.join(self.contracts_dir, source))
+
     def compile_contract(self, contract_path):
         print("    Compiling {}...".format(contract_path))
         data = subprocess.check_output([
@@ -144,8 +171,10 @@ class TestContext():
         if not self.solc:
             print("Error: No valid solc compiler provided")
             sys.exit(1)
-        print("Compiling the DAO contracts...")
 
+        # checkout the requested version of the DAO sources
+        self.checkout_dao_version()
+        print("Compiling the DAO contracts...")
         dao_contract = os.path.join(self.contracts_dir, "DAO.sol")
         if not os.path.isfile(dao_contract):
             print("DAO contract not found at {}".format(dao_contract))
@@ -183,6 +212,7 @@ class TestContext():
         self.pfoffer_bin = DAOCreator["bin"]
 
         # also delete the temporary created files
+        self.reset_dao_version()
         rm_file(os.path.join(self.contracts_dir, "DAOcopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "TokenCreationCopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "RewardOfferCopy.sol"))

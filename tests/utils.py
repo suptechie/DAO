@@ -5,6 +5,7 @@ import os
 import json
 import sys
 import re
+import subprocess
 from sha3 import sha3_256 as sha3
 from datetime import datetime
 from jsutils import js_common_intro
@@ -566,3 +567,26 @@ def available_scenarios():
 
 def to_wei(val_in_ether):
     return val_in_ether * 1000000000000000000
+
+
+def fail_if_outstanding_changes(directory, files):
+    for f in files:
+        fullpath = os.path.join(directory, f)
+        s = subprocess.check_output(["git", "status", fullpath])
+        if "modified:" in s:
+            print(
+                "ERROR: You have outstanding changes in '{}' and the tests"
+                " need to checkout a different version of the contracts. "
+                " Please either commit or stash your changes before running "
+                "the tests.".format(fullpath)
+            )
+            sys.exit(1)
+
+
+def checkout_file(path, version):
+    return subprocess.check_output(["git", "checkout", version, "--", path])
+
+
+def reset_file(path):
+    subprocess.check_output(["git", "reset", "HEAD", path])
+    subprocess.check_output(["git", "checkout", "--", path])
