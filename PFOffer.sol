@@ -145,6 +145,10 @@ contract PFOffer {
         return isContractValid;
     }
 
+    function getOneTimeCostsPaid() noEther constant returns (bool) {
+        return oneTimeCostsPaid;
+    }
+
     function sign() {
         if (msg.sender != address(originalClient) // no good samaritans give us ether
             || msg.value != totalCosts    // no under/over payment
