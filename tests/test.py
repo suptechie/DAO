@@ -156,6 +156,15 @@ class TestContext():
         for source in self.dao_sources:
             reset_file(os.path.join(self.contracts_dir, source))
 
+    def compile_cleanup(self):
+        self.reset_dao_version()
+        rm_file(os.path.join(self.contracts_dir, "DAOcopy.sol"))
+        rm_file(os.path.join(self.contracts_dir, "TokenCreationCopy.sol"))
+        rm_file(os.path.join(self.contracts_dir, "RewardOfferCopy.sol"))
+        rm_file(os.path.join(self.contracts_dir, "OfferCopy.sol"))
+        rm_file(os.path.join(self.contracts_dir, "PFOfferCopy.sol"))
+        rm_file(os.path.join(self.contracts_dir, "USNRewardPayOutCopy.sol"))
+
     def compile_contract(self, contract_path):
         print("    Compiling {}...".format(contract_path))
         data = subprocess.check_output([
@@ -175,50 +184,49 @@ class TestContext():
         # checkout the requested version of the DAO sources
         self.checkout_dao_version()
         print("Compiling the DAO contracts...")
-        dao_contract = os.path.join(self.contracts_dir, "DAO.sol")
-        if not os.path.isfile(dao_contract):
-            print("DAO contract not found at {}".format(dao_contract))
+        compile_success = True
+        try:
+            dao_contract = os.path.join(self.contracts_dir, "DAO.sol")
+            if not os.path.isfile(dao_contract):
+                print("DAO contract not found at {}".format(dao_contract))
+                sys.exit(1)
+            dao_contract = edit_dao_source(
+                self.contracts_dir,
+                keep_limits,
+                1,  # min_proposal_debate
+                1,  # min_proposal_split
+                self.args.proposal_halveminquorum,
+                self.args.split_execution_period,
+                self.scenario_uses_extrabalance(),
+                self.args.scenario == "fuel_fail_extrabalance",
+                self.args.deploy_offer_payment_period,
+                self.args.deploy_pfoffer_payout_freeze_period
+            )
+            # compile USNRewardPayout and all contracts it depends on
+            usn = os.path.join(self.contracts_dir, "USNRewardPayOutCopy.sol")
+            res = self.compile_contract(usn)
+            contract = res["contracts"]["DAO"]
+            DAOCreator = res["contracts"]["DAO_Creator"]
+            self.creator_abi = DAOCreator["abi"]
+            self.creator_bin = DAOCreator["bin"]
+            self.dao_abi = contract["abi"]
+            self.dao_bin = contract["bin"]
+            self.offer_abi = res["contracts"]["RewardOffer"]["abi"]
+            self.offer_bin = res["contracts"]["RewardOffer"]["bin"]
+            self.usn_abi = res["contracts"]["USNRewardPayOut"]["abi"]
+            self.usn_bin = res["contracts"]["USNRewardPayOut"]["bin"]
+
+            # compile PFOffer
+            pfoffer = os.path.join(self.contracts_dir, "PFOfferCopy.sol")
+            res = self.compile_contract(pfoffer)
+            self.pfoffer_abi = res["contracts"]["PFOffer"]["abi"]
+            self.pfoffer_bin = res["contracts"]["PFOffer"]["bin"]
+        except:
+            compile_success = False
+        self.compile_cleanup()
+        if not compile_success:
+            print("ERROR at contract compiling")
             sys.exit(1)
-        dao_contract = edit_dao_source(
-            self.contracts_dir,
-            keep_limits,
-            1,  # min_proposal_debate
-            1,  # min_proposal_split
-            self.args.proposal_halveminquorum,
-            self.args.split_execution_period,
-            self.scenario_uses_extrabalance(),
-            self.args.scenario == "fuel_fail_extrabalance",
-            self.args.deploy_offer_payment_period,
-            self.args.deploy_pfoffer_payout_freeze_period
-        )
-        # compile USNRewardPayout and all contracts it depends on
-        usn = os.path.join(self.contracts_dir, "USNRewardPayOutCopy.sol")
-        res = self.compile_contract(usn)
-        contract = res["contracts"]["DAO"]
-        DAOCreator = res["contracts"]["DAO_Creator"]
-        self.creator_abi = DAOCreator["abi"]
-        self.creator_bin = DAOCreator["bin"]
-        self.dao_abi = contract["abi"]
-        self.dao_bin = contract["bin"]
-        self.offer_abi = res["contracts"]["RewardOffer"]["abi"]
-        self.offer_bin = res["contracts"]["RewardOffer"]["bin"]
-        self.usn_abi = res["contracts"]["USNRewardPayOut"]["abi"]
-        self.usn_bin = res["contracts"]["USNRewardPayOut"]["bin"]
-
-        # compile PFOffer
-        pfoffer = os.path.join(self.contracts_dir, "PFOfferCopy.sol")
-        res = self.compile_contract(pfoffer)
-        self.pfoffer_abi = res["contracts"]["PFOffer"]["abi"]
-        self.pfoffer_bin = res["contracts"]["PFOffer"]["bin"]
-
-        # also delete the temporary created files
-        self.reset_dao_version()
-        rm_file(os.path.join(self.contracts_dir, "DAOcopy.sol"))
-        rm_file(os.path.join(self.contracts_dir, "TokenCreationCopy.sol"))
-        rm_file(os.path.join(self.contracts_dir, "RewardOfferCopy.sol"))
-        rm_file(os.path.join(self.contracts_dir, "OfferCopy.sol"))
-        rm_file(os.path.join(self.contracts_dir, "PFOfferCopy.sol"))
-        rm_file(os.path.join(self.contracts_dir, "USNRewardPayOutCopy.sol"))
 
     def create_js_file(
             self,
