@@ -17,17 +17,17 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /*
-  An Offer from a Contractor to the DAO without any reward going back to
-  the DAO.
+  An Offer from a Contractor to the DAO. No logic about the DAO reward is
+  included in this contract.
 
-  Feel free to use as a template for your own proposal.
+  Feel free to use as a base contract for your own proposal.
 
   Actors:
   - Offerer:    the entity that creates the Offer. Usually it is the initial
                 Contractor.
   - Contractor: the entity that has rights to withdraw ether to perform
                 its project.
-  - Client:     the DAO that gives ether to the Contractor. It signs off
+  - Client:     the DAO that gives ether to the Contractor. It accepts
                 the Offer, can adjust daily withdraw limit or even fire the
                 Contractor.
 */
@@ -36,15 +36,14 @@ import "./DAO.sol";
 
 contract Offer {
 
-    // The total cost of the Offer. Exactly this amount is transfered from the
-    // Client to the Offer contract when the Offer is signed by the Client.
-    // Set once by the Offerer.
-    uint totalCosts;
+    // The total cost of the Offer for the Client. Exactly this amount is
+    // transfered from the Client to the Offer contract when the Offer is
+    // accepted by the Client. Set once by the Offerer.
+    uint totalCost;
 
     // Initial withdraw to the Contractor. It is done the moment the Offer is
-    // signed.
-    // Set once by the Offerer.
-    uint oneTimeCosts;
+    // accepted. Set once by the Offerer.
+    uint initialWithdraw;
 
     // The minimal daily withdraw limit that the Contractor accepts.
     // Set once by the Offerer.
@@ -62,11 +61,11 @@ contract Offer {
     bytes32 hashOfTheProposalDocument;
 
     // The time of the last withdraw to the Contractor.
-    uint lastPayment;
+    uint lastWithdraw;
 
-    uint dateOfSignature;
-    DAO client; // address of DAO
-    DAO originalClient; // address of DAO who signed the contract
+    uint dateOfAcceptance;
+    DAO client;          // The address of the current Client.
+    DAO originalClient;  // The address of the Client who accepted the Offer.
     bool isContractValid;
 
     modifier onlyClient {
@@ -82,27 +81,27 @@ contract Offer {
         address _contractor,
         address _client,
         bytes32 _hashOfTheProposalDocument,
-        uint _totalCosts,
-        uint _oneTimeCosts,
+        uint _totalCost,
+        uint _initialWithdraw,
         uint128 _minDailyWithdrawLimit
     ) {
         contractor = _contractor;
         originalClient = DAO(_client);
         client = DAO(_client);
         hashOfTheProposalDocument = _hashOfTheProposalDocument;
-        totalCosts = _totalCosts;
-        oneTimeCosts = _oneTimeCosts;
+        totalCost = _totalCost;
+        initialWithdraw = _initialWithdraw;
         minDailyWithdrawLimit = _minDailyWithdrawLimit;
         dailyWithdrawLimit = _minDailyWithdrawLimit;
     }
 
     // non-value-transfer getters
-    function getTotalCosts() noEther constant returns (uint) {
-        return totalCosts;
+    function getTotalCost() noEther constant returns (uint) {
+        return totalCost;
     }
 
-    function getOneTimeCosts() noEther constant returns (uint) {
-        return oneTimeCosts;
+    function getInitialWithdraw() noEther constant returns (uint) {
+        return initialWithdraw;
     }
 
     function getMinDailyWithdrawLimit() noEther constant returns (uint128) {
@@ -121,12 +120,12 @@ contract Offer {
         return hashOfTheProposalDocument;
     }
 
-    function getLastPayment() noEther constant returns (uint) {
-        return lastPayment;
+    function getLastWithdraw() noEther constant returns (uint) {
+        return lastWithdraw;
     }
 
-    function getDateOfSignature() noEther constant returns (uint) {
-        return dateOfSignature;
+    function getDateOfAcceptance() noEther constant returns (uint) {
+        return dateOfAcceptance;
     }
 
     function getClient() noEther constant returns (DAO) {
@@ -141,16 +140,16 @@ contract Offer {
         return isContractValid;
     }
 
-    function sign() {
+    function accept() {
         if (msg.sender != address(originalClient) // no good samaritans give us ether
-            || msg.value != totalCosts    // no under/over payment
-            || dateOfSignature != 0)      // don't sign twice
+            || msg.value != totalCost    // no under/over payment
+            || dateOfAcceptance != 0)    // don't accpet twice
             throw;
-        if (!contractor.send(oneTimeCosts))
+        if (!contractor.send(initialWithdraw))
             throw;
-        dateOfSignature = now;
+        dateOfAcceptance = now;
         isContractValid = true;
-        lastPayment = now;
+        lastWithdraw = now;
     }
 
     function setDailyWithdrawLimit(uint128 _dailyWithdrawLimit) onlyClient noEther {
@@ -158,8 +157,12 @@ contract Offer {
             dailyWithdrawLimit = _dailyWithdrawLimit;
     }
 
-    // "fire the contractor"
-    function returnRemainingEther() noEther onlyClient {
+    // Terminate the ongoing Offer.
+    //
+    // The Client can terminate the ongoing Offer using this method. Using it
+    // on an invalid (balance 0) Offer has no effect. The Contractor looses
+    // right to any ethers left in the Offer.
+    function terminate() noEther onlyClient {
         if (originalClient.DAOrewardAccount().call.value(this.balance)())
             isContractValid = false;
     }
@@ -168,19 +171,19 @@ contract Offer {
     //
     // Withdraw the amount of ether the Contractor has right to according to
     // the current withdraw limit.
-    // Executing this function before the Offer is signed off by the Client
+    // Executing this function before the Offer is accepted by the Client
     // makes no sense as this contract has no ether.
-    function getDailyPayment() noEther {
+    function withdraw() noEther {
         if (msg.sender != contractor)
             throw;
-        uint timeSinceLastPayment = now - lastPayment;
+        uint timeSincelastWithdraw = now - lastWithdraw;
         // Calculate the amount using 1 second precision.
-        uint amount = (timeSinceLastPayment * dailyWithdrawLimit) / (1 days);
+        uint amount = (timeSincelastWithdraw * dailyWithdrawLimit) / (1 days);
         if (amount > this.balance) {
             amount = this.balance;
         }
         if (contractor.send(amount))
-            lastPayment = now;
+            lastWithdraw = now;
     }
 
     // Change the client DAO by giving the new DAO's address
@@ -191,6 +194,6 @@ contract Offer {
     }
 
     function () {
-        throw; // this is a business contract, no donations
+        throw; // This is a business contract, no donations.
     }
 }
