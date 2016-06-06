@@ -38,6 +38,9 @@ contract PFOffer {
 
     // Period of time after which money can be withdrawn from this contract
     uint constant payoutFreezePeriod = 3 weeks;
+    // Time before the end of the voting period after which
+    // checkVoteStatus() can no longer be called
+    uint constant voteStatusDeadline = 48 hours;
 
     // The total cost of the Offer. Exactly this amount is transfered from the
     // Client to the Offer contract when the Offer is signed by the Client.
@@ -72,6 +75,8 @@ contract PFOffer {
     DAO client; // address of DAO
     DAO originalClient; // address of DAO who signed the contract
     bool isContractValid;
+    uint proposalID;
+    bool wasApprovedBeforeDeadline;
 
     modifier onlyClient {
         if (msg.sender != address(client))
@@ -88,7 +93,8 @@ contract PFOffer {
         bytes32 _hashOfTheProposalDocument,
         uint _totalCosts,
         uint _oneTimeCosts,
-        uint128 _minDailyWithdrawLimit
+        uint128 _minDailyWithdrawLimit,
+        uint _proposalID
     ) {
         contractor = _contractor;
         originalClient = DAO(_client);
@@ -98,6 +104,7 @@ contract PFOffer {
         oneTimeCosts = _oneTimeCosts;
         minDailyWithdrawLimit = _minDailyWithdrawLimit;
         dailyWithdrawLimit = _minDailyWithdrawLimit;
+        proposalID = _proposalID;
     }
 
     // non-value-transfer getters
@@ -149,10 +156,15 @@ contract PFOffer {
         return oneTimeCostsPaid;
     }
 
+    function getWasApprovedBeforeDeadline() noEther constant returns (bool) {
+        return wasApprovedBeforeDeadline;
+    }
+
     function sign() {
         if (msg.sender != address(originalClient) // no good samaritans give us ether
             || msg.value != totalCosts    // no under/over payment
-            || dateOfSignature != 0)      // don't sign twice
+            || dateOfSignature != 0       // don't sign twice
+            || !wasApprovedBeforeDeadline)// fail if the voteStatusCheck was not done
             throw;
 
         dateOfSignature = now;
@@ -201,6 +213,23 @@ contract PFOffer {
             throw;
 
         oneTimeCostsPaid = true;
+    }
+
+    // The proposal will not accept the results of the vote if it wasn't able
+    // to be sure that YEA was able to succeed 48 hours before the deadline
+    function checkVoteStatus() {
+        var (,,votingDeadline,,,,,,yea,nay,) = client.proposals(proposalID);
+    function checkVoteStatus() noEther {
+        var (,,,votingDeadline,,,,,,yea,nay,) = client.proposals(proposalID);
+        uint quorum = (yea + nay) * 100 / client.totalSupply();
+
+        // Only execute until 48 hours before the deadline
+        if (now > votingDeadline - voteStatusDeadline) {
+            throw;
+        }
+        // If quorum is met and majority is for it then the prevote
+        // check can be considered as succesfull
+        wasApprovedBeforeDeadline = (quorum > 20 && yea > nay);
     }
 
     // Change the client DAO by giving the new DAO's address
