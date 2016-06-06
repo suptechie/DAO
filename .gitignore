@@ -47,6 +47,7 @@ tests/sampleoffer_gettersvt.js
 tests/curator_halveminquorum_fueling.js
 tests/pfoffer.js
 tests/pfoffer_payment.js
+tests/pfoffer_checkvotestatus_fail.js
 
 # Ignore deployment related file
 deploy/code.js

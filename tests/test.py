@@ -202,6 +202,8 @@ class TestContext():
                 self.args.deploy_offer_payment_period,
                 self.args.deploy_pfoffer_payout_freeze_period,
                 self.args.deploy_pfoffer_vote_status_deadline
+                if not ctx.args.scenario == "pfoffer_checkvotestatus_fail"
+                else ctx.args.proposal_debate_seconds - 1
             )
             # compile USNRewardPayout and all contracts it depends on
             usn = os.path.join(self.contracts_dir, "USNRewardPayOutCopy.sol")

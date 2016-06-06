@@ -41,6 +41,9 @@ contract PFOffer {
     // Time before the end of the voting period after which
     // checkVoteStatus() can no longer be called
     uint constant voteStatusDeadline = 48 hours;
+    // The minQuorum for which to accept the voteStatus check and modify
+    // the wasApprovedBeforeDeadline flag
+    uint constant minQuorum = 15;
 
     // The total cost of the Offer. Exactly this amount is transfered from the
     // Client to the Offer contract when the Offer is signed by the Client.
@@ -227,7 +230,7 @@ contract PFOffer {
         }
         // If quorum is met and majority is for it then the prevote
         // check can be considered as succesfull
-        wasApprovedBeforeDeadline = (quorum > 20 && yea > nay);
+        wasApprovedBeforeDeadline = (quorum >= minQuorum && yea > nay);
     }
 
     // Change the client DAO by giving the new DAO's address
