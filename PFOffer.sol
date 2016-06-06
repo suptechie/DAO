@@ -217,8 +217,6 @@ contract PFOffer {
 
     // The proposal will not accept the results of the vote if it wasn't able
     // to be sure that YEA was able to succeed 48 hours before the deadline
-    function checkVoteStatus() {
-        var (,,votingDeadline,,,,,,yea,nay,) = client.proposals(proposalID);
     function checkVoteStatus() noEther {
         var (,,,votingDeadline,,,,,,yea,nay,) = client.proposals(proposalID);
         uint quorum = (yea + nay) * 100 / client.totalSupply();

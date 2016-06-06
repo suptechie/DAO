@@ -19,7 +19,8 @@ def run(ctx):
         "offer_amount": ctx.args.deploy_total_costs,
         "proposal_deposit": ctx.args.proposal_deposit,
         "transaction_bytecode": bytecode,
-        "debating_period": ctx.args.proposal_debate_seconds
+        "debating_period": ctx.args.proposal_debate_seconds,
+        "vote_status_deadline": ctx.args.deploy_pfoffer_vote_status_deadline
     })
     print(
         "Notice: Debate period is {} seconds so the test will wait "
@@ -27,6 +28,7 @@ def run(ctx):
     )
 
     ctx.execute(expected={
+        "approved_before_deadline": True,
         "no_money_at_sign": True,
         "contract_valid": True,
         "onetime_payment_failed": True

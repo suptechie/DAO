@@ -31,6 +31,11 @@ for (i = 0; i < eth.accounts.length; i++) {
 }
 checkWork();
 
+//perform the vote status check
+pfoffer.checkVoteStatus.sendTransaction({from: curator, gas: 400000});
+checkWork();
+addToTest('approved_before_deadline', pfoffer.getWasApprovedBeforeDeadline());
+
 
 setTimeout(function() {
     miner.stop();
