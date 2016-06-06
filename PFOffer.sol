@@ -30,6 +30,17 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
   - Client:     the DAO that gives ether to the Contractor. It signs off
                 the Offer, can adjust daily withdraw limit or even fire the
                 Contractor.
+
+  -- Important Note For Compilation --
+  This contract also reads from the DAO's proposal struct array. There used to
+  be a solidity bug (https://github.com/ethereum/solidity/issues/598#issuecomment-224015639)
+  that is now fixed which would result in wrong values when reading from the
+  proposals array.
+
+  Use a solc that includes commit:  0a0fc04641787ce057a9fcc9e366ea898b1fd8d6
+  to be sure that the contract is compiled with the fix and that the proposals
+  member attributes are read correctly. This comment will be updated as soon
+  as the fix makes it into a solc release.
 */
 
 import "./DAO.sol";
