@@ -10,7 +10,7 @@ scenario_description = (
 
 def run(ctx):
     ctx.assert_scenario_ran('fuel')
-    onetime_bytecode = calculate_bytecode('getOneTimePayment')
+    bytecode = calculate_bytecode('sign')
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,
         "dao_address": ctx.dao_address,
@@ -18,8 +18,7 @@ def run(ctx):
         "pfoffer_address": ctx.pfoffer_address,
         "offer_amount": ctx.args.deploy_total_costs,
         "proposal_deposit": ctx.args.proposal_deposit,
-        "transaction_bytecode": '0x2ca15122',
-        "onetime_bytecode": onetime_bytecode,
+        "transaction_bytecode": bytecode,
         "debating_period": ctx.args.proposal_debate_seconds
     })
     print(

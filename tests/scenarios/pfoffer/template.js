@@ -17,34 +17,11 @@ var prop_id = attempt_proposal(
     false // whether it's a split proposal or not
 );
 
-// we are cheating by preparing and voting on the getOneTimePayment proposal
-// even before the sign() of the offer happened. This is valid as long as the
-// execution is aftet the signing.
-var onetime_prop_id = attempt_proposal(
-    dao, // DAO in question
-    '$pfoffer_address', // recipient
-    proposalCreator, // proposal creator
-    0, // proposal amount in ether
-    'Attempt getOneTimePayment', // description
-    '$onetime_bytecode', //bytecode
-    $debating_period, // debating period
-    $proposal_deposit, // proposal deposit in ether
-    false // whether it's a split proposal or not
-);
-
 
 console.log("Vote on the proposals");
 for (i = 0; i < eth.accounts.length; i++) {
     dao.vote.sendTransaction(
         prop_id,
-        true,
-        {
-            from: eth.accounts[i],
-            gas: 4000000
-        }
-    );
-    dao.vote.sendTransaction(
-        onetime_prop_id,
         true,
         {
             from: eth.accounts[i],
@@ -71,18 +48,11 @@ setTimeout(function() {
     var contractor_after = eth.getBalance(contractor);
     addToTest('no_money_at_sign', contractor_after.eq(contractor_before));
     addToTest('contract_valid', pfoffer.getIsContractValid());
-
     // now attempt to execute getOneTimePayment and expect it to fail
-    attempt_execute_proposal(
-        dao, // target DAO
-        onetime_prop_id, // proposal ID
-        '$onetime_bytecode', // transaction bytecode
-        proposalCreator, // proposal creator
-        false, // should the proposal be closed after this call?
-        false // should the proposal pass?
-    );
+    pfoffer.getOneTimePayment.sendTransaction({from: contractor, gas: 300000});
+    checkWork();
     var contractor_after_onetime = eth.getBalance(contractor);
-    addToTest('onetime_payment_failed', contractor_after_onetime.eq(contractor_after));
+    addToTest('onetime_payment_failed', contractor_after_onetime.sub(contractor_after).lt(web3.toWei(1)));
 
     testResults();
 }, $debating_period * 1000);
