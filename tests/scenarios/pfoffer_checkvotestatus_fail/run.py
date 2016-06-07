@@ -1,10 +1,9 @@
 from utils import calculate_bytecode
 
 scenario_description = (
-    "Make a proposal to sign the PFOFfer and make sure that no money is "
-    "transferred during the signing of the proposal. Also assert that "
-    "calling getDailyPayment immediately after signing and within the "
-    "payoutFreezePeriod fails."
+    "Work on a PFOFfer contract with a very big vote status deadline which "
+    "will guarantee failure of the checkVoteStatus() call due to the "
+    "aforementioned deadline. Check that the failure indeed happens."
 )
 
 
@@ -22,16 +21,8 @@ def run(ctx):
         "debating_period": ctx.args.proposal_debate_seconds,
         "vote_status_deadline": ctx.args.deploy_pfoffer_vote_status_deadline
     })
-    print(
-        "Notice: Debate period is {} seconds so the test will wait "
-        "as much".format(ctx.args.proposal_debate_seconds)
-    )
 
     ctx.execute(expected={
-        "only_contractor_can_watch_proposal": True,
         "proposal_succesfully_watched": True,
-        "approved_before_deadline": True,
-        "no_money_at_sign": True,
-        "contract_valid": True,
-        "onetime_payment_failed": True
+        "approved_before_deadline": False,
     })

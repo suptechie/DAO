@@ -366,7 +366,8 @@ def edit_dao_source(
         normal_pricing,
         extra_balance_refund,
         offer_payment_period,
-        payout_freeze_period):
+        payout_freeze_period,
+        vote_status_deadline):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
 
@@ -479,6 +480,11 @@ def edit_dao_source(
         contents,
         "payoutFreezePeriod",
         str(payout_freeze_period)
+    )
+    contents = re_replace_or_die(
+        contents,
+        "voteStatusDeadline",
+        str(vote_status_deadline)
     )
     with open(os.path.join(contracts_dir, 'PFOfferCopy.sol'), "w") as f:
         f.write(contents)
