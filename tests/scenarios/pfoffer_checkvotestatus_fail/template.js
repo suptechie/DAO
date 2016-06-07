@@ -17,6 +17,11 @@ var prop_id = attempt_proposal(
     false // whether it's a split proposal or not
 );
 
+// the contractor should now make the offer contract watch the proposal votes
+pfoffer.watchProposal.sendTransaction(prop_id, {from:contractor, gas: 400000});
+checkWork();
+addToTest('proposal_succesfully_watched', pfoffer.getProposalID().eq(prop_id));
+
 
 console.log("Vote on the proposals");
 for (i = 0; i < eth.accounts.length; i++) {

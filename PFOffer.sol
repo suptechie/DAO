@@ -97,6 +97,11 @@ contract PFOffer {
             throw;
         _
     }
+    modifier onlyContractor {
+        if (msg.sender != address(contractor))
+            throw;
+        _
+    }
 
     // Prevents methods from perfoming any value transfer
     modifier noEther() {if (msg.value > 0) throw; _}
@@ -107,8 +112,7 @@ contract PFOffer {
         bytes32 _hashOfTheProposalDocument,
         uint _totalCosts,
         uint _oneTimeCosts,
-        uint128 _minDailyWithdrawLimit,
-        uint _proposalID
+        uint128 _minDailyWithdrawLimit
     ) {
         contractor = _contractor;
         originalClient = DAO(_client);
@@ -118,7 +122,6 @@ contract PFOffer {
         oneTimeCosts = _oneTimeCosts;
         minDailyWithdrawLimit = _minDailyWithdrawLimit;
         dailyWithdrawLimit = _minDailyWithdrawLimit;
-        proposalID = _proposalID;
     }
 
     // non-value-transfer getters
@@ -174,6 +177,10 @@ contract PFOffer {
         return wasApprovedBeforeDeadline;
     }
 
+    function getProposalID() noEther constant returns (uint) {
+        return proposalID;
+    }
+
     function sign() {
         if (msg.sender != address(originalClient) // no good samaritans give us ether
             || msg.value != totalCosts    // no under/over payment
@@ -227,6 +234,19 @@ contract PFOffer {
             throw;
 
         oneTimeCostsPaid = true;
+    }
+
+    // Once a proposal is submitted, the Contractor should call this
+    // function to register its proposal ID with the offer contract
+    // so that the vote can be watched and checked with `checkVoteStatus()`
+    function watchProposal(uint _proposalID) noEther onlyContractor {
+        var (recipient,,,votingDeadline,open,) = client.proposals(_proposalID);
+        if (recipient == address(this)
+            && votingDeadline > now
+            && open
+            && proposalID == 0) {
+           proposalID =  _proposalID;
+        }
     }
 
     // The proposal will not accept the results of the vote if it wasn't able

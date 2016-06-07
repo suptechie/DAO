@@ -6,9 +6,7 @@ var _offerContract = offerContract.new(
     '0x0',  // This is a hash of the paper contract. Does not matter for testing
     web3.toWei($offer_total, "ether"), //total costs
     web3.toWei($offer_onetime, "ether"), //one time costs
-    web3.toWei(1, "ether"), //min daily costs,
-    1,// the proposal ID of PFOffer. We know that in our tests that test PFOffer it's
-      // going to be the first proposal.
+    web3.toWei(1, "ether"), //min daily costs
     {
 	    from: contractor,
 	    data: '$pfoffer_bin',

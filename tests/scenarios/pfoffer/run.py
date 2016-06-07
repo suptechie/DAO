@@ -28,6 +28,8 @@ def run(ctx):
     )
 
     ctx.execute(expected={
+        "only_contractor_can_watch_proposal": True,
+        "proposal_succesfully_watched": True,
         "approved_before_deadline": True,
         "no_money_at_sign": True,
         "contract_valid": True,

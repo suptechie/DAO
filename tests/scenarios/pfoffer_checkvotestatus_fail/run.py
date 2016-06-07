@@ -23,5 +23,6 @@ def run(ctx):
     })
 
     ctx.execute(expected={
+        "proposal_succesfully_watched": True,
         "approved_before_deadline": False,
     })
