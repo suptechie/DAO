@@ -109,6 +109,11 @@ def test_args():
         help='If given, then in the proposal scenario the voting will fail'
     )
     p.add_argument(
+        '--compile-test',
+        action='store_true',
+        help='If given, then tests will only try to compile the contracts'
+    )
+    p.add_argument(
         '--users-num',
         type=int,
         help='The number of user accounts to create for the scenarios.'
@@ -159,5 +164,10 @@ def test_args():
         bytecode = calculate_bytecode(arglist[0], *function_args)
         print("Requested bytecode is:\n{}\n.Exiting ...".format(bytecode))
         sys.exit(0)
+
+    if args.compile_test:
+        # if we are asking for compile_test then it should always be against
+        # the latest version of the contracts
+        args.dao_version = "master"
 
     return args
