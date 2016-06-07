@@ -42,18 +42,23 @@ class TestContext():
         self.templates_dir = os.path.join(self.tests_dir, 'templates')
         self.contracts_dir = os.path.dirname(self.tests_dir)
         self.solc = determine_binary(args.solc, 'solc', args.scenario != 'none')
-        self.geth = determine_binary(args.geth, 'geth', args.scenario != 'none')
+        self.geth = determine_binary(
+            args.geth,
+            'geth',
+            args.scenario != 'none' or not args.compile_test
+        )
 
         if args.describe_scenarios:
             self.describe_scenarios()
             sys.exit(0)
 
-        # keep this at end since any data loaded should override constructor
-        if not os.path.isdir(datadir) or args.clean_chain:
-            self.clean_blockchain()
-            self.init_data(args.users_num)
-        else:
-            self.attemptLoad()
+        if not self.args.compile_test:
+            # keep this at end since data loaded should override constructor
+            if not os.path.isdir(datadir) or args.clean_chain:
+                self.clean_blockchain()
+                self.init_data(args.users_num)
+            else:
+                self.attemptLoad()
 
     def init_data(self, accounts_num):
         print("Creating accounts and genesis block ...")
@@ -216,17 +221,35 @@ class TestContext():
             self.usn_abi = res["contracts"]["USNRewardPayOut"]["abi"]
             self.usn_bin = res["contracts"]["USNRewardPayOut"]["bin"]
 
+            # If a compilation test was requested we can stop here.
+            # Until solc gets a version that can compile PFOFfer we don't
+            # add it to the test so that Travis can compile succesfully
+            if self.args.compile_test:
+                print("DAO Contracts compiled successfully!")
+                sys.exit(220)
+
             # compile PFOffer
             pfoffer = os.path.join(self.contracts_dir, "PFOfferCopy.sol")
             res = self.compile_contract(pfoffer)
             self.pfoffer_abi = res["contracts"]["PFOffer"]["abi"]
             self.pfoffer_bin = res["contracts"]["PFOffer"]["bin"]
+        except SystemExit as e:
+            if e.code != 220:
+                # 220 is sys.exit(succesful_compilation) in the case of the
+                # simple compilation test. If not then compilation must have
+                # failed.
+                compile_success = False
+                raise
         except:
             compile_success = False
-        self.compile_cleanup()
+        finally:
+            self.compile_cleanup()
+
         if not compile_success:
             print("ERROR at contract compiling")
             sys.exit(1)
+        elif self.args.compile_test:
+            sys.exit(0)
 
     def create_js_file(
             self,
@@ -320,11 +343,11 @@ class TestContext():
         self.ran_scenarios.append(name)
 
     def run_test(self, args):
+        # All scenarios would need to have the contracts compiled
+        self.compile_contracts(args.keep_limits)
         if not self.geth:
             print("Error: No valid geth binary provided/found")
             sys.exit(1)
-        # All scenarios would need to have the contracts compiled
-        self.compile_contracts(args.keep_limits)
         self.run_scenario(self.args.scenario)
 
 if __name__ == "__main__":
