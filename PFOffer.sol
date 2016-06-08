@@ -255,7 +255,7 @@ contract PFOffer {
     // to be sure that YEA was able to succeed 48 hours before the deadline
     function checkVoteStatus() noEther {
         var (,,,votingDeadline,,,,,,yea,nay,) = client.proposals(proposalID);
-        uint quorum = (yea + nay) * 100 / client.totalSupply();
+        uint quorum = yea * 100 / client.totalSupply();
 
         // Only execute until 48 hours before the deadline
         if (now > votingDeadline - voteStatusDeadline) {
