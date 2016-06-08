@@ -52,9 +52,6 @@ contract PFOffer {
     // Time before the end of the voting period after which
     // checkVoteStatus() can no longer be called
     uint constant voteStatusDeadline = 48 hours;
-    // The minQuorum for which to accept the voteStatus check and modify
-    // the wasApprovedBeforeDeadline flag
-    uint constant minQuorum = 15;
 
     // The total cost of the Offer. Exactly this amount is transfered from the
     // Client to the Offer contract when the Offer is signed by the Client.
@@ -182,10 +179,12 @@ contract PFOffer {
     }
 
     function sign() {
+        var (_,,,votingDeadline,,) = client.proposals(proposalID);
         if (msg.sender != address(originalClient) // no good samaritans give us ether
             || msg.value != totalCosts    // no under/over payment
             || dateOfSignature != 0       // don't sign twice
-            || !wasApprovedBeforeDeadline)// fail if the voteStatusCheck was not done
+            || !wasApprovedBeforeDeadline // fail if the voteStatusCheck was not done
+            || now < votingDeadline + 3 days)
             throw;
 
         dateOfSignature = now;
@@ -253,7 +252,7 @@ contract PFOffer {
     // to be sure that YEA was able to succeed 48 hours before the deadline
     function checkVoteStatus() noEther {
         var (,,,votingDeadline,,,,,,yea,nay,) = client.proposals(proposalID);
-        uint quorum = (yea + nay) * 100 / client.totalSupply();
+        uint quorum = yea * 100 / client.totalSupply();
 
         // Only execute until 48 hours before the deadline
         if (now > votingDeadline - voteStatusDeadline) {
@@ -261,7 +260,7 @@ contract PFOffer {
         }
         // If quorum is met and majority is for it then the prevote
         // check can be considered as succesfull
-        wasApprovedBeforeDeadline = (quorum >= minQuorum && yea > nay);
+        wasApprovedBeforeDeadline = (quorum >= 100 / client.minQuorumDivisor() && yea > nay);
     }
 
     // Change the client DAO by giving the new DAO's address
