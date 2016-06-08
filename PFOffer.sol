@@ -182,12 +182,12 @@ contract PFOffer {
     }
 
     function sign() {
-        var (recipient,,,votingDeadline,,) = client.proposals(proposalID);
+        var (_,,,votingDeadline,,) = client.proposals(proposalID);
         if (msg.sender != address(originalClient) // no good samaritans give us ether
             || msg.value != totalCosts    // no under/over payment
             || dateOfSignature != 0       // don't sign twice
             || !wasApprovedBeforeDeadline // fail if the voteStatusCheck was not done
-			|| now < votingDeadline + 3 days)
+            || now < votingDeadline + 3 days)
             throw;
 
         dateOfSignature = now;
