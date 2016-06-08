@@ -1,5 +1,7 @@
 # DTHPool contract
 
+![DTHPool](http://i.imgur.com/2vUP8tE.png)
+
 The DTHPool contract allows a DTH to lend their DAO Tokens to a delegate in order to vote in his name without losing the control of his DAO tokens.
 
 ## Normal procedures
@@ -73,7 +75,7 @@ There you can get testDAOs, testEther, support and love ;)
 
 Q: What happens if somebody sends the DAO tokens directly to the contract?
 
-A: If the delegate is a nice guy, he can return them back to the clumsy DTH. The delegate may call fixTokens() to return those tokens back to the sender. 
+A: If the delegate is a nice guy, he can return them back to the clumsy DTH. The delegate may call fixTokens() to return those tokens back to the sender.
 
 ---
 Q: I want to be a delegate. How can I deploy my own contract?
