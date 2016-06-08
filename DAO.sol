@@ -227,11 +227,7 @@ contract DAOInterface {
     /// @notice Vote on proposal `_proposalID` with `_supportsProposal`
     /// @param _proposalID The proposal ID
     /// @param _supportsProposal Yes/No - support of the proposal
-    /// @return The vote ID.
-    function vote(
-        uint _proposalID,
-        bool _supportsProposal
-    ) onlyTokenholders returns (uint _voteID);
+    function vote(uint _proposalID, bool _supportsProposal);
 
     /// @notice Checks whether proposal `_proposalID` with transaction data
     /// `_transactionData` has been voted for or rejected, and executes the
@@ -489,10 +485,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     }
 
 
-    function vote(
-        uint _proposalID,
-        bool _supportsProposal
-    ) onlyTokenholders noEther returns (uint _voteID) {
+    function vote(uint _proposalID, bool _supportsProposal) onlyTokenholders noEther {
 
         Proposal p = proposals[_proposalID];
         if (p.votedYes[msg.sender]
