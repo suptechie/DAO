@@ -218,8 +218,10 @@ contract PFOffer {
         if (amount > this.balance) {
             amount = this.balance;
         }
-        if (contractor.send(amount))
-            lastPayment = now;
+        var lastPaymentReset = lastPayment;
+        lastPayment = now;
+        if (!contractor.send(amount))
+            lastPayment = lastPaymentReset;
     }
 
     function getOneTimePayment() noEther {
@@ -229,10 +231,9 @@ contract PFOffer {
             throw;
         }
 
+        oneTimeCostsPaid = true;
         if (!contractor.send(oneTimeCosts))
             throw;
-
-        oneTimeCostsPaid = true;
     }
 
     // Once a proposal is submitted, the Contractor should call this
