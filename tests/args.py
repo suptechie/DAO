@@ -1,11 +1,79 @@
 #!/usr/bin/python2
 import argparse
 import sys
+import os
+import json
+from utils import available_scenarios, calculate_bytecode
+from itertools import izip
+
+
+def pairwise(iterable):
+    "s -> (s0, s1), (s2, s3), (s4, s5), ..."
+    a = iter(iterable)
+    return izip(a, a)
+
+
+def make_bool(val):
+    if isinstance(val, basestring):
+        if val.lower() in ["false", "0", "no"]:
+            return False
+        elif val.lower() in ["true", "1", "yes"]:
+            return True
+        else:
+            print(
+                "ERROR: Given string '{}' can not be converted to bool".format(
+                    val
+                ))
+            sys.exit(1)
+    else:
+        return bool(val)
+
+
+def read_scenario_options(args):
+    """ Iterate scenarios and load all argument options """
+    dir = "scenarios"
+    for name in os.listdir(dir):
+        argfile = os.path.join(dir, name, "arguments.json")
+        if os.path.isfile(argfile):
+            with open(argfile, 'r') as f:
+                data = json.loads(f.read())
+
+            for arg in data:
+                arg_type = None  # interpret as simple string
+                if 'type' in arg:
+                    if arg['type'] == "int":
+                        arg_type = int
+                    elif arg['type'] == "float":
+                        arg_type = float
+                    elif arg['type'] == "bool":
+                        arg_type = make_bool
+                    else:
+                        print(
+                            "ERROR: Unrecognized type '{}' given for argument"
+                            "'{}'".format(arg['type'], arg['name'])
+                        )
+                        sys.exit(1)
+
+                if 'type' in arg:
+                    args.add_argument(
+                        "--{}-{}".format(name, arg['name']).replace("_", "-"),
+                        help=arg['description'],
+                        default=arg['default'],
+                        type=arg_type
+                    )
+                else:
+                    args.add_argument(
+                        "--{}-{}".format(name, arg['name']).replace("_", "-"),
+                        help=arg['description'],
+                        default=arg['default']
+                    )
 
 
 def test_args():
     """ Parse the test arguments and create and return the arguments object"""
     p = argparse.ArgumentParser(description='DAO contracts test framework')
+    read_scenario_options(p)
+
     p.add_argument(
         '--solc',
         help='Full path to the solc binary to use'
@@ -36,39 +104,14 @@ def test_args():
         help='If given then all test checks are printed in the console'
     )
     p.add_argument(
-        '--closing-time',
-        type=int,
-        help='Number of seconds from now when the newly created DAO sale ends',
-        default=35
-    )
-    p.add_argument(
-        '--min-value',
-        type=int,
-        help='Minimum value in Ether to consider the DAO crowdfunded',
-        default=20
-    )
-    p.add_argument(
         '--proposal-fail',
         action='store_true',
         help='If given, then in the proposal scenario the voting will fail'
     )
     p.add_argument(
-        '--proposal-deposit',
-        type=int,
-        help='The proposal deposit. Has to be more than 20 ether',
-        default=22
-    )
-    p.add_argument(
-        '--offer-onetime-costs',
-        type=int,
-        help='The one time costs (in ether) in the offer to the DAO',
-        default=5
-    )
-    p.add_argument(
-        '--offer-total-costs',
-        type=int,
-        help='The total costs (in ether) in the offer to the DAO',
-        default=10
+        '--compile-test',
+        action='store_true',
+        help='If given, then tests will only try to compile the contracts'
     )
     p.add_argument(
         '--users-num',
@@ -78,25 +121,32 @@ def test_args():
         default=5
     )
     p.add_argument(
-        '--total-rewards',
-        type=int,
-        help='Amount of ether a kind soul will donate to the DAO'
-        ' for the rewards scenario.',
-        default=78
+        '--scenario',
+        choices=['none'] + available_scenarios(),
+        default='none',
+        help='Available test scenario to play out'
     )
     p.add_argument(
-        '--scenario',
-        choices=[
-            'none',
-            'deploy',
-            'fund',
-            'proposal',
-            'rewards',
-            'split',
-            'split-insufficient-gas'
-        ],
-        default='none',
-        help='Test scenario to play out'
+        '--describe-scenarios',
+        action='store_true',
+        help='Print the description of all scenarios and then quit'
+    )
+    p.add_argument(
+        '--abi',
+        type=str,
+        default="",
+        help=(
+            "If given then don't run any tests but print the abi of the given "
+            "function with the arguments provided. Example call:"
+            "test.py --abi \"transfer address foo uint256 5\""
+        )
+    )
+    p.add_argument(
+        '--dao-version',
+        type=str,
+        default="v1.0",
+        choices=["v1.0", "master"],
+        help="The version of the DAO code to run the tests against."
     )
     args = p.parse_args()
 
@@ -104,5 +154,20 @@ def test_args():
     if args.users_num < 3:
         print("ERROR: Tests need 3 or more users")
         sys.exit(1)
+
+    # if it's an abi test call then just show bytecode and exit
+    if args.abi != "":
+        arglist = args.abi.split(" ")
+        function_args = []
+        for type_name, value in pairwise(arglist[1:]):
+            function_args.append((type_name, value))
+        bytecode = calculate_bytecode(arglist[0], *function_args)
+        print("Requested bytecode is:\n{}\n.Exiting ...".format(bytecode))
+        sys.exit(0)
+
+    if args.compile_test:
+        # if we are asking for compile_test then it should always be against
+        # the latest version of the contracts
+        args.dao_version = "master"
 
     return args

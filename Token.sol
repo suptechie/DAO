@@ -15,11 +15,12 @@ You should have received a copy of the GNU lesser General Public License
 along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 /*
-Basic, standardized Token contract with no "premine."  Defines the functions to
+Basic, standardized Token contract with no "premine". Defines the functions to
 check token balances, send tokens, send tokens on behalf of a 3rd party and the
 corresponding approval process. Tokens need to be created by a derived
-contract (e.g. TokenSale.sol).
+contract (e.g. TokenCreation.sol).
 
 Thank you ConsenSys, this contract originated from:
 https://github.com/ConsenSys/Tokens/blob/master/Token_Contracts/contracts/Standard_Token.sol
@@ -33,7 +34,13 @@ contract TokenInterface {
     mapping (address => uint256) balances;
     mapping (address => mapping (address => uint256)) allowed;
 
-    /// @return Total amount of tokens
+    /// Public variables of the token, all used for display 
+    string public name;
+    string public symbol;
+    uint8 public decimals;
+    string public standard = 'Token 0.1';
+
+    /// Total amount of tokens
     uint256 public totalSupply;
 
     /// @param _owner The address from which the balance will be retrieved
@@ -48,7 +55,7 @@ contract TokenInterface {
 
     /// @notice Send `_amount` tokens to `_to` from `_from` on the condition it
     /// is approved by `_from`
-    /// @param _from The address of the sender
+    /// @param _from The address of the origin of the transfer
     /// @param _to The address of the recipient
     /// @param _amount The amount of tokens to be transferred
     /// @return Whether the transfer was successful or not
@@ -78,6 +85,9 @@ contract TokenInterface {
     );
 }
 
+contract tokenRecipient { 
+    function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData); 
+}
 
 contract Token is TokenInterface {
     // Protects users by preventing the execution of method calls that
@@ -122,6 +132,15 @@ contract Token is TokenInterface {
     function approve(address _spender, uint256 _amount) returns (bool success) {
         allowed[msg.sender][_spender] = _amount;
         Approval(msg.sender, _spender, _amount);
+        return true;
+    }
+    
+    /// Allow another contract to spend some tokens in your behalf 
+    function approveAndCall(address _spender, uint256 _value, bytes _extraData)
+        returns (bool success) {
+        allowed[msg.sender][_spender] = _value;
+        tokenRecipient spender = tokenRecipient(_spender);
+        spender.receiveApproval(msg.sender, _value, this, _extraData);
         return true;
     }
 
