@@ -21,7 +21,7 @@ def run(ctx):
         "offer_amount": amount,
         "offer_desc": 'Test Proposal',
         "dthpool_abi": ctx.dthpool_abi,
-        "dthpool_address": ctx.dthpool_addr,
+        "dthpool_address": ctx.dthpool_address,
         "proposal_deposit": ctx.args.proposal_deposit,
         "transaction_bytecode": '0x2ca15122'  # solc --hashes SampleOffer.sol
     })

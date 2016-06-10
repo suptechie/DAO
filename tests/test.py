@@ -224,6 +224,12 @@ class TestContext():
             self.usn_abi = res["contracts"]["USNRewardPayOut"]["abi"]
             self.usn_bin = res["contracts"]["USNRewardPayOut"]["bin"]
 
+            # compile DTHPool
+            dthpool = os.path.join(self.contracts_dir, "DTHPool.sol")
+            res = self.compile_contract(dthpool)
+            self.dthpool_abi = res["contracts"]["DTHPool"]["abi"]
+            self.dthpool_bin = res["contracts"]["DTHPool"]["bin"]
+
             # If a compilation test was requested we can stop here.
             # Until solc gets a version that can compile PFOFfer we don't
             # add it to the test so that Travis can compile succesfully
