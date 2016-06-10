@@ -14,7 +14,7 @@ def run(ctx):
     ctx.token_amounts = [10 , 20 , 30, 40, 50]
     ctx.create_js_file(substitutions={
             "dao_abi": ctx.dao_abi,
-            "dao_address": ctx.dao_addr,
+            "dao_address": ctx.dao_address,
             "wait_ms": (creation_secs-3)*1000,
             "amounts": arr_str(ctx.token_amounts)
         }

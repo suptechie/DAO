@@ -15,13 +15,13 @@ def run(ctx):
     amount = random.randint(minamount, sum(ctx.token_amounts))
     ctx.create_js_file(substitutions={
         "dao_abi": ctx.dao_abi,
-        "dao_address": ctx.dao_addr,
+        "dao_address": ctx.dao_address,
         "offer_abi": ctx.offer_abi,
-        "offer_address": ctx.offer_addr,
+        "offer_address": ctx.offer_address,
         "offer_amount": amount,
         "offer_desc": 'Test Proposal',
         "dthpool_abi": ctx.dthpool_abi,
-        "dthpool_address": ctx.dthpool_addr,
+        "dthpool_address": ctx.dthpool_address,
         "proposal_deposit": ctx.args.proposal_deposit,
         "transaction_bytecode": '0x2ca15122'  # solc --hashes SampleOffer.sol
     })
