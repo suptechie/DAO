@@ -54,7 +54,7 @@ contract PFOffer {
     uint constant voteStatusDeadline = 48 hours;
     // Time before the proposal can get executed. This allows token holders
     // to split after they have voted.
-	uint constant splitGracePeriod = 8 days;
+    uint constant splitGracePeriod = 8 days;
 
     // The total cost of the Offer. Exactly this amount is transfered from the
     // Client to the Offer contract when the Offer is signed by the Client.
@@ -187,7 +187,7 @@ contract PFOffer {
             || msg.value != totalCosts    // no under/over payment
             || dateOfSignature != 0       // don't sign twice
             || !wasApprovedBeforeDeadline // fail if the voteStatusCheck was not done
-            || now < votingDeadline + splitGracePeriod)
+            || now < votingDeadline + splitGracePeriod) // allow splitting within the split grace period
             throw;
 
         dateOfSignature = now;
