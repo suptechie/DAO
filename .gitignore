@@ -17,6 +17,7 @@ tests/deploy_dao.js
 tests/deploy_offer.js
 tests/deploy_pfoffer.js
 tests/deploy_usn.js
+tests/deploy_dthpool.js
 tests/deposit.js
 tests/depositnofunds.js
 tests/fund.js
@@ -39,6 +40,8 @@ tests/spendall.js
 tests/extrabalance.js
 tests/stealextrabalance.js
 tests/firecontractor.js
+tests/dthpool.js
+tests/fuel_predictive.js
 tests/sampleoffer_dailypayment.js
 tests/sampleoffer_daopayownrewards.js
 tests/sampleoffer_setrewardvars.js

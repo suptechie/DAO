@@ -1,6 +1,6 @@
 console.log("Creating DTHPool Contract");
 var dthContract = web3.eth.contract($dthpool_abi);
-var _dthContract = offerContract.new(
+var _dthContract = dthContract.new(
     "$dao_address", // client DAO address
     eth.accounts[0], // delegate
     30, // maxTimeBlocked
