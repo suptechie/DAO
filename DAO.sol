@@ -755,6 +755,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         if (isFueled
             && now > closingTime
             && !isBlocked(msg.sender)
+            && !isBlocked(_to)
             && _to != address(this)
             && transferPaidOut(msg.sender, _to, _value)
             && super.transfer(_to, _value)) {
@@ -777,6 +778,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         if (isFueled
             && now > closingTime
             && !isBlocked(_from)
+            && !isBlocked(_to)
             && _to != address(this)
             && transferPaidOut(_from, _to, _value)
             && super.transferFrom(_from, _to, _value)) {
