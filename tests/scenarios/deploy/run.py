@@ -92,12 +92,23 @@ def run(ctx):
         name='deploy_usn',
         result='usn_address'
     )
+    deploy_contract(
+        ctx,
+        substitutions={
+            "dao_address": ctx.dao_address,
+            "dthpool_abi": ctx.dthpool_abi,
+            "dthpool_bin": ctx.dthpool_bin
+        },
+        name='deploy_dthpool',
+        result='dthpool_address'
+    )
 
     print("DAO Creator address is: {}".format(ctx.dao_creator_address))
     print("DAO address is: {}".format(ctx.dao_address))
     print("SampleOffer address is: {}".format(ctx.offer_address))
     print("PFOffer address is: {}".format(ctx.pfoffer_address))
     print("USNRewardPayOut address is: {}".format(ctx.usn_address))
+    print("DTHPool address is: {}".format(ctx.dthpool_address))
     with open(ctx.save_file, "w") as f:
         f.write(json.dumps({
             "dao_creator_address": ctx.dao_creator_address,
@@ -105,6 +116,7 @@ def run(ctx):
             "offer_address": ctx.offer_address,
             "pfoffer_address": ctx.pfoffer_address,
             "usn_address": ctx.usn_address,
+            "dthpool_address": ctx.dthpool_address,
             "closing_time": ctx.closing_time
         }))
 
