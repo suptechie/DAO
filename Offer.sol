@@ -111,7 +111,7 @@ contract Offer {
         return minDailyWithdrawalLimit;
     }
 
-    function getDailyWithdrawLimit() noEther constant returns (uint128) {
+    function getDailyWithdrawalLimit() noEther constant returns (uint128) {
         return dailyWithdrawalLimit;
     }
 
@@ -164,7 +164,7 @@ contract Offer {
     //
     // The Client can terminate the ongoing Offer using this method. Using it
     // on an invalid (balance 0) Offer has no effect. The Contractor loses
-    // right to any ethers left in the Offer.
+    // right to any ether left in the Offer.
     function terminate() noEther onlyClient {
         if (originalClient.DAOrewardAccount().call.value(this.balance)())
             isContractValid = false;

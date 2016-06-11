@@ -203,8 +203,12 @@ contract PFOffer {
             dailyWithdrawalLimit = _dailyWithdrawalLimit;
     }
 
-    // "fire the contractor"
-    function returnRemainingEther() noEther onlyClient {
+    // Terminate the ongoing Offer.
+    //
+    // The Client can terminate the ongoing Offer using this method. Using it
+    // on an invalid (balance 0) Offer has no effect. The Contractor loses
+    // right to any ether left in the Offer.
+    function terminate() noEther onlyClient {
         if (originalClient.DAOrewardAccount().call.value(this.balance)())
             isContractValid = false;
     }
@@ -215,7 +219,7 @@ contract PFOffer {
     // the current withdraw limit.
     // Executing this function before the Offer is signed off by the Client
     // makes no sense as this contract has no ether.
-    function getDailyPayment() noEther {
+    function withdraw() noEther {
         if (msg.sender != contractor || now < dateOfSignature + payoutFreezePeriod)
             throw;
         uint timeSinceLastPayment = now - lastWithdrawal;
@@ -230,7 +234,8 @@ contract PFOffer {
             lastWithdrawal = lastWithdrawalReset;
     }
 
-    function getOneTimePayment() noEther {
+    // Perform the withdrawal of the initial sum of money to the contractor
+    function performInitialWithdrawal() noEther {
         if (msg.sender != contractor
             || now < dateOfSignature + payoutFreezePeriod
             || initialWithdrawalDone ) {

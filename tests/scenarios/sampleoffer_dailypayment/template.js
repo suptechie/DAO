@@ -59,16 +59,16 @@ setTimeout(function() {
         true // should the proposal pass?
     );
 
-    addToTest('offer_daily_withdraw_limit', web3.fromWei(offer.getDailyWithdrawLimit()));
+    addToTest('offer_daily_withdraw_limit', web3.fromWei(offer.getDailyWithdrawalLimit()));
 
     addToTest('contractor_before', eth.getBalance(contractor));
     // now the contractor can attempt to withdraw some money and we should check that this
     // occurs and is equal to the daily limit
     console.log("-->OfferBalance: " + web3.fromWei(eth.getBalance(offer.address)));
-    offer.getDailyPayment.sendTransaction({from: contractor, gas: 100000});
+    offer.withdraw.sendTransaction({from: contractor, gas: 100000});
     var withdrawTime = new BigNumber(Math.floor(Date.now() / 1000));
     checkWork();
-    var expectedWei = ((withdrawTime.sub(offer.getDateOfSignature())).mul(offer.getDailyWithdrawLimit()))
+    var expectedWei = ((withdrawTime.sub(offer.getDateOfSignature())).mul(offer.getDailyWithdrawalLimit()))
         .div(new BigNumber($offer_payment_period));
     console.log("-->ExpectedWei: " + expectedWei);
     console.log("-->OfferBalanceAfter: " + web3.fromWei(eth.getBalance(offer.address)));
