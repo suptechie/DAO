@@ -168,7 +168,7 @@ contract Offer {
             || now < votingDeadline + 8 days)
             throw;
 
-        lastWithdrawal = now + payoutFreezePeriod;
+        lastWithdrawal = votingDeadline + payoutFreezePeriod;
         if (payoutFreezePeriod == 0) {
             if (!contractor.send(initialWithdrawal))
                 throw;
