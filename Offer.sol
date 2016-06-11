@@ -179,7 +179,7 @@ contract Offer {
     }
 
     // Once a proposal is submitted, the Contractor should call this
-    // function to get the voting deadline of the proposal
+    // function to set the voting deadline of the proposal
     function setVotingDeadline(uint _votingDeadline) noEther {
         if (msg.sender != contractor || votingDeadline != 0)
             throw;
