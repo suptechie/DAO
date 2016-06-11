@@ -31,6 +31,8 @@ offer.getDeploymentReward.sendTransaction({from:eth.accounts[0], value: web3.toW
 checkWork();
 offer.getInitialWithdrawalDone.sendTransaction({from:eth.accounts[0], value: web3.toWei(10), gas: 200000});
 checkWork();
+offer.getVotingDeadline.sendTransaction({from:eth.accounts[0], value: web3.toWei(10), gas: 200000});
+checkWork();
 
 var offer_balance_after = eth.getBalance(offer.address);
 addToTest('sample_offer_no_donations', offer_balance_after.eq(offer_balance_before));
