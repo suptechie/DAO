@@ -62,7 +62,7 @@ setTimeout(function() {
     addToTest('no_money_at_sign', contractor_after.eq(contractor_before));
     addToTest('contract_valid', pfoffer.getIsContractValid());
     // now attempt to execute getOneTimePayment and expect it to fail
-    pfoffer.getOneTimePayment.sendTransaction({from: contractor, gas: 300000});
+    pfoffer.performInitialWithdrawal.sendTransaction({from: contractor, gas: 300000});
     checkWork();
     var contractor_after_onetime = eth.getBalance(contractor);
     addToTest('onetime_payment_failed', contractor_after_onetime.sub(contractor_after).lt(web3.toWei(1)));

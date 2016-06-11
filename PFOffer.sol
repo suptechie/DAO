@@ -56,25 +56,24 @@ contract PFOffer {
     // to split after they have voted.
     uint constant splitGracePeriod = 8 days;
 
-    // The total cost of the Offer. Exactly this amount is transfered from the
-    // Client to the Offer contract when the Offer is signed by the Client.
-    // Set once by the Offerer.
-    uint totalCosts;
+    // The total cost of the Offer for the Client. Exactly this amount is
+    // transfered from the Client to the Offer contract when the Offer is
+    // accepted by the Client. Set once by the Offerer.
+    uint totalCost;
 
-    // Initial withdraw to the Contractor. It is done the moment the Offer is
-    // signed.
-    // Set once by the Offerer.
-    uint oneTimeCosts;
-    bool oneTimeCostsPaid;
+    // Initial withdrawal to the Contractor. It is done the moment the
+    // Offer is accepted. Set once by the Offerer.
+    uint initialWithdrawal;
+    bool initialWithdrawalDone;
 
-    // The minimal daily withdraw limit that the Contractor accepts.
+    // The minimum daily withdrawal limit that the Contractor accepts.
     // Set once by the Offerer.
-    uint128 minDailyWithdrawLimit;
+    uint128 minDailyWithdrawalLimit;
 
     // The amount of wei the Contractor has right to withdraw daily above the
-    // initial withdraw. The Contractor does not have to do the withdraws every
-    // day as this amount accumulates.
-    uint128 dailyWithdrawLimit;
+    // initial withdrawal. The Contractor does not have to perform the
+    // withdrawals every day as this amount accumulates.
+    uint128 dailyWithdrawalLimit;
 
     // The address of the Contractor.
     address contractor;
@@ -82,13 +81,17 @@ contract PFOffer {
     // The hash of the Proposal/Offer document.
     bytes32 hashOfTheProposalDocument;
 
-    // The time of the last withdraw to the Contractor.
-    uint lastPayment;
+    // The time of the last withdrawal to the Contractor.
+    uint lastWithdrawal;
 
+    // The timestamp when the offer contract was accepted.
     uint dateOfSignature;
-    DAO client; // address of DAO
-    DAO originalClient; // address of DAO who signed the contract
+    // The address of the current Client.
+    DAO client;
+    // The address of the Client who accepted the Offer.
+    DAO originalClient;
     bool isContractValid;
+    // The ID of the proposal that represents this contract in the DAO
     uint proposalID;
     bool wasApprovedBeforeDeadline;
 
@@ -110,35 +113,35 @@ contract PFOffer {
         address _contractor,
         address _client,
         bytes32 _hashOfTheProposalDocument,
-        uint _totalCosts,
-        uint _oneTimeCosts,
-        uint128 _minDailyWithdrawLimit
+        uint _totalCost,
+        uint _initialWithdrawal,
+        uint128 _minDailyWithdrawalLimit
     ) {
         contractor = _contractor;
         originalClient = DAO(_client);
         client = DAO(_client);
         hashOfTheProposalDocument = _hashOfTheProposalDocument;
-        totalCosts = _totalCosts;
-        oneTimeCosts = _oneTimeCosts;
-        minDailyWithdrawLimit = _minDailyWithdrawLimit;
-        dailyWithdrawLimit = _minDailyWithdrawLimit;
+        totalCost = _totalCost;
+        initialWithdrawal = _initialWithdrawal;
+        minDailyWithdrawalLimit = _minDailyWithdrawalLimit;
+        dailyWithdrawalLimit = _minDailyWithdrawalLimit;
     }
 
     // non-value-transfer getters
-    function getTotalCosts() noEther constant returns (uint) {
-        return totalCosts;
+    function getTotalCost() noEther constant returns (uint) {
+        return totalCost;
     }
 
-    function getOneTimeCosts() noEther constant returns (uint) {
-        return oneTimeCosts;
+    function getInitialWithdrawal() noEther constant returns (uint) {
+        return initialWithdrawal;
     }
 
-    function getMinDailyWithdrawLimit() noEther constant returns (uint128) {
-        return minDailyWithdrawLimit;
+    function getMinDailyWithdrawalLimit() noEther constant returns (uint128) {
+        return minDailyWithdrawalLimit;
     }
 
-    function getDailyWithdrawLimit() noEther constant returns (uint128) {
-        return dailyWithdrawLimit;
+    function getDailyWithdrawalLimit() noEther constant returns (uint128) {
+        return dailyWithdrawalLimit;
     }
 
     function getContractor() noEther constant returns (address) {
@@ -149,8 +152,8 @@ contract PFOffer {
         return hashOfTheProposalDocument;
     }
 
-    function getLastPayment() noEther constant returns (uint) {
-        return lastPayment;
+    function getLastWithdrawal() noEther constant returns (uint) {
+        return lastWithdrawal;
     }
 
     function getDateOfSignature() noEther constant returns (uint) {
@@ -169,8 +172,8 @@ contract PFOffer {
         return isContractValid;
     }
 
-    function getOneTimeCostsPaid() noEther constant returns (bool) {
-        return oneTimeCostsPaid;
+    function getInitialWithdrawalDone() noEther constant returns (bool) {
+        return initialWithdrawalDone;
     }
 
     function getWasApprovedBeforeDeadline() noEther constant returns (bool) {
@@ -184,7 +187,7 @@ contract PFOffer {
     function sign() {
         var (_,,,votingDeadline,,) = client.proposals(proposalID);
         if (msg.sender != address(originalClient) // no good samaritans give us ether
-            || msg.value != totalCosts    // no under/over payment
+            || msg.value != totalCost    // no under/over payment
             || dateOfSignature != 0       // don't sign twice
             || !wasApprovedBeforeDeadline // fail if the voteStatusCheck was not done
             || now < votingDeadline + splitGracePeriod) // allow splitting within the split grace period
@@ -192,16 +195,20 @@ contract PFOffer {
 
         dateOfSignature = now;
         isContractValid = true;
-        lastPayment = now + payoutFreezePeriod;
+        lastWithdrawal = now + payoutFreezePeriod;
     }
 
-    function setDailyWithdrawLimit(uint128 _dailyWithdrawLimit) onlyClient noEther {
-        if (_dailyWithdrawLimit >= minDailyWithdrawLimit)
-            dailyWithdrawLimit = _dailyWithdrawLimit;
+    function setDailyWithdrawLimit(uint128 _dailyWithdrawalLimit) onlyClient noEther {
+        if (_dailyWithdrawalLimit >= minDailyWithdrawalLimit)
+            dailyWithdrawalLimit = _dailyWithdrawalLimit;
     }
 
-    // "fire the contractor"
-    function returnRemainingEther() noEther onlyClient {
+    // Terminate the ongoing Offer.
+    //
+    // The Client can terminate the ongoing Offer using this method. Using it
+    // on an invalid (balance 0) Offer has no effect. The Contractor loses
+    // right to any ether left in the Offer.
+    function terminate() noEther onlyClient {
         if (originalClient.DAOrewardAccount().call.value(this.balance)())
             isContractValid = false;
     }
@@ -212,30 +219,31 @@ contract PFOffer {
     // the current withdraw limit.
     // Executing this function before the Offer is signed off by the Client
     // makes no sense as this contract has no ether.
-    function getDailyPayment() noEther {
+    function withdraw() noEther {
         if (msg.sender != contractor || now < dateOfSignature + payoutFreezePeriod)
             throw;
-        uint timeSinceLastPayment = now - lastPayment;
+        uint timeSinceLastPayment = now - lastWithdrawal;
         // Calculate the amount using 1 second precision.
-        uint amount = (timeSinceLastPayment * dailyWithdrawLimit) / (1 days);
+        uint amount = (timeSinceLastPayment * dailyWithdrawalLimit) / (1 days);
         if (amount > this.balance) {
             amount = this.balance;
         }
-        var lastPaymentReset = lastPayment;
-        lastPayment = now;
+        var lastWithdrawalReset = lastWithdrawal;
+        lastWithdrawal = now;
         if (!contractor.send(amount))
-            lastPayment = lastPaymentReset;
+            lastWithdrawal = lastWithdrawalReset;
     }
 
-    function getOneTimePayment() noEther {
+    // Perform the withdrawal of the initial sum of money to the contractor
+    function performInitialWithdrawal() noEther {
         if (msg.sender != contractor
             || now < dateOfSignature + payoutFreezePeriod
-            || oneTimeCostsPaid ) {
+            || initialWithdrawalDone ) {
             throw;
         }
 
-        oneTimeCostsPaid = true;
-        if (!contractor.send(oneTimeCosts))
+        initialWithdrawalDone = true;
+        if (!contractor.send(initialWithdrawal))
             throw;
     }
 
@@ -248,7 +256,7 @@ contract PFOffer {
             && votingDeadline > now
             && open
             && proposalID == 0) {
-           proposalID =  _proposalID;
+            proposalID =  _proposalID;
         }
     }
 

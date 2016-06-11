@@ -10,14 +10,14 @@ if (wait_time < 0) {
 }
 setTimeout(function() {
     var contractor_before = eth.getBalance(contractor);
-    pfoffer.getOneTimePayment.sendTransaction({from: curator, gas: 300000});
+    pfoffer.performInitialWithdrawal.sendTransaction({from: curator, gas: 300000});
     checkWork();
     var contractor_after = eth.getBalance(contractor);
-    addToTest('only_contractor_can_call', !pfoffer.getOneTimeCostsPaid());
-    pfoffer.getOneTimePayment.sendTransaction({from: contractor, gas: 500000});
+    addToTest('only_contractor_can_call', !pfoffer.getInitialWithdrawalDone());
+    pfoffer.performInitialWithdrawal.sendTransaction({from: contractor, gas: 500000});
     checkWork();
     var contractor_after2 = eth.getBalance(contractor);
-    addToTest('one_time_paid', pfoffer.getOneTimeCostsPaid());
+    addToTest('one_time_paid', pfoffer.getInitialWithdrawalDone());
     addToTest(
         'one_time_costs_amount_as_expected',
         contractor_after2.sub(contractor_after).sub(web3.toWei($expected_onetime)).abs().lt(new BigNumber(100000000000000000))
