@@ -36,6 +36,11 @@ import "./DAO.sol";
 
 contract Offer {
 
+    // Period of time after the passing of a proposal during which the offer
+    // contract can not be signed in order to provide enough time to anyone
+    // who may want to split off the DAO to do so.
+    uint constant splitGracePeriod = 8 days;
+
     // The total cost of the Offer for the Client. Exactly this amount is
     // transfered from the Client to the Offer contract when the Offer is
     // accepted by the Client. Set once by the Offerer.
@@ -175,7 +180,7 @@ contract Offer {
             || msg.value != totalCost    // no under/over payment
             || dateOfSignature != 0      // don't accept twice
             || votingDeadline == 0       // votingDeadline needs to be set
-            || now < votingDeadline + 8 days)
+            || now < votingDeadline + splitGracePeriod) // give people time to split
             throw;
 
         lastWithdrawal = votingDeadline + payoutFreezePeriod;
