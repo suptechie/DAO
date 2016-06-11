@@ -9,6 +9,8 @@ offer.getDailyWithdrawalLimit.sendTransaction({from:eth.accounts[0], value: web3
 checkWork();
 offer.getMinDailyWithdrawalLimit.sendTransaction({from:eth.accounts[0], value: web3.toWei(10), gas: 200000});
 checkWork();
+offer.getPayoutFreezePeriod.sendTransaction({from:eth.accounts[0], value: web3.toWei(10), gas: 200000});
+checkWork();
 offer.getContractor.sendTransaction({from:eth.accounts[0], value: web3.toWei(10), gas: 200000});
 checkWork();
 offer.getHashOfTheProposalDocument.sendTransaction({from:eth.accounts[0], value: web3.toWei(10), gas: 200000});
@@ -26,6 +28,8 @@ checkWork();
 offer.getRewardDivisor.sendTransaction({from:eth.accounts[0], value: web3.toWei(10), gas: 200000});
 checkWork();
 offer.getDeploymentReward.sendTransaction({from:eth.accounts[0], value: web3.toWei(10), gas: 200000});
+checkWork();
+offer.getInitialWithdrawalDone.sendTransaction({from:eth.accounts[0], value: web3.toWei(10), gas: 200000});
 checkWork();
 
 var offer_balance_after = eth.getBalance(offer.address);

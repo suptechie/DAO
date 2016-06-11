@@ -54,6 +54,9 @@ contract Offer {
     // withdrawals every day as this amount accumulates.
     uint128 dailyWithdrawalLimit;
 
+    // Period of time after which money can be withdrawn from this contract
+    uint payoutFreezePeriod;
+
     // The address of the Contractor.
     address contractor;
 
@@ -70,6 +73,7 @@ contract Offer {
     // The address of the Client who accepted the Offer.
     DAO originalClient;
     bool isContractValid;
+    bool initialWithdrawalDone;
 
     modifier onlyClient {
         if (msg.sender != address(client))
@@ -86,7 +90,8 @@ contract Offer {
         bytes32 _hashOfTheProposalDocument,
         uint _totalCost,
         uint _initialWithdrawal,
-        uint128 _minDailyWithdrawalLimit
+        uint128 _minDailyWithdrawalLimit,
+        uint _payoutFreezePeriod
     ) {
         contractor = _contractor;
         originalClient = DAO(_client);
@@ -96,6 +101,7 @@ contract Offer {
         initialWithdrawal = _initialWithdrawal;
         minDailyWithdrawalLimit = _minDailyWithdrawalLimit;
         dailyWithdrawalLimit = _minDailyWithdrawalLimit;
+        payoutFreezePeriod = _payoutFreezePeriod;
     }
 
     // non-value-transfer getters
@@ -113,6 +119,10 @@ contract Offer {
 
     function getDailyWithdrawalLimit() noEther constant returns (uint128) {
         return dailyWithdrawalLimit;
+    }
+
+    function getPayoutFreezePeriod() noEther constant returns (uint) {
+        return payoutFreezePeriod;
     }
 
     function getContractor() noEther constant returns (address) {
@@ -143,16 +153,24 @@ contract Offer {
         return isContractValid;
     }
 
+    function getInitialWithdrawalDone() noEther constant returns (bool) {
+        return initialWithdrawalDone;
+    }
+
     function sign() {
         if (msg.sender != address(originalClient) // no good samaritans give us ether
             || msg.value != totalCost    // no under/over payment
-            || dateOfSignature != 0)    // don't accpet twice
+            || dateOfSignature != 0)    // don't accept twice
             throw;
-        if (!contractor.send(initialWithdrawal))
-            throw;
+
+        lastWithdrawal = now + payoutFreezePeriod;
+        if (payoutFreezePeriod == 0) {
+            if (!contractor.send(initialWithdrawal))
+                throw;
+            initialWithdrawalDone = true;
+        }
         dateOfSignature = now;
         isContractValid = true;
-        lastWithdrawal = now;
     }
 
     function setDailyWithdrawLimit(uint128 _dailyWithdrawalLimit) onlyClient noEther {
@@ -177,7 +195,7 @@ contract Offer {
     // Executing this function before the Offer is accepted by the Client
     // makes no sense as this contract has no ether.
     function withdraw() noEther {
-        if (msg.sender != contractor)
+        if (msg.sender != contractor || now < dateOfSignature + payoutFreezePeriod)
             throw;
         uint timeSincelastWithdrawal = now - lastWithdrawal;
         // Calculate the amount using 1 second precision.
@@ -185,8 +203,24 @@ contract Offer {
         if (amount > this.balance) {
             amount = this.balance;
         }
-        if (contractor.send(amount))
-            lastWithdrawal = now;
+        var lastWithdrawalReset = lastWithdrawal;
+        lastWithdrawal = now;
+        if (!contractor.send(amount))
+            lastWithdrawal = lastWithdrawalReset;
+    }
+
+    // Perform the withdrawal of the initial sum of money to the contractor
+    // if that did not already happen during the signing
+    function performInitialWithdrawal() noEther {
+        if (msg.sender != contractor
+            || now < dateOfSignature + payoutFreezePeriod
+            || initialWithdrawalDone ) {
+            throw;
+        }
+
+        initialWithdrawalDone = true;
+        if (!contractor.send(initialWithdrawal))
+            throw;
     }
 
     // Change the client DAO by giving the new DAO's address
