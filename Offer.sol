@@ -68,15 +68,21 @@ contract Offer {
 
     // The timestamp when the offer contract was accepted.
     uint dateOfSignature;
+
+    // Voting deadline of the proposal
+    uint votingDeadline;
+
     // The address of the current Client.
     DAO client;
     // The address of the Client who accepted the Offer.
     DAO originalClient;
+
+    // Flag denoting whether the contract is still considered valid
     bool isContractValid;
+
+    // Flag denoting if the initial withdrawal sum was drawn from the contract
     bool initialWithdrawalDone;
 
-    // Voting deadline of the proposal
-    uint votingDeadline;
 
     modifier onlyClient {
         if (msg.sender != address(client))
@@ -158,6 +164,10 @@ contract Offer {
 
     function getInitialWithdrawalDone() noEther constant returns (bool) {
         return initialWithdrawalDone;
+    }
+
+    function getVotingDeadline() noEther constant returns (uint) {
+        return votingDeadline;
     }
 
     function sign() {
