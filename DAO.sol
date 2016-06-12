@@ -744,9 +744,10 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         reward = rewardAccount.balance < reward ? rewardAccount.balance : reward;
 
+        paidOut[_account] += reward;
         if (!rewardAccount.payOut(_account, reward))
             throw;
-        paidOut[_account] += reward;
+
         return true;
     }
 
