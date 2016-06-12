@@ -208,7 +208,8 @@ class TestContext():
                 self.args.deploy_pfoffer_payout_freeze_period,
                 self.args.deploy_pfoffer_vote_status_deadline
                 if not ctx.args.scenario == "pfoffer_checkvotestatus_fail"
-                else ctx.args.proposal_debate_seconds - 1
+                else ctx.args.proposal_debate_seconds - 1,
+                self.args.dao_version == "v1.0"
             )
             # compile USNRewardPayout and all contracts it depends on
             usn = os.path.join(self.contracts_dir, "USNRewardPayOutCopy.sol")
@@ -225,7 +226,7 @@ class TestContext():
             self.usn_bin = res["contracts"]["USNRewardPayOut"]["bin"]
 
             # compile DTHPool
-            dthpool = os.path.join(self.contracts_dir, "DTHPool.sol")
+            dthpool = os.path.join(self.contracts_dir, "DTHPoolCopy.sol")
             res = self.compile_contract(dthpool)
             self.dthpool_abi = res["contracts"]["DTHPool"]["abi"]
             self.dthpool_bin = res["contracts"]["DTHPool"]["bin"]
