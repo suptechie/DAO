@@ -367,7 +367,8 @@ def edit_dao_source(
         extra_balance_refund,
         offer_payment_period,
         payout_freeze_period,
-        vote_status_deadline):
+        vote_status_deadline,
+        dao_v10):
     with open(os.path.join(contracts_dir, 'DAO.sol'), 'r') as f:
         contents = f.read()
 
@@ -507,6 +508,17 @@ def edit_dao_source(
         'import "./RewardOfferCopy.sol";'
     )
     with open(os.path.join(contracts_dir, 'USNRewardPayOutCopy.sol'), "w") as f:
+        f.write(contents)
+
+    # edit DTHPool.sol
+    with open(os.path.join(contracts_dir, 'DTHPool.sol'), 'r') as f:
+        contents = f.read()
+
+    contents = str_replace_or_die(contents, 'name = _delegateName;', '')
+    contents = str_replace_or_die(contents, 'symbol = _tokenSymbol;', '')
+    contents = str_replace_or_die(contents, 'decimals = 16;', '')
+
+    with open(os.path.join(contracts_dir, 'DTHPoolCopy.sol'), "w") as f:
         f.write(contents)
 
     return new_path
