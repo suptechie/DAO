@@ -157,8 +157,9 @@ contract DAOInterface {
     /// @param _minTokensToCreate Minimum required wei-equivalent tokens
     ///        to be created for a successful DAO Token Creation
     /// @param _closingTime Date (in Unix time) of the end of the DAO Token Creation
-    /// @param _privateCreation If zero the DAO Token Creation is open to public, a
-    /// non-zero address means that the DAO Token Creation is only for the address
+    /// @param _parentDAO If zero the DAO Token Creation is open to public, a
+    /// non-zero address represents the parentDAO that can buy tokens in the
+    /// creation phase.
     /// @param _tokenName The name that the DAO's token will have
     /// @param _tokenSymbol The ticker symbol that this DAO token should have
     /// @param _decimalPlaces The number of decimal places that the token is
@@ -170,7 +171,7 @@ contract DAOInterface {
         //  uint _proposalDeposit,
         //  uint _minTokensToCreate,
         //  uint _closingTime,
-        //  address _privateCreation
+        //  address _parentDAO,
         //  string _tokenName,
         //  string _tokenSymbol,
         //  uint8 _decimalPlaces
@@ -360,14 +361,14 @@ contract DAO is DAOInterface, Token, TokenCreation {
         uint _proposalDeposit,
         uint _minTokensToCreate,
         uint _closingTime,
-        address _privateCreation,
+        address _parentDAO,
         string _tokenName, 
         string _tokenSymbol,
         uint8 _decimalPlaces
     ) TokenCreation(
         _minTokensToCreate, 
         _closingTime, 
-        _privateCreation, 
+        _parentDAO,
         _tokenName, 
         _tokenSymbol,
         _decimalPlaces) {

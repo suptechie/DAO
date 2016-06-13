@@ -44,14 +44,15 @@ contract TokenCreationInterface {
     /// @param _minTokensToCreate Minimum fueling goal in number of
     ///        Tokens to be created
     /// @param _closingTime Date (in Unix time) of the end of the Token Creation
-    /// @param _privateCreation Zero means that the creation is public.  A
-    /// non-zero address represents the only address that can create Tokens
+    /// @param _parentDAO Zero means that the creation is public.  A
+    /// non-zero address represents the parentDAO that can buy tokens in the
+    /// creation phase.
     /// (the address can also create Tokens on behalf of other accounts)
     // This is the constructor: it can not be overloaded so it is commented out
     //  function TokenCreation(
         //  uint _minTokensTocreate,
         //  uint _closingTime,
-        //  address _privateCreation
+        //  address _parentDAO,
         //  string _tokenName,
         //  string _tokenSymbol,
         //  uint _decimalPlaces
