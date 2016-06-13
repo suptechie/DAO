@@ -382,7 +382,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         if (address(DAOrewardAccount) == 0)
             throw;
         lastTimeMinQuorumMet = now;
-        minQuorumDivisor = 5; // sets the minimal quorum to 20%
+        minQuorumDivisor = 7; // sets the minimal quorum to 14.3%
         proposals.length = 1; // avoids a proposal with ID 0 because it is used
 
         allowedRecipients[address(this)] = true;
@@ -555,9 +555,9 @@ contract DAO is DAOInterface, Token, TokenCreation {
         if (p.amount > actualBalance())
             proposalCheck = false;
 
-        uint quorum = p.yea + p.nay;
+        uint quorum = p.yea;
 
-        // require 53% for calling newContract()
+        // require max quorum for calling newContract()
         if (_transactionData.length >= 4 && _transactionData[0] == 0x68
             && _transactionData[1] == 0x37 && _transactionData[2] == 0xff
             && _transactionData[3] == 0x1e
@@ -571,9 +571,9 @@ contract DAO is DAOInterface, Token, TokenCreation {
                 throw;
 
             lastTimeMinQuorumMet = now;
-            // set the minQuorum to 20% again, in the case it has been reached
-            if (quorum > totalSupply / 5)
-                minQuorumDivisor = 5;
+            // set the minQuorum to 14.3% again, in the case it has been reached
+            if (quorum > totalSupply / 7)
+                minQuorumDivisor = 7;
         }
 
         // Execute result
@@ -854,7 +854,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
 
     function minQuorum(uint _value) internal constant returns (uint _minQuorum) {
-        // minimum of 20% and maximum of 53.33%
+        // minimum of 14.3% and maximum of 47.6%
         return totalSupply / minQuorumDivisor +
             (_value * totalSupply) / (3 * (actualBalance() + rewardToken[address(this)]));
     }
