@@ -637,15 +637,14 @@ contract DAO is DAOInterface, Token, TokenCreation {
             throw;
 
         // Move ether
-        uint fundsToBeMoved =
-            (balances[msg.sender] * actualBalance()) /
-            totalSupply;
-
-        msg.sender.call.value(fundsToBeMoved);
+        uint senderBalance = balances[msg.sender];
+        uint fundsToBeMoved = (senderBalance * actualBalance()) / totalSupply;
+        balances[msg.sender] = 0;
+        msg.sender.send(fundsToBeMoved);
 
         // Assign reward rights
         uint rewardTokenToBeMoved =
-            (balances[msg.sender] * rewardToken[address(this)]) /
+            (senderBalance * rewardToken[address(this)]) /
             totalSupply;
 
         uint paidOutToBeMoved = DAOpaidOut[address(this)] * rewardTokenToBeMoved /
@@ -662,10 +661,9 @@ contract DAO is DAOInterface, Token, TokenCreation {
         DAOpaidOut[address(this)] -= paidOutToBeMoved;
 
         // Burn DAO Tokens
-        Transfer(msg.sender, 0, balances[msg.sender]);
+        Transfer(msg.sender, 0, senderBalance);
         withdrawRewardFor(msg.sender); // be nice, and get his rewards
-        totalSupply -= balances[msg.sender];
-        balances[msg.sender] = 0;
+        totalSupply -= senderBalance;
         paidOut[msg.sender] = 0;
         return true;
     }
