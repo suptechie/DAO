@@ -85,9 +85,6 @@ contract TokenInterface {
     );
 }
 
-contract tokenRecipient { 
-    function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData); 
-}
 
 contract Token is TokenInterface {
     // Protects users by preventing the execution of method calls that
@@ -132,15 +129,6 @@ contract Token is TokenInterface {
     function approve(address _spender, uint256 _amount) returns (bool success) {
         allowed[msg.sender][_spender] = _amount;
         Approval(msg.sender, _spender, _amount);
-        return true;
-    }
-    
-    /// Allow another contract to spend some tokens in your behalf 
-    function approveAndCall(address _spender, uint256 _value, bytes _extraData)
-        returns (bool success) {
-        allowed[msg.sender][_spender] = _value;
-        tokenRecipient spender = tokenRecipient(_spender);
-        spender.receiveApproval(msg.sender, _value, this, _extraData);
         return true;
     }
 
