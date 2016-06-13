@@ -390,7 +390,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     }
 
     function () returns (bool success) {
-        if (now < closingTime + creationGracePeriod && msg.sender != address(extraBalance))
+        if (now < closingTime + creationGracePeriod)
             return createTokenProxy(msg.sender);
         else
             return receiveEther();
@@ -421,7 +421,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
             throw;
         } else if (
             !_newCurator
-            && (!isRecipientAllowed(_recipient) || (_debatingPeriod <  minProposalDebatePeriod))
+            && (!allowedRecipients[_recipient] || (_debatingPeriod < minProposalDebatePeriod))
         ) {
             throw;
         }
@@ -544,7 +544,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         // If the curator removed the recipient from the whitelist, close the proposal
         // in order to free the deposit and allow unblocking of voters
-        if (!isRecipientAllowed(p.recipient)) {
+        if (!allowedRecipients[p.recipient]) {
             closeProposal(_proposalID);
             p.creator.send(p.proposalDeposit);
             return;
@@ -593,7 +593,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
             // related addresses. Proxy addresses should be forbidden by the curator.
             if (p.recipient != address(this) && p.recipient != address(rewardAccount)
                 && p.recipient != address(DAOrewardAccount)
-                && p.recipient != address(extraBalance)
                 && p.recipient != address(curator)) {
 
                 rewardToken[address(this)] += p.amount;
@@ -836,17 +835,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
         return true;
     }
 
-
-    function isRecipientAllowed(address _recipient) internal returns (bool _isAllowed) {
-        if (allowedRecipients[_recipient]
-            || (_recipient == address(extraBalance)
-                // only allowed when at least the amount held in the
-                // extraBalance account has been spent from the DAO
-                && totalRewardToken > extraBalance.accumulatedInput()))
-            return true;
-        else
-            return false;
-    }
 
     function actualBalance() constant returns (uint _actualBalance) {
         return this.balance - sumOfProposalDeposits;
