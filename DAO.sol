@@ -326,7 +326,7 @@ contract DAOInterface {
 
     /// @param _account The address of the account which is checked.
     /// @return Whether the account is blocked (not allowed to transfer tokens) or not.
-    function isBlocked(address _account) internal returns (bool);
+    function getOrModifyBlocked(address _account) internal returns (bool);
 
     /// @notice If the caller is blocked by a proposal whose voting deadline
     /// has exprired then unblock him.
@@ -512,6 +512,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
             blocked[msg.sender] = _proposalID;
         }
 
+        // yay votes are blocked from splitting/withdrawing from the DAO
         if (_supportsProposal) {
             if (splitBlocked[msg.sender] == 0) {
                 splitBlocked[msg.sender] = _proposalID;
@@ -630,7 +631,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         // don't allow withdrawing when token holder is blocked due to a vote
         // unVoteAll() would be an alternative
-        if (isSplitBlocked(msg.sender))
+        if (getOrModifySplitBlocked(msg.sender))
             throw;
 
         // Move ether
@@ -807,8 +808,8 @@ contract DAO is DAOInterface, Token, TokenCreation {
     function transfer(address _to, uint256 _value) returns (bool success) {
         if (isFueled
             && now > closingTime
-            && !isBlocked(msg.sender)
-            && !isBlocked(_to)
+            && !getOrModifyBlocked(msg.sender)
+            && !getOrModifyBlocked(_to)
             && _to != address(this)
             && transferPaidOut(msg.sender, _to, _value)
             && super.transfer(_to, _value)) {
@@ -830,8 +831,8 @@ contract DAO is DAOInterface, Token, TokenCreation {
     function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
         if (isFueled
             && now > closingTime
-            && !isBlocked(_from)
-            && !isBlocked(_to)
+            && !getOrModifyBlocked(_from)
+            && !getOrModifyBlocked(_to)
             && _to != address(this)
             && transferPaidOut(_from, _to, _value)
             && super.transferFrom(_from, _to, _value)) {
@@ -942,7 +943,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     }
 
     function numberOfProposals() constant returns (uint _numberOfProposals) {
-        // Don't count index 0. It's used by isBlocked() and exists from start
+        // Don't count index 0. It's used by getOrModifyBlocked() and exists from start
         return proposals.length - 1;
     }
 
@@ -950,7 +951,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         return proposals[_proposalID].splitData[0].newDAO;
     }
 
-    function isBlocked(address _account) internal returns (bool) {
+    function getOrModifyBlocked(address _account) internal returns (bool) {
         if (blocked[_account] == 0)
             return false;
         Proposal p = proposals[blocked[_account]];
@@ -962,7 +963,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         }
     }
 
-    function isSplitBlocked(address _account) internal returns (bool) {
+    function getOrModifySplitBlocked(address _account) internal returns (bool) {
         if (splitBlocked[_account] == 0)
             return false;
         Proposal p = proposals[splitBlocked[_account]];
@@ -975,7 +976,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     }
 
     function unblockMe() returns (bool) {
-        return isBlocked(msg.sender) && isSplitBlocked(msg.sender);
+        return getOrModifyBlocked(msg.sender) && getOrModifySplitBlocked(msg.sender);
     }
 }
 
