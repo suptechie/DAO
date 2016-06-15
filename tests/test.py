@@ -169,6 +169,7 @@ class TestContext():
         rm_file(os.path.join(self.contracts_dir, "OfferCopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "PFOfferCopy.sol"))
         rm_file(os.path.join(self.contracts_dir, "USNRewardPayOutCopy.sol"))
+        rm_file(os.path.join(self.contracts_dir, "DTHPoolCopy.sol"))
 
     def compile_contract(self, contract_path):
         print("    Compiling {}...".format(contract_path))
@@ -226,10 +227,11 @@ class TestContext():
             self.usn_bin = res["contracts"]["USNRewardPayOut"]["bin"]
 
             # compile DTHPool
-            dthpool = os.path.join(self.contracts_dir, "DTHPoolCopy.sol")
-            res = self.compile_contract(dthpool)
-            self.dthpool_abi = res["contracts"]["DTHPool"]["abi"]
-            self.dthpool_bin = res["contracts"]["DTHPool"]["bin"]
+            if self.args.compile_test or self.scenario_uses_dthpool():
+                dthpool = os.path.join(self.contracts_dir, "DTHPoolCopy.sol")
+                res = self.compile_contract(dthpool)
+                self.dthpool_abi = res["contracts"]["DTHPool"]["abi"]
+                self.dthpool_bin = res["contracts"]["DTHPool"]["bin"]
 
             # If a compilation test was requested we can stop here.
             # Until solc gets a version that can compile PFOFfer we don't
@@ -239,10 +241,11 @@ class TestContext():
                 sys.exit(220)
 
             # compile PFOffer
-            pfoffer = os.path.join(self.contracts_dir, "PFOfferCopy.sol")
-            res = self.compile_contract(pfoffer)
-            self.pfoffer_abi = res["contracts"]["PFOffer"]["abi"]
-            self.pfoffer_bin = res["contracts"]["PFOffer"]["bin"]
+            if self.args.compile_test or self.scenario_uses_pfoffer():
+                pfoffer = os.path.join(self.contracts_dir, "PFOfferCopy.sol")
+                res = self.compile_contract(pfoffer)
+                self.pfoffer_abi = res["contracts"]["PFOffer"]["abi"]
+                self.pfoffer_bin = res["contracts"]["PFOffer"]["bin"]
         except SystemExit as e:
             if e.code != 220:
                 # 220 is sys.exit(succesful_compilation) in the case of the
@@ -318,6 +321,25 @@ class TestContext():
             "extrabalance",
             "stealextrabalance",
             "fuel_fail_extrabalance"
+        ]
+
+    def scenario_uses_dthpool(self):
+        """
+        Check if the target scenario requires the DTHPool to be deployed
+        """
+        return ctx.args.scenario in [
+            "fuel_predictive",
+            "dthpool"
+        ]
+
+    def scenario_uses_pfoffer(self):
+        """
+        Check if the target scenario requires the PFOffer to be deployed
+        """
+        return ctx.args.scenario in [
+            "pfoffer",
+            "pfoffer_checkvotestatus_fail",
+            "pfoffer_payment"
         ]
 
     def running_scenario(self):
