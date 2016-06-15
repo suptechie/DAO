@@ -15,7 +15,7 @@ def calculate_closing_time(obj, script_name, substitutions):
     return substitutions
 
 
-def deploy_contract(ctx, substitutions, name, result, cb=None):
+def deploy_contract(ctx, substitutions, name, result, json_dict, cb=None):
     ctx.create_js_file(
         substitutions=substitutions,
         specific_name=name,
@@ -33,8 +33,12 @@ def deploy_contract(ctx, substitutions, name, result, cb=None):
         )
         sys.exit(1)
 
+    print("{} is: {}".format(result, getattr(ctx, result)))
+    json_dict[result] = getattr(ctx, result)
+
 
 def run(ctx):
+    json_dict = {}
     deploy_contract(
         ctx,
         substitutions={
@@ -42,7 +46,8 @@ def run(ctx):
             "creator_bin": ctx.creator_bin
         },
         name='deploy_dao_creator',
-        result='dao_creator_address'
+        result='dao_creator_address',
+        json_dict=json_dict
     )
     deploy_contract(
         ctx,
@@ -56,6 +61,7 @@ def run(ctx):
         },
         name='deploy_dao',
         result='dao_address',
+        json_dict=json_dict,
         cb=calculate_closing_time
     )
     deploy_contract(
@@ -68,20 +74,25 @@ def run(ctx):
             "offer_total": ctx.args.deploy_total_costs,
         },
         name='deploy_offer',
-        result='offer_address'
+        result='offer_address',
+        json_dict=json_dict
     )
-    deploy_contract(
-        ctx,
-        substitutions={
-            "dao_address": ctx.dao_address,
-            "pfoffer_abi": ctx.pfoffer_abi,
-            "pfoffer_bin": ctx.pfoffer_bin,
-            "offer_onetime": ctx.args.deploy_onetime_costs,
-            "offer_total": ctx.args.deploy_total_costs,
-        },
-        name='deploy_pfoffer',
-        result='pfoffer_address'
-    )
+
+    if ctx.scenario_uses_pfoffer():
+        deploy_contract(
+            ctx,
+            substitutions={
+                "dao_address": ctx.dao_address,
+                "pfoffer_abi": ctx.pfoffer_abi,
+                "pfoffer_bin": ctx.pfoffer_bin,
+                "offer_onetime": ctx.args.deploy_onetime_costs,
+                "offer_total": ctx.args.deploy_total_costs,
+            },
+            name='deploy_pfoffer',
+            result='pfoffer_address',
+            json_dict=json_dict
+        )
+
     deploy_contract(
         ctx,
         substitutions={
@@ -90,35 +101,25 @@ def run(ctx):
             "usn_bin": ctx.usn_bin
         },
         name='deploy_usn',
-        result='usn_address'
-    )
-    deploy_contract(
-        ctx,
-        substitutions={
-            "dao_address": ctx.dao_address,
-            "dthpool_abi": ctx.dthpool_abi,
-            "dthpool_bin": ctx.dthpool_bin
-        },
-        name='deploy_dthpool',
-        result='dthpool_address'
+        result='usn_address',
+        json_dict=json_dict
     )
 
-    print("DAO Creator address is: {}".format(ctx.dao_creator_address))
-    print("DAO address is: {}".format(ctx.dao_address))
-    print("SampleOffer address is: {}".format(ctx.offer_address))
-    print("PFOffer address is: {}".format(ctx.pfoffer_address))
-    print("USNRewardPayOut address is: {}".format(ctx.usn_address))
-    print("DTHPool address is: {}".format(ctx.dthpool_address))
+    if ctx.scenario_uses_dthpool():
+        deploy_contract(
+            ctx,
+            substitutions={
+                "dao_address": ctx.dao_address,
+                "dthpool_abi": ctx.dthpool_abi,
+                "dthpool_bin": ctx.dthpool_bin
+            },
+            name='deploy_dthpool',
+            result='dthpool_address',
+            json_dict=json_dict
+        )
+
     with open(ctx.save_file, "w") as f:
-        f.write(json.dumps({
-            "dao_creator_address": ctx.dao_creator_address,
-            "dao_address": ctx.dao_address,
-            "offer_address": ctx.offer_address,
-            "pfoffer_address": ctx.pfoffer_address,
-            "usn_address": ctx.usn_address,
-            "dthpool_address": ctx.dthpool_address,
-            "closing_time": ctx.closing_time
-        }))
+        f.write(json.dumps(json_dict))
 
     # after deployment recalculate for the subsequent tests what the min
     # amount of tokens is in the case of extrabalance tests
