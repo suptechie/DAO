@@ -348,7 +348,7 @@ contract DAOInterface {
     ) returns (bool success);
     function halveMinQuorum() returns (bool _success);
     function numberOfProposals() constant returns (uint _numberOfProposals);
-    function getNewDAOAdress(uint _proposalID) constant returns (address _newDAO);
+    function getNewDAOAddress(uint _proposalID) constant returns (address _newDAO);
     function isBlocked(address _account) internal returns (bool);
     function unblockMe() returns (bool);
 
@@ -559,7 +559,7 @@ When called, halves the minimum quorum in the case it has not been met for over 
 \subsubsection*{numberOfProposals}
 Returns the total number of proposals ever created.
 
-\subsubsection*{getNewDAOAdress}
+\subsubsection*{getNewDAOAddress}
 This is just a helper function to read the address of a newly created `split DAO`. It gets the proposal ID which was used for the split as input parameter and returns the address of the new DAO.
 
 \subsubsection*{isBlocked}
