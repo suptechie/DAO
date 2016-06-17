@@ -1,11 +1,11 @@
-# The DAO
+# The Decentralized Autonomous Organization (DAO)
 
 [![Build Status](https://travis-ci.org/slockit/DAO.png)](https://travis-ci.org/slockit/DAO)
 
 ## What is it?
-A Standard DAO (Decentralized Autonomous Organization) framework written in Solidity to run on the Ethereum blockchain. 
+A Standard Decentralized Autonomous Organization (DAO) framework written in Solidity to run on the Ethereum blockchain. 
 
-Feel free to reuse to create your own Decentralized Autonomous Organization using this framework.
+Feel free to reuse this framework to create your own Decentralized Autonomous Organization.
 
 **Reference:** *"Decentralized autonomous organization to automate governance" -* [White Paper](https://download.slock.it/public/DAO/WhitePaper.pdf) - [Primer](https://blog.slock.it/a-primer-to-the-decentralized-autonomous-organization-dao-69fb125bd3cd)
 
@@ -101,6 +101,5 @@ f. The providers of this software neither warrant nor guarantee this software sh
 g. You agree that in order for you to form a legally binding contract that you shall seek legal advice from an appropriately qualified and experienced lawyer within your jurisdiction.
 
 h.  Issuance of DAO tokens may constitute the sale of securities in certain jurisdictions. Seek appropriate legal advice before deploying DAO code.
-
 
 
