@@ -789,7 +789,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
 
     function withdrawRewardFor(address _account) noEther internal returns (bool _success) {
-        if ((balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply < paidOut[_account])
+        if ((balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply <= paidOut[_account])
             throw;
 
         uint reward =
