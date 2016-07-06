@@ -44,9 +44,9 @@ contract Refund {
     /// through the simpler mechanism below.
     function withdrawFromChildDAO(uint _childProposalID) {
         if (now < fixChildDAOsListTime + 4 weeks) throw;
-        DAO child = mother.getNewDAOAddress(_childProposalID);
+        DAO child = DAO(mother.getNewDAOAddress(_childProposalID));
         // If the child is blacklisted or too new, this does not work.
-        if (child == 0 || blackList[child] || child.lastTimeMinQuorumMet() > fixChildDAOsListTime)
+        if (address(child) == 0 || blackList[child] || child.lastTimeMinQuorumMet() > fixChildDAOsListTime)
             throw;
 
         withdraw(child);
@@ -62,7 +62,14 @@ contract Refund {
     function withdraw(DAO dao) internal {
         uint balance = dao.balanceOf(msg.sender);
 
-        if (!dao.transferFrom(msg.sender, this, balance) || !msg.sender.send(balance * totalWeiSupply / totalSupply))
+        // The msg.sender must call approve(this, balance) beforehand so that
+        // transferFrom() will work and not throw. We need transferFrom()
+        // instead of transfer() due to the msg.sender in the latter ending
+        // up to be the contract
+        if (!dao.transferFrom(msg.sender, this, balance)
+            || !msg.sender.send(balance * totalWeiSupply / totalSupply)) {
+
             throw;
+        }
     }
 }
