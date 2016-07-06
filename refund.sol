@@ -19,7 +19,7 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 import "github.com/slockit/DAO/DAO.sol";
 
 contract Refund {
-    DAO constant public mother = 0xbb9bc244d798123fde783fcc1c72d3bb8c189413;
+    DAO constant public mother = DAO(0xbb9bc244d798123fde783fcc1c72d3bb8c189413);
     mapping (address => bool) public whiteList;
     uint constant public totalSupply = 11712722930974665882186911;
     uint constant public totalWeiSupply = 12072858342395652843028271;
@@ -96,7 +96,7 @@ contract Refund {
         if (now < fixChildDAOsListTime + 4 weeks) throw;
         if (!whiteList[_child]
             || _child.lastTimeMinQuorumMet() > fixChildDAOsListTime
-            || _child.privateCreation() != mother)
+            || _child.privateCreation() != address(mother))
             throw;
 
         withdraw(_child);
