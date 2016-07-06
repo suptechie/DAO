@@ -44,9 +44,9 @@ contract Refund {
     /// through the simpler mechanism below.
     function withdrawFromChildDAO(uint _childProposalID) {
         if (now < fixChildDAOsListTime + 4 weeks) throw;
-        DAO child = mother.getNewDAOAddress(_childProposalID);
+        DAO child = DAO(mother.getNewDAOAddress(_childProposalID));
         // If the child is blacklisted or too new, this does not work.
-        if (child == 0 || blackList[child] || child.lastTimeMinQuorumMet() > fixChildDAOsListTime)
+        if (address(child) == 0 || blackList[child] || child.lastTimeMinQuorumMet() > fixChildDAOsListTime)
             throw;
 
         withdraw(child);
