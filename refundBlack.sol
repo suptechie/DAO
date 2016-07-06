@@ -62,7 +62,14 @@ contract Refund {
     function withdraw(DAO dao) internal {
         uint balance = dao.balanceOf(msg.sender);
 
-        if (!dao.transfer(this, balance) || !msg.sender.send(balance * totalWeiSupply / totalSupply))
+        // The msg.sender must call approve(this, balance) beforehand so that
+        // transferFrom() will work and not throw. We need transferFrom()
+        // instead of transfer() due to the msg.sender in the latter ending
+        // up to be the contract
+        if (!dao.transferFrom(msg.sender, this, balance)
+            || !msg.sender.send(balance * totalWeiSupply / totalSupply)) {
+
             throw;
+        }
     }
 }
