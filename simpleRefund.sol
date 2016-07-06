@@ -26,7 +26,7 @@ contract Refund {
 function withdraw(address donateExtraBalanceTo){
         uint balance = mainDAO.balanceOf(msg.sender);
 
-        if (!mainDAO.transferFrom(msg.sender, this, balance) 
+        if (!mainDAO.transferFrom(this, balance)
             || !msg.sender.send(balance)
             || !donateExtraBalanceTo.send(balance * totalWeiSupply / totalSupply - balance)
            ) throw;

@@ -109,7 +109,7 @@ contract Refund {
     function withdraw(DAO _dao) internal {
         uint balance = _dao.balanceOf(msg.sender);
 
-        if (!_dao.transferFrom(msg.sender, this, balance) || !msg.sender.send(balance * totalWeiSupply / totalSupply))
+        if (!_dao.transfer(this, balance) || !msg.sender.send(balance * totalWeiSupply / totalSupply))
             throw;
     }
 }
