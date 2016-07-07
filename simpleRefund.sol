@@ -26,9 +26,15 @@ contract Refund {
 function withdraw(address donateExtraBalanceTo){
         uint balance = mainDAO.balanceOf(msg.sender);
 
-        if (!mainDAO.transferFrom(msg.sender, this, balance) 
+        // The msg.sender must call approve(this, balance) beforehand so that
+        // transferFrom() will work and not throw. We need transferFrom()
+        // instead of transfer() due to the msg.sender in the latter ending
+        // up to be the contract
+        if (!mainDAO.transferFrom(msg.sender, this, balance)
             || !msg.sender.send(balance)
-            || !donateExtraBalanceTo.send(balance * totalWeiSupply / totalSupply - balance)
-           ) throw;
+            || !donateExtraBalanceTo.send(balance * totalWeiSupply / totalSupply - balance)) {
+
+            throw;
+        }
     }
 }
