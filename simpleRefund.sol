@@ -20,8 +20,8 @@ import "github.com/slockit/DAO/DAO.sol";
 
 contract Refund {
     DAO constant public mainDAO = DAO(0xbb9bc244d798123fde783fcc1c72d3bb8c189413);
-    uint constant public totalSupply = 11712722930974665882186911;
-    uint constant public totalWeiSupply = 12072858342395652843028271;
+    uint constant public totalSupply = 11538165987024671407837618;
+    uint constant public totalWeiSupply = 11898333978710775162018627;
 
 function withdraw(address donateExtraBalanceTo){
         uint balance = mainDAO.balanceOf(msg.sender);
