@@ -18,14 +18,14 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 // TODO: all constants need to be double checked
 import "github.com/slockit/DAO/DAO.sol";
 
-contract Refund {
+contract Withdraw {
     DAO constant public mother = DAO(0xbb9bc244d798123fde783fcc1c72d3bb8c189413);
     mapping (address => bool) public whiteList;
     uint constant public totalSupply = 11712722930974665882186911;
     uint constant public totalWeiSupply = 12072858342395652843028271;
     uint constant public fixChildDAOsListTime = 1468057560; // 09.07.2016 - 11:46:00 CEST
 
-    function Refund(){
+    function Withdraw(){
         // whitelist all childDAO except of attacker DAO (commented out)
         whiteList[0xd4fe7bc31cedb7bfb8a345f31e668033056b2728] = true;
         whiteList[0x2c19c7f9ae8b751e37aeb2d93a699722395ae18f] = true;
