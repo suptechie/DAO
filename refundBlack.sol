@@ -18,14 +18,14 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 // TODO: all constants need to be double checked
 import "github.com/slockit/DAO/DAO.sol";
 
-contract Refund {
+contract Withdraw {
     DAO constant public mother = DAO(0xbb9bc244d798123fde783fcc1c72d3bb8c189413);
     mapping (address => bool) public blackList;
     uint constant public totalSupply = 11712722930974665882186911;
     uint constant public totalWeiSupply = 12072858342395652843028271;
     uint constant public fixChildDAOsListTime = 1468057560; // 09.07.2016 - 11:46:00 CEST
 
-    function Refund(){
+    function Withdraw(){
         // These are the child DAOs where the recursive call exploit was used,
         // their token balances are invalid.
         blackList[0xb136707642a4ea12fb4bae820f03d2562ebff487] = true;
@@ -53,7 +53,7 @@ contract Refund {
     }
 
     /// Withdraw your share of the Ether.
-    /// Prior to calling this function, you have to approve allow the refund
+    /// Prior to calling this function, you have to approve allow the withdraw
     /// contract to transfer your DAO tokens to it.
     function withdraw() {
         withdraw(mother);

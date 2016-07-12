@@ -18,7 +18,7 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 // TODO: all constants need to be double checked
 import "github.com/slockit/DAO/DAO.sol";
 
-contract Refund {
+contract Withdraw {
     DAO constant public mainDAO = DAO(0xbb9bc244d798123fde783fcc1c72d3bb8c189413);
     uint constant public totalSupply = 11538165987024671407837618;
     uint constant public totalWeiSupply = 11898333978710775162018627;
