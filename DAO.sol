@@ -717,7 +717,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
             totalRewardToken - DAOpaidOut[msg.sender];
 
         reward = DAOrewardAccount.balance < reward ? DAOrewardAccount.balance : reward;
-
+        DAOpaidOut[msg.sender] += reward;
         if(_toMembers) {
             if (!DAOrewardAccount.payOut(dao.rewardAccount(), reward))
                 throw;
@@ -726,7 +726,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
             if (!DAOrewardAccount.payOut(dao, reward))
                 throw;
         }
-        DAOpaidOut[msg.sender] += reward;
         return true;
     }
 
