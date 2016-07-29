@@ -15,12 +15,15 @@ You should have received a copy of the GNU lesser General Public License
 along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// TODO: all constants need to be double checked
-import "github.com/slockit/DAO/DAO.sol";
+contract DAO {
+    function balanceOf(address addr) returns (uint);
+    function transferFrom(address from, address to, uint balance) returns (bool);
+    uint public totalSupply;
+}
 
 contract WithdrawDAO {
     DAO constant public mainDAO = DAO(0xbb9bc244d798123fde783fcc1c72d3bb8c189413);
-    address public trustee = 0x00; // to be replaced by a multisig
+    address public trustee = 0xDa4a4626d3E16e094De3225A751aAb7128e96526; // curator multisig
 
     function withdraw(){
         uint balance = mainDAO.balanceOf(msg.sender);
@@ -29,8 +32,7 @@ contract WithdrawDAO {
             throw;
     }
 
-    function trusteeWithdraw(uint _amount) {
-        if (now < 1474443854 || msg.sender != trustee) throw; // 21.09.2016 - 09:44:14 CEST
-        trustee.send(_amount);
+    function trusteeWithdraw() {
+        trustee.send((this.balance + mainDAO.balanceOf(this)) - mainDAO.totalSupply());
     }
 }
