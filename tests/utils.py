@@ -448,10 +448,6 @@ def edit_dao_source(
     with open(os.path.join(contracts_dir, 'TokenCreation.sol'), 'r') as f:
         contents = f.read()
 
-    if (not keep_limits) and (not normal_pricing):
-        contents = str_replace_or_die(
-            contents, 'closingTime - 2 weeks > now', 'true'
-        )
     with open(os.path.join(contracts_dir, 'TokenCreationCopy.sol'), "w") as f:
         f.write(contents)
 

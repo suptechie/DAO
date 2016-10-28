@@ -157,8 +157,9 @@ contract DAOInterface {
     /// @param _minTokensToCreate Minimum required wei-equivalent tokens
     ///        to be created for a successful DAO Token Creation
     /// @param _closingTime Date (in Unix time) of the end of the DAO Token Creation
-    /// @param _privateCreation If zero the DAO Token Creation is open to public, a
-    /// non-zero address means that the DAO Token Creation is only for the address
+    /// @param _parentDAO If zero the DAO Token Creation is open to public, a
+    /// non-zero address represents the parentDAO that can buy tokens in the
+    /// creation phase.
     /// @param _tokenName The name that the DAO's token will have
     /// @param _tokenSymbol The ticker symbol that this DAO token should have
     /// @param _decimalPlaces The number of decimal places that the token is
@@ -170,7 +171,7 @@ contract DAOInterface {
         //  uint _proposalDeposit,
         //  uint _minTokensToCreate,
         //  uint _closingTime,
-        //  address _privateCreation
+        //  address _parentDAO,
         //  string _tokenName,
         //  string _tokenSymbol,
         //  uint8 _decimalPlaces
@@ -360,14 +361,14 @@ contract DAO is DAOInterface, Token, TokenCreation {
         uint _proposalDeposit,
         uint _minTokensToCreate,
         uint _closingTime,
-        address _privateCreation,
+        address _parentDAO,
         string _tokenName, 
         string _tokenSymbol,
         uint8 _decimalPlaces
     ) TokenCreation(
         _minTokensToCreate, 
         _closingTime, 
-        _privateCreation, 
+        _parentDAO,
         _tokenName, 
         _tokenSymbol,
         _decimalPlaces) {
@@ -390,7 +391,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     }
 
     function () returns (bool success) {
-        if (now < closingTime + creationGracePeriod && msg.sender != address(extraBalance))
+        if (now < closingTime + creationGracePeriod)
             return createTokenProxy(msg.sender);
         else
             return receiveEther();
@@ -421,7 +422,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
             throw;
         } else if (
             !_newCurator
-            && (!isRecipientAllowed(_recipient) || (_debatingPeriod <  minProposalDebatePeriod))
+            && (!allowedRecipients[_recipient] || (_debatingPeriod < minProposalDebatePeriod))
         ) {
             throw;
         }
@@ -544,7 +545,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         // If the curator removed the recipient from the whitelist, close the proposal
         // in order to free the deposit and allow unblocking of voters
-        if (!isRecipientAllowed(p.recipient)) {
+        if (!allowedRecipients[p.recipient]) {
             closeProposal(_proposalID);
             p.creator.send(p.proposalDeposit);
             return;
@@ -593,7 +594,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
             // related addresses. Proxy addresses should be forbidden by the curator.
             if (p.recipient != address(this) && p.recipient != address(rewardAccount)
                 && p.recipient != address(DAOrewardAccount)
-                && p.recipient != address(extraBalance)
                 && p.recipient != address(curator)) {
 
                 rewardToken[address(this)] += p.amount;
@@ -836,17 +836,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
         return true;
     }
 
-
-    function isRecipientAllowed(address _recipient) internal returns (bool _isAllowed) {
-        if (allowedRecipients[_recipient]
-            || (_recipient == address(extraBalance)
-                // only allowed when at least the amount held in the
-                // extraBalance account has been spent from the DAO
-                && totalRewardToken > extraBalance.accumulatedInput()))
-            return true;
-        else
-            return false;
-    }
 
     function actualBalance() constant returns (uint _actualBalance) {
         return this.balance - sumOfProposalDeposits;
