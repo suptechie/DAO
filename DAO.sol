@@ -83,6 +83,7 @@ contract DAOInterface {
     // Map of addresses blocked during a vote (not allowed to transfer DAO
     // tokens). The address points to the proposal ID.
     mapping (address => uint) public blocked;
+    mapping (address => uint) public splitBlocked;
 
     // The minimum deposit (in wei) required to submit any proposal that is not
     // requesting a new Curator (no deposit is required for splits)
@@ -328,7 +329,7 @@ contract DAOInterface {
 
     /// @param _account The address of the account which is checked.
     /// @return Whether the account is blocked (not allowed to transfer tokens) or not.
-    function isBlocked(address _account) internal returns (bool);
+    function getOrModifyBlocked(address _account) internal returns (bool);
 
     /// @notice If the caller is blocked by a proposal whose voting deadline
     /// has exprired then unblock him.
@@ -514,6 +515,17 @@ contract DAO is DAOInterface, Token, TokenCreation {
             blocked[msg.sender] = _proposalID;
         }
 
+        // yay votes are blocked from splitting/withdrawing from the DAO
+        if (_supportsProposal) {
+            if (splitBlocked[msg.sender] == 0) {
+                splitBlocked[msg.sender] = _proposalID;
+            } else if (p.votingDeadline > proposals[splitBlocked[msg.sender]].votingDeadline) {
+                // this proposal's voting deadline is further into the future than
+                // the proposal that blocks the sender so make it the blocker
+                splitBlocked[msg.sender] = _proposalID;
+            }
+        }
+
         Voted(_proposalID, _supportsProposal, msg.sender);
     }
 
@@ -617,6 +629,45 @@ contract DAO is DAOInterface, Token, TokenCreation {
         p.open = false;
     }
 
+    function withdraw() noEther onlyTokenholders returns (bool _success) {
+
+        // don't allow withdrawing when token holder is blocked due to a vote
+        // unVoteAll() would be an alternative
+        if (getOrModifySplitBlocked(msg.sender))
+            throw;
+
+        // Move ether
+        uint senderBalance = balances[msg.sender];
+        uint fundsToBeMoved = (senderBalance * actualBalance()) / totalSupply;
+        balances[msg.sender] = 0;
+        msg.sender.send(fundsToBeMoved);
+
+        // Assign reward rights
+        uint rewardTokenToBeMoved =
+            (senderBalance * rewardToken[address(this)]) /
+            totalSupply;
+
+        uint paidOutToBeMoved = DAOpaidOut[address(this)] * rewardTokenToBeMoved /
+            rewardToken[address(this)];
+
+        rewardToken[msg.sender] += rewardTokenToBeMoved;
+        if (rewardToken[address(this)] < rewardTokenToBeMoved)
+            throw;
+        rewardToken[address(this)] -= rewardTokenToBeMoved;
+
+        DAOpaidOut[msg.sender] += paidOutToBeMoved;
+        if (DAOpaidOut[address(this)] < paidOutToBeMoved)
+            throw;
+        DAOpaidOut[address(this)] -= paidOutToBeMoved;
+
+        // Burn DAO Tokens
+        Transfer(msg.sender, 0, senderBalance);
+        withdrawRewardFor(msg.sender); // be nice, and get his rewards
+        totalSupply -= senderBalance;
+        paidOut[msg.sender] = 0;
+        return true;
+    }
+
     function splitDAO(
         uint _proposalID,
         address _newCurator
@@ -635,8 +686,8 @@ contract DAO is DAOInterface, Token, TokenCreation {
             || !p.newCurator
             // Have you voted for this split?
             || !p.votedYes[msg.sender]
-            // Did you already vote on another proposal?
-            || (blocked[msg.sender] != _proposalID && blocked[msg.sender] != 0) )  {
+            // Did you already vote in favour of another proposal?
+            || (splitBlocked[msg.sender] != _proposalID && splitBlocked[msg.sender] != 0) )  {
 
             throw;
         }
@@ -757,8 +808,8 @@ contract DAO is DAOInterface, Token, TokenCreation {
     function transfer(address _to, uint256 _value) returns (bool success) {
         if (isFueled
             && now > closingTime
-            && !isBlocked(msg.sender)
-            && !isBlocked(_to)
+            && !getOrModifyBlocked(msg.sender)
+            && !getOrModifyBlocked(_to)
             && _to != address(this)
             && transferPaidOut(msg.sender, _to, _value)
             && super.transfer(_to, _value)) {
@@ -780,8 +831,8 @@ contract DAO is DAOInterface, Token, TokenCreation {
     function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
         if (isFueled
             && now > closingTime
-            && !isBlocked(_from)
-            && !isBlocked(_to)
+            && !getOrModifyBlocked(_from)
+            && !getOrModifyBlocked(_to)
             && _to != address(this)
             && transferPaidOut(_from, _to, _value)
             && super.transferFrom(_from, _to, _value)) {
@@ -881,7 +932,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     }
 
     function numberOfProposals() constant returns (uint _numberOfProposals) {
-        // Don't count index 0. It's used by isBlocked() and exists from start
+        // Don't count index 0. It's used by getOrModifyBlocked() and exists from start
         return proposals.length - 1;
     }
 
@@ -889,11 +940,11 @@ contract DAO is DAOInterface, Token, TokenCreation {
         return proposals[_proposalID].splitData[0].newDAO;
     }
 
-    function isBlocked(address _account) internal returns (bool) {
+    function getOrModifyBlocked(address _account) internal returns (bool) {
         if (blocked[_account] == 0)
             return false;
         Proposal p = proposals[blocked[_account]];
-        if (now > p.votingDeadline) {
+        if (p.open) {
             blocked[_account] = 0;
             return false;
         } else {
@@ -901,8 +952,20 @@ contract DAO is DAOInterface, Token, TokenCreation {
         }
     }
 
+    function getOrModifySplitBlocked(address _account) internal returns (bool) {
+        if (splitBlocked[_account] == 0)
+            return false;
+        Proposal p = proposals[splitBlocked[_account]];
+        if (p.open) {
+            splitBlocked[_account] = 0;
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     function unblockMe() returns (bool) {
-        return isBlocked(msg.sender);
+        return getOrModifyBlocked(msg.sender) && getOrModifySplitBlocked(msg.sender);
     }
 }
 
