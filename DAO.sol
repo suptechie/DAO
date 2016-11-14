@@ -83,6 +83,7 @@ contract DAOInterface {
     // Map of addresses blocked during a vote (not allowed to transfer DAO
     // tokens). The address points to the proposal ID.
     mapping (address => uint) public blocked;
+    mapping (address => uint) public splitBlocked;
 
     // The minimum deposit (in wei) required to submit any proposal that is not
     // requesting a new Curator (no deposit is required for splits)
@@ -328,7 +329,7 @@ contract DAOInterface {
 
     /// @param _account The address of the account which is checked.
     /// @return Whether the account is blocked (not allowed to transfer tokens) or not.
-    function isBlocked(address _account) internal returns (bool);
+    function getOrModifyBlocked(address _account) internal returns (bool);
 
     /// @notice If the caller is blocked by a proposal whose voting deadline
     /// has exprired then unblock him.
@@ -514,6 +515,17 @@ contract DAO is DAOInterface, Token, TokenCreation {
             blocked[msg.sender] = _proposalID;
         }
 
+        // yay votes are blocked from splitting/withdrawing from the DAO
+        if (_supportsProposal) {
+            if (splitBlocked[msg.sender] == 0) {
+                splitBlocked[msg.sender] = _proposalID;
+            } else if (p.votingDeadline > proposals[splitBlocked[msg.sender]].votingDeadline) {
+                // this proposal's voting deadline is further into the future than
+                // the proposal that blocks the sender so make it the blocker
+                splitBlocked[msg.sender] = _proposalID;
+            }
+        }
+
         Voted(_proposalID, _supportsProposal, msg.sender);
     }
 
@@ -617,6 +629,47 @@ contract DAO is DAOInterface, Token, TokenCreation {
         p.open = false;
     }
 
+    function withdraw() noEther onlyTokenholders returns (bool _success) {
+
+        // don't allow withdrawing when token holder is blocked due to a vote
+        // unVoteAll() would be an alternative
+        if (getOrModifySplitBlocked(msg.sender))
+            throw;
+
+        // Move ether
+        uint fundsToBeMoved =
+            (balances[msg.sender] * actualBalance()) /
+            totalSupply;
+
+        msg.sender.call.value(fundsToBeMoved);
+
+        // Assign reward rights
+        uint rewardTokenToBeMoved =
+            (balances[msg.sender] * rewardToken[address(this)]) /
+            totalSupply;
+
+        uint paidOutToBeMoved = DAOpaidOut[address(this)] * rewardTokenToBeMoved /
+            rewardToken[address(this)];
+
+        rewardToken[msg.sender] += rewardTokenToBeMoved;
+        if (rewardToken[address(this)] < rewardTokenToBeMoved)
+            throw;
+        rewardToken[address(this)] -= rewardTokenToBeMoved;
+
+        DAOpaidOut[msg.sender] += paidOutToBeMoved;
+        if (DAOpaidOut[address(this)] < paidOutToBeMoved)
+            throw;
+        DAOpaidOut[address(this)] -= paidOutToBeMoved;
+
+        // Burn DAO Tokens
+        Transfer(msg.sender, 0, balances[msg.sender]);
+        withdrawRewardFor(msg.sender); // be nice, and get his rewards
+        totalSupply -= balances[msg.sender];
+        balances[msg.sender] = 0;
+        paidOut[msg.sender] = 0;
+        return true;
+    }
+
     function splitDAO(
         uint _proposalID,
         address _newCurator
@@ -635,8 +688,8 @@ contract DAO is DAOInterface, Token, TokenCreation {
             || !p.newCurator
             // Have you voted for this split?
             || !p.votedYes[msg.sender]
-            // Did you already vote on another proposal?
-            || (blocked[msg.sender] != _proposalID && blocked[msg.sender] != 0) )  {
+            // Did you already vote in favour of another proposal?
+            || (splitBlocked[msg.sender] != _proposalID && splitBlocked[msg.sender] != 0) )  {
 
             throw;
         }
@@ -719,7 +772,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
             totalRewardToken - DAOpaidOut[msg.sender];
 
         reward = DAOrewardAccount.balance < reward ? DAOrewardAccount.balance : reward;
-        DAOpaidOut[msg.sender] += reward;
+
         if(_toMembers) {
             if (!DAOrewardAccount.payOut(dao.rewardAccount(), reward))
                 throw;
@@ -728,6 +781,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
             if (!DAOrewardAccount.payOut(dao, reward))
                 throw;
         }
+        DAOpaidOut[msg.sender] += reward;
         return true;
     }
 
@@ -737,7 +791,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
 
     function withdrawRewardFor(address _account) noEther internal returns (bool _success) {
-        if ((balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply <= paidOut[_account])
+        if ((balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply < paidOut[_account])
             throw;
 
         uint reward =
