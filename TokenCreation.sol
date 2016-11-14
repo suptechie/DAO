@@ -28,22 +28,11 @@ import "./ManagedAccount.sol";
 pragma solidity ^0.4.4;
 
 contract TokenCreationInterface {
-    // For DAO splits - if parentDAO is 0, then it is a public token
-    // creation, otherwise only the address stored in parentDAO is
-    // allowed to create tokens
-    address public parentDAO;
-
     /// @dev Constructor setting the minimum fueling goal and the
     /// end of the Token Creation
-    /// @param _closingTime Date (in Unix time) of the end of the Token Creation
-    /// @param _parentDAO Zero means that the creation is public.  A
-    /// non-zero address represents the parentDAO that can buy tokens in the
-    /// creation phase.
     /// (the address can also create Tokens on behalf of other accounts)
     // This is the constructor: it can not be overloaded so it is commented out
     //  function TokenCreation(
-        //  uint _closingTime,
-        //  address _parentDAO,
         //  string _tokenName,
         //  string _tokenSymbol,
         //  uint _decimalPlaces
@@ -59,21 +48,16 @@ contract TokenCreationInterface {
 
 contract TokenCreation is TokenCreationInterface, Token {
     function TokenCreation(
-        address _parentDAO,
         string _tokenName,
         string _tokenSymbol,
         uint _decimalPlaces) {
-        parentDAO = _parentDAO;
         name = _tokenName;
         symbol = _tokenSymbol;
         decimals = _decimalPlaces;
-        
     }
 
     function createTokenProxy(address _tokenHolder) payable returns (bool success) {
-        if (msg.value > 0
-            && (parentDAO == 0 || parentDAO == msg.sender)) {
-
+        if (msg.value > 0) {
             balances[_tokenHolder] += msg.value;
             totalSupply += msg.value;
             CreatedToken(_tokenHolder, msg.value);

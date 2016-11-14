@@ -93,10 +93,6 @@ contract DAOInterface {
     // the accumulated sum of all current proposal deposits
     uint sumOfProposalDeposits;
 
-    // Contract that is able to create a new DAO (with the same code as
-    // this one), used for splits
-    DAO_Creator public daoCreator;
-
     // A proposal with `newCurator == false` represents a transaction
     // to be issued by this DAO
     // A proposal with `newCurator == true` represents a DAO split
@@ -123,8 +119,6 @@ contract DAOInterface {
         uint proposalDeposit;
         // True if this proposal is to assign a new Curator
         bool newCurator;
-        // Data needed for splitting the DAO
-        SplitData[] splitData;
         // true if more tokens are in favour of the proposal than opposed to it at
         // least `preSupportTime` before the voting deadline
         bool preSupport;
@@ -138,18 +132,6 @@ contract DAOInterface {
         mapping (address => bool) votedNo;
         // Address of the shareholder who created the proposal
         address creator;
-    }
-
-    // Used only in the case of a newCurator proposal.
-    struct SplitData {
-        // The balance of the current DAO minus the deposit at the time of split
-        uint splitBalance;
-        // The total amount of DAO Tokens in existence at the time of split.
-        uint totalSupply;
-        // Amount of Reward Tokens owned by the DAO at the time of split.
-        uint rewardToken;
-        // The new DAO contract created at the time of split.
-        DAO newDAO;
     }
 
     /// @dev Constructor setting the Curator and the address
@@ -244,21 +226,6 @@ contract DAOInterface {
         bytes _transactionData
     ) returns (bool _success);
 
-    /// @notice ATTENTION! I confirm to move my remaining ether to a new DAO
-    /// with `_newCurator` as the new Curator, as has been
-    /// proposed in proposal `_proposalID`. This will burn my tokens. This can
-    /// not be undone and will split the DAO into two DAO's, with two
-    /// different underlying tokens.
-    /// @param _proposalID The proposal ID
-    /// @param _newCurator The new Curator of the new DAO
-    /// @dev This function, when called for the first time for this proposal,
-    /// will create a new DAO and send the sender's portion of the remaining
-    /// ether and Reward Tokens to the new DAO. It will also burn the DAO Tokens
-    /// of the sender.
-    function splitDAO(
-        uint _proposalID,
-        address _newCurator
-    ) returns (bool _success);
 
     /// @dev can only be called by the DAO itself through a proposal
     /// updates the contract of the DAO by sending all ether and rewardTokens
@@ -323,10 +290,6 @@ contract DAOInterface {
     /// @return total number of proposals ever created
     function numberOfProposals() constant returns (uint _numberOfProposals);
 
-    /// @param _proposalID Id of the new curator proposal
-    /// @return Address of the new DAO
-    function getNewDAOAddress(uint _proposalID) constant returns (address _newDAO);
-
     /// @param _account The address of the account which is checked.
     /// @return Whether the account is blocked (not allowed to transfer tokens) or not.
     function getOrModifyBlocked(address _account) internal returns (bool);
@@ -340,7 +303,6 @@ contract DAOInterface {
         uint indexed proposalID,
         address recipient,
         uint amount,
-        bool newCurator,
         string description
     );
     event Voted(uint indexed proposalID, bool position, address indexed voter);
@@ -360,20 +322,16 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
     function DAO(
         address _curator,
-        DAO_Creator _daoCreator,
         uint _proposalDeposit,
-        address _parentDAO,
         string _tokenName, 
         string _tokenSymbol,
         uint _decimalPlaces
     ) TokenCreation(
-        _parentDAO,
         _tokenName, 
         _tokenSymbol,
         _decimalPlaces) {
 
         curator = _curator;
-        daoCreator = _daoCreator;
         proposalDeposit = _proposalDeposit;
         rewardAccount = new ManagedAccount(address(this), false);
         DAOrewardAccount = new ManagedAccount(address(this), false);
@@ -405,29 +363,17 @@ contract DAO is DAOInterface, Token, TokenCreation {
         uint _amount,
         string _description,
         bytes _transactionData,
-        uint _debatingPeriod,
-        bool _newCurator
+        uint _debatingPeriod
     ) onlyTokenholders returns (uint _proposalID) {
 
-        // Sanity check
-        if (_newCurator && (
-            _amount != 0
-            || _transactionData.length != 0
-            || _recipient == curator
-            || msg.value > 0
-            || _debatingPeriod < minSplitDebatePeriod)) {
+
+        if (!allowedRecipients[_recipient] || (_debatingPeriod < minProposalDebatePeriod))
             throw;
-        } else if (
-            !_newCurator
-            && (!allowedRecipients[_recipient] || (_debatingPeriod < minProposalDebatePeriod))
-        ) {
-            throw;
-        }
 
         if (_debatingPeriod > 8 weeks)
             throw;
 
-        if (msg.value < proposalDeposit && !_newCurator) {
+        if (msg.value < proposalDeposit) {
             throw;
         }
 
@@ -451,9 +397,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
         p.votingDeadline = now + _debatingPeriod;
         p.open = true;
         //p.proposalPassed = False; // that's default
-        p.newCurator = _newCurator;
-        if (_newCurator)
-            p.splitData.length++;
         p.creator = msg.sender;
         p.proposalDeposit = msg.value;
 
@@ -463,7 +406,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
             _proposalID,
             _recipient,
             _amount,
-            _newCurator,
             _description
         );
     }
@@ -682,81 +624,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
         return true;
     }
 
-    function splitDAO(
-        uint _proposalID,
-        address _newCurator
-    ) noEther onlyTokenholders returns (bool _success) {
-
-        Proposal p = proposals[_proposalID];
-
-        // Sanity check
-
-        if (now < p.votingDeadline  // has the voting deadline arrived?
-            //The request for a split expires XX days after the voting deadline
-            || now > p.votingDeadline + splitExecutionPeriod
-            // Does the new Curator address match?
-            || p.recipient != _newCurator
-            // Is it a new curator proposal?
-            || !p.newCurator
-            // Have you voted for this split?
-            || !p.votedYes[msg.sender])  {
-
-            throw;
-        }
-
-        unVoteAll();
-
-        // If the new DAO doesn't exist yet, create the new DAO and store the
-        // current split data
-        if (address(p.splitData[0].newDAO) == 0) {
-            p.splitData[0].newDAO = createNewDAO(_newCurator);
-            // Call depth limit reached, etc.
-            if (address(p.splitData[0].newDAO) == 0)
-                throw;
-            // should never happen
-            if (this.balance < sumOfProposalDeposits)
-                throw;
-            p.splitData[0].splitBalance = actualBalance();
-            p.splitData[0].rewardToken = rewardToken[address(this)];
-            p.splitData[0].totalSupply = totalSupply;
-            p.proposalPassed = true;
-        }
-
-        // Move ether and assign new Tokens
-        uint fundsToBeMoved =
-            (balances[msg.sender] * p.splitData[0].splitBalance) /
-            p.splitData[0].totalSupply;
-        if (p.splitData[0].newDAO.createTokenProxy.value(fundsToBeMoved)(msg.sender) == false)
-            throw;
-
-
-        // Assign reward rights to new DAO
-        uint rewardTokenToBeMoved =
-            (balances[msg.sender] * p.splitData[0].rewardToken) /
-            p.splitData[0].totalSupply;
-
-        uint paidOutToBeMoved = DAOpaidOut[address(this)] * rewardTokenToBeMoved /
-            rewardToken[address(this)];
-
-        rewardToken[address(p.splitData[0].newDAO)] += rewardTokenToBeMoved;
-        if (rewardToken[address(this)] < rewardTokenToBeMoved)
-            throw;
-        rewardToken[address(this)] -= rewardTokenToBeMoved;
-
-        DAOpaidOut[address(p.splitData[0].newDAO)] += paidOutToBeMoved;
-        if (DAOpaidOut[address(this)] < paidOutToBeMoved)
-            throw;
-        DAOpaidOut[address(this)] -= paidOutToBeMoved;
-
-        // Burn DAO Tokens
-        Transfer(msg.sender, 0, balances[msg.sender]);
-        withdrawRewardFor(msg.sender); // be nice, and get his rewards
-        totalSupply -= balances[msg.sender];
-        balances[msg.sender] = 0;
-        paidOut[msg.sender] = 0;
-        return true;
-    }
-
     function newContract(address _newContract){
         if (msg.sender != address(this) || !allowedRecipients[_newContract]) return;
         // move all ether
@@ -927,24 +794,9 @@ contract DAO is DAOInterface, Token, TokenCreation {
         }
     }
 
-    function createNewDAO(address _newCurator) internal returns (DAO _newDAO) {
-        NewCurator(_newCurator);
-        return daoCreator.createDAO(
-            _newCurator,
-            0,
-            name,
-            symbol,
-            decimals
-        );
-    }
-
     function numberOfProposals() constant returns (uint _numberOfProposals) {
         // Don't count index 0. It's used by getOrModifyBlocked() and exists from start
         return proposals.length - 1;
-    }
-
-    function getNewDAOAddress(uint _proposalID) constant returns (address _newDAO) {
-        return proposals[_proposalID].splitData[0].newDAO;
     }
 
     function getOrModifyBlocked(address _account) internal returns (bool) {
@@ -973,26 +825,5 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
     function unblockMe() returns (bool) {
         return getOrModifyBlocked(msg.sender) && getOrModifySplitBlocked(msg.sender);
-    }
-}
-
-contract DAO_Creator {
-    function createDAO(
-        address _curator,
-        uint _proposalDeposit,
-        string _tokenName, 
-        string _tokenSymbol,
-        uint _decimalPlaces
-    ) returns (DAO _newDAO) {
-
-        return new DAO(
-            _curator,
-            DAO_Creator(this),
-            _proposalDeposit,
-            msg.sender,
-            _tokenName, 
-            _tokenSymbol,
-            _decimalPlaces
-        );
     }
 }
