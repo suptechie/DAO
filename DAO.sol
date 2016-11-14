@@ -85,6 +85,9 @@ contract DAOInterface {
     mapping (address => uint) public blocked;
     mapping (address => uint) public splitBlocked;
 
+    // Map of addresses and proposal voted on by this address
+    mapping (address => uint[]) public votingRegister;
+
     // The minimum deposit (in wei) required to submit any proposal that is not
     // requesting a new Curator (no deposit is required for splits)
     uint public proposalDeposit;
@@ -492,12 +495,8 @@ contract DAO is DAOInterface, Token, TokenCreation {
     function vote(uint _proposalID, bool _supportsProposal) onlyTokenholders noEther {
 
         Proposal p = proposals[_proposalID];
-        if (p.votedYes[msg.sender]
-            || p.votedNo[msg.sender]
-            || now >= p.votingDeadline) {
 
-            throw;
-        }
+        unVote(_proposalID);
 
         if (_supportsProposal) {
             p.yea += balances[msg.sender];
@@ -515,18 +514,44 @@ contract DAO is DAOInterface, Token, TokenCreation {
             blocked[msg.sender] = _proposalID;
         }
 
-        // yay votes are blocked from splitting/withdrawing from the DAO
-        if (_supportsProposal) {
-            if (splitBlocked[msg.sender] == 0) {
-                splitBlocked[msg.sender] = _proposalID;
-            } else if (p.votingDeadline > proposals[splitBlocked[msg.sender]].votingDeadline) {
-                // this proposal's voting deadline is further into the future than
-                // the proposal that blocks the sender so make it the blocker
-                splitBlocked[msg.sender] = _proposalID;
-            }
+        votingRegister[msg.sender].push(_proposalID);
+        Voted(_proposalID, _supportsProposal, msg.sender);
+    }
+
+    function unVote(uint _proposalID){
+        Proposal p = proposals[_proposalID];
+
+        if (now >= p.votingDeadline) {
+            throw;
         }
 
-        Voted(_proposalID, _supportsProposal, msg.sender);
+        // (ambush prevention - another PR)
+        //if ((p.votedYes[msg.sender]
+        //    || p.votedNo[msg.sender])
+        //    && now > p.votingDeadline - preSupportTime) {
+        //    throw;
+        //}
+
+        if (p.votedYes[msg.sender]) {
+            p.yea -= balances[msg.sender];
+            p.votedYes[msg.sender] = false;
+        }
+
+        if (p.votedNo[msg.sender]) {
+            p.nay -= balances[msg.sender];
+            p.votedNo[msg.sender] = false;
+        }
+    }
+
+    function unVoteAll() {
+        for (uint i = 0; i < votingRegister[msg.sender].length; i++) {
+            Proposal p = proposals[votingRegister[msg.sender][i]];
+            if (now < p.votingDeadline)
+                unVote(i);
+        }
+
+        votingRegister[msg.sender].length = 0;
+        blocked[msg.sender] = 0;
     }
 
 
@@ -631,10 +656,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
     function withdraw() noEther onlyTokenholders returns (bool _success) {
 
-        // don't allow withdrawing when token holder is blocked due to a vote
-        // unVoteAll() would be an alternative
-        if (getOrModifySplitBlocked(msg.sender))
-            throw;
+        unVoteAll();
 
         // Move ether
         uint senderBalance = balances[msg.sender];
@@ -685,12 +707,12 @@ contract DAO is DAOInterface, Token, TokenCreation {
             // Is it a new curator proposal?
             || !p.newCurator
             // Have you voted for this split?
-            || !p.votedYes[msg.sender]
-            // Did you already vote in favour of another proposal?
-            || (splitBlocked[msg.sender] != _proposalID && splitBlocked[msg.sender] != 0) )  {
+            || !p.votedYes[msg.sender])  {
 
             throw;
         }
+
+        unVoteAll();
 
         // If the new DAO doesn't exist yet, create the new DAO and store the
         // current split data
@@ -805,6 +827,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
 
     function transfer(address _to, uint256 _value) returns (bool success) {
+        unVoteAll();
         if (isFueled
             && now > closingTime
             && !getOrModifyBlocked(msg.sender)
