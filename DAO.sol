@@ -22,7 +22,6 @@ to automate organizational governance and decision-making.
 */
 
 import "./TokenCreation.sol";
-import "./ManagedAccount.sol";
 
 pragma solidity ^0.4.4;
 
@@ -56,7 +55,6 @@ contract DAOInterface {
     // Map of addresses blocked during a vote (not allowed to transfer DAO
     // tokens). The address points to the proposal ID.
     mapping (address => uint) public blocked;
-    mapping (address => uint) public splitBlocked;
 
     // Map of addresses and proposal voted on by this address
     mapping (address => uint[]) public votingRegister;
@@ -625,19 +623,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         }
     }
 
-    function getOrModifySplitBlocked(address _account) internal returns (bool) {
-        if (splitBlocked[_account] == 0)
-            return false;
-        Proposal p = proposals[splitBlocked[_account]];
-        if (p.open) {
-            splitBlocked[_account] = 0;
-            return false;
-        } else {
-            return true;
-        }
-    }
-
     function unblockMe() returns (bool) {
-        return getOrModifyBlocked(msg.sender) && getOrModifySplitBlocked(msg.sender);
+        return getOrModifyBlocked(msg.sender);
     }
 }
