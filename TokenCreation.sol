@@ -28,14 +28,6 @@ import "./ManagedAccount.sol";
 pragma solidity ^0.4.4;
 
 contract TokenCreationInterface {
-
-    // End of token creation, in Unix time
-    uint public closingTime;
-    // Minimum fueling goal of the token creation, denominated in tokens to
-    // be created
-    uint public minTokensToCreate;
-    // True if the DAO reached its minimum fueling goal, false otherwise
-    bool public isFueled;
     // For DAO splits - if parentDAO is 0, then it is a public token
     // creation, otherwise only the address stored in parentDAO is
     // allowed to create tokens
@@ -61,22 +53,16 @@ contract TokenCreationInterface {
     /// @param _tokenHolder The address of the Tokens's recipient
     /// @return Whether the token creation was successful
     function createTokenProxy(address _tokenHolder) payable returns (bool success);
-
-    event FuelingToDate(uint value);
     event CreatedToken(address indexed to, uint amount);
-    event Refund(address indexed to, uint value);
 }
 
 
 contract TokenCreation is TokenCreationInterface, Token {
     function TokenCreation(
-        uint _closingTime,
         address _parentDAO,
         string _tokenName,
         string _tokenSymbol,
         uint _decimalPlaces) {
-
-        closingTime = _closingTime;
         parentDAO = _parentDAO;
         name = _tokenName;
         symbol = _tokenSymbol;
@@ -85,16 +71,12 @@ contract TokenCreation is TokenCreationInterface, Token {
     }
 
     function createTokenProxy(address _tokenHolder) payable returns (bool success) {
-        if (now < closingTime && msg.value > 0
+        if (msg.value > 0
             && (parentDAO == 0 || parentDAO == msg.sender)) {
 
             balances[_tokenHolder] += msg.value;
             totalSupply += msg.value;
             CreatedToken(_tokenHolder, msg.value);
-            if (totalSupply >= minTokensToCreate && !isFueled) {
-                isFueled = true;
-                FuelingToDate(totalSupply);
-            }
             return true;
         }
         throw;

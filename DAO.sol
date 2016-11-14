@@ -27,10 +27,6 @@ import "./ManagedAccount.sol";
 pragma solidity ^0.4.4;
 
 contract DAOInterface {
-
-    // The amount of days for which people who try to participate in the
-    // creation by calling the fallback function will still get their ether back
-    uint constant creationGracePeriod = 40 days;
     // The minimum debate period that a generic proposal can have
     uint constant minProposalDebatePeriod = 2 weeks;
     // The minimum debate period that a split proposal can have
@@ -366,13 +362,11 @@ contract DAO is DAOInterface, Token, TokenCreation {
         address _curator,
         DAO_Creator _daoCreator,
         uint _proposalDeposit,
-        uint _closingTime,
         address _parentDAO,
         string _tokenName, 
         string _tokenSymbol,
         uint _decimalPlaces
     ) TokenCreation(
-        _closingTime, 
         _parentDAO,
         _tokenName, 
         _tokenSymbol,
@@ -396,10 +390,8 @@ contract DAO is DAOInterface, Token, TokenCreation {
     }
 
     function () {
-        if (now < closingTime + creationGracePeriod)
             createTokenProxy(msg.sender);
-        else
-            receiveEther();
+
     }
 
 
@@ -435,10 +427,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         if (_debatingPeriod > 8 weeks)
             throw;
 
-        if (!isFueled
-            || now < closingTime
-            || (msg.value < proposalDeposit && !_newCurator)) {
-
+        if (msg.value < proposalDeposit && !_newCurator) {
             throw;
         }
 
@@ -831,9 +820,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
     function transfer(address _to, uint256 _value) returns (bool success) {
         unVoteAll();
-        if (isFueled
-            && now > closingTime
-            && !getOrModifyBlocked(msg.sender)
+        if (!getOrModifyBlocked(msg.sender)
             && !getOrModifyBlocked(_to)
             && _to != address(this)
             && transferPaidOut(msg.sender, _to, _value)
@@ -854,9 +841,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
 
     function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
-        if (isFueled
-            && now > closingTime
-            && !getOrModifyBlocked(_from)
+        if (!getOrModifyBlocked(_from)
             && !getOrModifyBlocked(_to)
             && _to != address(this)
             && transferPaidOut(_from, _to, _value)
@@ -933,7 +918,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
         // between the calls
         if ((lastTimeMinQuorumMet < (now - quorumHalvingPeriod) || msg.sender == curator)
             && lastTimeMinQuorumMet < (now - minProposalDebatePeriod)
-            && now >= closingTime
             && proposals.length > 1) {
             lastTimeMinQuorumMet = now;
             minQuorumDivisor *= 2;
@@ -948,7 +932,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
         return daoCreator.createDAO(
             _newCurator,
             0,
-            now + splitExecutionPeriod,
             name,
             symbol,
             decimals
@@ -997,7 +980,6 @@ contract DAO_Creator {
     function createDAO(
         address _curator,
         uint _proposalDeposit,
-        uint _closingTime,
         string _tokenName, 
         string _tokenSymbol,
         uint _decimalPlaces
@@ -1007,7 +989,6 @@ contract DAO_Creator {
             _curator,
             DAO_Creator(this),
             _proposalDeposit,
-            _closingTime,
             msg.sender,
             _tokenName, 
             _tokenSymbol,
