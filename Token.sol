@@ -30,15 +30,15 @@ https://github.com/ethereum/wiki/wiki/Standardized_Contract_APIs
 
 /// @title Standard Token Contract.
 
+pragma solidity ^0.4.4;
+
 contract TokenInterface {
     mapping (address => uint256) balances;
     mapping (address => mapping (address => uint256)) allowed;
 
-    /// Public variables of the token, all used for display 
     string public name;
     string public symbol;
-    uint8 public decimals;
-    string public standard = 'Token 0.1';
+    uint  public decimals;
 
     /// Total amount of tokens
     uint256 public totalSupply;
@@ -89,7 +89,7 @@ contract TokenInterface {
 contract Token is TokenInterface {
     // Protects users by preventing the execution of method calls that
     // inadvertently also transferred ether
-    modifier noEther() {if (msg.value > 0) throw; _}
+    modifier noEther() {if (msg.value > 0) throw; _;}
 
     function balanceOf(address _owner) constant returns (uint256 balance) {
         return balances[_owner];
@@ -136,3 +136,4 @@ contract Token is TokenInterface {
         return allowed[_owner][_spender];
     }
 }
+

@@ -24,6 +24,8 @@ to automate organizational governance and decision-making.
 import "./TokenCreation.sol";
 import "./ManagedAccount.sol";
 
+pragma solidity ^0.4.4;
+
 contract DAOInterface {
 
     // The amount of days for which people who try to participate in the
@@ -154,9 +156,6 @@ contract DAOInterface {
         DAO newDAO;
     }
 
-    // Used to restrict access to certain functions to only DAO Token Holders
-    modifier onlyTokenholders {}
-
     /// @dev Constructor setting the Curator and the address
     /// for the contract able to create another DAO as well as the parameters
     /// for the DAO Token Creation
@@ -187,8 +186,7 @@ contract DAOInterface {
     //  );
 
     /// @notice Create Token with `msg.sender` as the beneficiary
-    /// @return Whether the token creation was successful
-    function () returns (bool success);
+    function ();
 
 
     /// @dev This function is used to send ether back
@@ -217,7 +215,7 @@ contract DAOInterface {
         bytes _transactionData,
         uint _debatingPeriod,
         bool _newCurator
-    ) onlyTokenholders returns (uint _proposalID);
+    ) returns (uint _proposalID);
 
     /// @notice Check that the proposal with the ID `_proposalID` matches the
     /// transaction which sends `_amount` with data `_transactionData`
@@ -361,7 +359,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     // Modifier that allows only shareholders to vote and create new proposals
     modifier onlyTokenholders {
         if (balanceOf(msg.sender) == 0) throw;
-            _
+            _;
     }
 
     function DAO(
@@ -373,7 +371,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         address _parentDAO,
         string _tokenName, 
         string _tokenSymbol,
-        uint8 _decimalPlaces
+        uint _decimalPlaces
     ) TokenCreation(
         _minTokensToCreate, 
         _closingTime, 
@@ -399,11 +397,11 @@ contract DAO is DAOInterface, Token, TokenCreation {
         allowedRecipients[curator] = true;
     }
 
-    function () returns (bool success) {
+    function () {
         if (now < closingTime + creationGracePeriod)
-            return createTokenProxy(msg.sender);
+            createTokenProxy(msg.sender);
         else
-            return receiveEther();
+            receiveEther();
     }
 
 
@@ -1006,7 +1004,7 @@ contract DAO_Creator {
         uint _closingTime,
         string _tokenName, 
         string _tokenSymbol,
-        uint8 _decimalPlaces
+        uint _decimalPlaces
     ) returns (DAO _newDAO) {
 
         return new DAO(

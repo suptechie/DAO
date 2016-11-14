@@ -25,6 +25,8 @@ along with the DAO.  If not, see <http://www.gnu.org/licenses/>.
 import "./Token.sol";
 import "./ManagedAccount.sol";
 
+pragma solidity ^0.4.4;
+
 contract TokenCreationInterface {
 
     // End of token creation, in Unix time
@@ -61,7 +63,7 @@ contract TokenCreationInterface {
     /// @notice Create Token with `_tokenHolder` as the initial owner of the Token
     /// @param _tokenHolder The address of the Tokens's recipient
     /// @return Whether the token creation was successful
-    function createTokenProxy(address _tokenHolder) returns (bool success);
+    function createTokenProxy(address _tokenHolder) payable returns (bool success);
 
     /// @notice Refund `msg.sender` in the case the Token Creation did
     /// not reach its minimum fueling goal
@@ -80,7 +82,7 @@ contract TokenCreation is TokenCreationInterface, Token {
         address _parentDAO,
         string _tokenName,
         string _tokenSymbol,
-        uint8 _decimalPlaces) {
+        uint _decimalPlaces) {
 
         closingTime = _closingTime;
         minTokensToCreate = _minTokensToCreate;
@@ -91,7 +93,7 @@ contract TokenCreation is TokenCreationInterface, Token {
         
     }
 
-    function createTokenProxy(address _tokenHolder) returns (bool success) {
+    function createTokenProxy(address _tokenHolder) payable returns (bool success) {
         if (now < closingTime && msg.value > 0
             && (parentDAO == 0 || parentDAO == msg.sender)) {
 
