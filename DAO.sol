@@ -40,8 +40,8 @@ contract DAOInterface {
     // Period after which a proposal is closed
     // (used in the case `executeProposal` fails because it throws)
     uint constant executeProposalPeriod = 10 days;
-    // Grace period for splitting after voting did end
-    uint constant splitGracePeriod = 3 days;
+    // Time for vote freeze. A proposal needs to have majority support before votingDeadline - preSupportTime
+    uint constant preSupportTime = 2 days;
     // Denotes the maximum proposal deposit that can be given. It is given as
     // a fraction of total Ether spent plus balance of the DAO
     uint constant maxDepositDivisor = 100;
@@ -127,6 +127,9 @@ contract DAOInterface {
         bool newCurator;
         // Data needed for splitting the DAO
         SplitData[] splitData;
+        // true if more tokens are in favour of the proposal than opposed to it at
+        // least `preSupportTime` before the voting deadline
+        bool preSupport;
         // Number of Tokens in favor of the proposal
         uint yea;
         // Number of Tokens opposed to the proposal
@@ -518,19 +521,23 @@ contract DAO is DAOInterface, Token, TokenCreation {
         Voted(_proposalID, _supportsProposal, msg.sender);
     }
 
+    function verifyPreSupport(uint _proposalID) {
+        Proposal p = proposals[_proposalID];
+        if (now < p.votingDeadline - preSupportTime) {
+            if (p.yea > p.nay) {
+                p.preSupport = true;
+            }
+            else
+                p.preSupport = false;
+        }
+    }
+
     function unVote(uint _proposalID){
         Proposal p = proposals[_proposalID];
 
         if (now >= p.votingDeadline) {
             throw;
         }
-
-        // (ambush prevention - another PR)
-        //if ((p.votedYes[msg.sender]
-        //    || p.votedNo[msg.sender])
-        //    && now > p.votingDeadline - preSupportTime) {
-        //    throw;
-        //}
 
         if (p.votedYes[msg.sender]) {
             p.yea -= balances[msg.sender];
@@ -566,13 +573,13 @@ contract DAO is DAOInterface, Token, TokenCreation {
             ? splitExecutionPeriod
             : executeProposalPeriod;
         // If we are over deadline and waiting period, assert proposal is closed
-        if (p.open && now > p.votingDeadline + splitGracePeriod + waitPeriod) {
+        if (p.open && now > p.votingDeadline + waitPeriod) {
             closeProposal(_proposalID);
             return;
         }
 
         // Check if the proposal can be executed
-        if (now < p.votingDeadline + splitGracePeriod // has the execution time arrived?
+        if (now < p.votingDeadline  // has the voting deadline arrived?
             // Have the votes been counted?
             || !p.open
             || p.proposalPassed // anyone trying to call us recursively?
@@ -592,7 +599,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         bool proposalCheck = true;
 
-        if (p.amount > actualBalance())
+        if (p.amount > actualBalance() || p.preSupport == false)
             proposalCheck = false;
 
         uint quorum = p.yea;
