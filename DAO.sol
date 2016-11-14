@@ -366,14 +366,12 @@ contract DAO is DAOInterface, Token, TokenCreation {
         address _curator,
         DAO_Creator _daoCreator,
         uint _proposalDeposit,
-        uint _minTokensToCreate,
         uint _closingTime,
         address _parentDAO,
         string _tokenName, 
         string _tokenSymbol,
         uint _decimalPlaces
     ) TokenCreation(
-        _minTokensToCreate, 
         _closingTime, 
         _parentDAO,
         _tokenName, 
@@ -950,7 +948,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
         return daoCreator.createDAO(
             _newCurator,
             0,
-            0,
             now + splitExecutionPeriod,
             name,
             symbol,
@@ -1000,7 +997,6 @@ contract DAO_Creator {
     function createDAO(
         address _curator,
         uint _proposalDeposit,
-        uint _minTokensToCreate,
         uint _closingTime,
         string _tokenName, 
         string _tokenSymbol,
@@ -1011,7 +1007,6 @@ contract DAO_Creator {
             _curator,
             DAO_Creator(this),
             _proposalDeposit,
-            _minTokensToCreate,
             _closingTime,
             msg.sender,
             _tokenName, 

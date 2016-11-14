@@ -43,8 +43,6 @@ contract TokenCreationInterface {
 
     /// @dev Constructor setting the minimum fueling goal and the
     /// end of the Token Creation
-    /// @param _minTokensToCreate Minimum fueling goal in number of
-    ///        Tokens to be created
     /// @param _closingTime Date (in Unix time) of the end of the Token Creation
     /// @param _parentDAO Zero means that the creation is public.  A
     /// non-zero address represents the parentDAO that can buy tokens in the
@@ -52,7 +50,6 @@ contract TokenCreationInterface {
     /// (the address can also create Tokens on behalf of other accounts)
     // This is the constructor: it can not be overloaded so it is commented out
     //  function TokenCreation(
-        //  uint _minTokensTocreate,
         //  uint _closingTime,
         //  address _parentDAO,
         //  string _tokenName,
@@ -65,10 +62,6 @@ contract TokenCreationInterface {
     /// @return Whether the token creation was successful
     function createTokenProxy(address _tokenHolder) payable returns (bool success);
 
-    /// @notice Refund `msg.sender` in the case the Token Creation did
-    /// not reach its minimum fueling goal
-    function refund();
-
     event FuelingToDate(uint value);
     event CreatedToken(address indexed to, uint amount);
     event Refund(address indexed to, uint value);
@@ -77,7 +70,6 @@ contract TokenCreationInterface {
 
 contract TokenCreation is TokenCreationInterface, Token {
     function TokenCreation(
-        uint _minTokensToCreate,
         uint _closingTime,
         address _parentDAO,
         string _tokenName,
@@ -85,7 +77,6 @@ contract TokenCreation is TokenCreationInterface, Token {
         uint _decimalPlaces) {
 
         closingTime = _closingTime;
-        minTokensToCreate = _minTokensToCreate;
         parentDAO = _parentDAO;
         name = _tokenName;
         symbol = _tokenSymbol;
@@ -107,19 +98,5 @@ contract TokenCreation is TokenCreationInterface, Token {
             return true;
         }
         throw;
-    }
-
-    function refund() noEther {
-        if (now > closingTime && !isFueled) {
-
-            // Execute refund
-            if (msg.sender.send(balances[msg.sender])) {
-            // its the recipients responsibilty to ensure 
-            // their address does not use too much gas
-                Refund(msg.sender, balances[msg.sender]);
-                totalSupply -= balances[msg.sender];
-                balances[msg.sender] = 0;
-            }
-        }
     }
 }
