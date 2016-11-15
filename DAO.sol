@@ -281,7 +281,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     }
 
     function () payable {
-            createTokenProxy(msg.sender);
+        createTokenProxy(msg.sender);
     }
 
 
@@ -289,32 +289,21 @@ contract DAO is DAOInterface, Token, TokenCreation {
         return true;
     }
 
-
     function newProposal(
         address _recipient,
         uint _amount,
         string _description,
         bytes _transactionData,
-        uint _debatingPeriod
-    ) payable returns (uint _proposalID) {
+        uint64 _debatingPeriod
+    ) onlyTokenholders payable returns (uint _proposalID) {
 
-
-        if (!allowedRecipients[_recipient] || (_debatingPeriod < minProposalDebatePeriod))
-            throw;
-
-        if (_debatingPeriod > 8 weeks)
-            throw;
-
-        if (msg.value < proposalDeposit) {
-            throw;
-        }
-
-        if (now + _debatingPeriod < now) // prevents overflow
-            throw;
-
-        // to prevent a 51% attacker to convert the ether into deposit
-        if (msg.sender == address(this))
-            throw;
+        if (!allowedRecipients[_recipient]
+            || _debatingPeriod < minProposalDebatePeriod
+            || _debatingPeriod > 8 weeks
+            || msg.value < proposalDeposit
+            || msg.sender == address(this) //to prevent a 51% attacker to convert the ether into deposit
+            )
+                throw;
 
         // to prevent curator from halving quorum before first proposal
         if (proposals.length == 1) // initial length is 1 (see constructor)
@@ -342,7 +331,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
         );
     }
 
-
     function checkProposalCode(
         uint _proposalID,
         address _recipient,
@@ -352,7 +340,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
         Proposal p = proposals[_proposalID];
         return p.proposalHash == sha3(_recipient, _amount, _transactionData);
     }
-
 
     function vote(uint _proposalID, bool _supportsProposal) {
 
@@ -378,17 +365,6 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         votingRegister[msg.sender].push(_proposalID);
         Voted(_proposalID, _supportsProposal, msg.sender);
-    }
-
-    function verifyPreSupport(uint _proposalID) {
-        Proposal p = proposals[_proposalID];
-        if (now < p.votingDeadline - preSupportTime) {
-            if (p.yea > p.nay) {
-                p.preSupport = true;
-            }
-            else
-                p.preSupport = false;
-        }
     }
 
     function unVote(uint _proposalID){
@@ -419,7 +395,17 @@ contract DAO is DAOInterface, Token, TokenCreation {
         votingRegister[msg.sender].length = 0;
         blocked[msg.sender] = 0;
     }
-
+    
+    function verifyPreSupport(uint _proposalID) {
+        Proposal p = proposals[_proposalID];
+        if (now < p.votingDeadline - preSupportTime) {
+            if (p.yea > p.nay) {
+                p.preSupport = true;
+            }
+            else
+                p.preSupport = false;
+        }
+    }
 
     function executeProposal(
         uint _proposalID,
@@ -441,15 +427,16 @@ contract DAO is DAOInterface, Token, TokenCreation {
             || !p.open
             || p.proposalPassed // anyone trying to call us recursively?
             // Does the transaction code match the proposal?
-            || p.proposalHash != sha3(p.recipient, p.amount, _transactionData)) {
-
-            throw;
-        }
+            || p.proposalHash != sha3(p.recipient, p.amount, _transactionData)
+            )
+                throw;
 
         // If the curator removed the recipient from the whitelist, close the proposal
         // in order to free the deposit and allow unblocking of voters
         if (!allowedRecipients[p.recipient]) {
             closeProposal(_proposalID);
+            // the return value is not checked to prevent a malicious creator
+            // from delaying the closing of the proposal
             p.creator.send(p.proposalDeposit);
             return;
         }
@@ -465,10 +452,9 @@ contract DAO is DAOInterface, Token, TokenCreation {
         if (_transactionData.length >= 4 && _transactionData[0] == 0x68
             && _transactionData[1] == 0x37 && _transactionData[2] == 0xff
             && _transactionData[3] == 0x1e
-            && quorum < minQuorum(actualBalance())) {
-
+            && quorum < minQuorum(actualBalance())
+            )
                 proposalCheck = false;
-        }
 
         if (quorum >= minQuorum(p.amount)) {
             if (!p.creator.send(p.proposalDeposit))
@@ -488,6 +474,10 @@ contract DAO is DAOInterface, Token, TokenCreation {
             // multiple times out of the DAO
             p.proposalPassed = true;
 
+            // this call is as generic as any transaction. It sends all gas and
+            // can do everything a transaction can do. It can be used to reenter
+            // the DAO. The `p.proposalPassed` variable prevents the call from 
+            // reaching this line again
             if (!p.recipient.call.value(p.amount)(_transactionData))
                 throw;
 
@@ -514,12 +504,14 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         // Move ether
         uint senderBalance = balances[msg.sender];
+        // TODO this is flawed
         uint fundsToBeMoved = (senderBalance * actualBalance()) / totalSupply;
         balances[msg.sender] = 0;
         msg.sender.send(fundsToBeMoved);
 
         // Burn DAO Tokens
         totalSupply -= senderBalance;
+        // event for light client notification
         Transfer(msg.sender, 0, senderBalance);
         return true;
     }
@@ -532,13 +524,9 @@ contract DAO is DAOInterface, Token, TokenCreation {
         }
     }
 
-
-
-
     function transfer(address _to, uint256 _value) returns (bool success) {
         unVoteAll();
-        if (!getOrModifyBlocked(msg.sender)
-            && !getOrModifyBlocked(_to)
+        if (!getOrModifyBlocked(_to)
             && _to != address(this)
             && super.transfer(_to, _value)) {
 
@@ -615,7 +603,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         if (blocked[_account] == 0)
             return false;
         Proposal p = proposals[blocked[_account]];
-        if (p.open) {
+        if (!p.open) {
             blocked[_account] = 0;
             return false;
         } else {
