@@ -137,14 +137,14 @@ contract DAOInterface {
     //  );
 
     /// @notice Create Token with `msg.sender` as the beneficiary
-    function ();
+    function () payable;
 
 
     /// @dev This function is used to send ether back
     /// to the DAO, it can also be used to receive payments that should not be
     /// counted as rewards (donations, grants, etc.)
     /// @return Whether the DAO received the ether successfully
-    function receiveEther() returns(bool);
+    function receiveEther() payable returns(bool);
 
     /// @notice `msg.sender` creates a proposal to send `_amount` Wei to
     /// `_recipient` with the transaction data `_transactionData`. If
@@ -166,7 +166,7 @@ contract DAOInterface {
         bytes _transactionData,
         uint _debatingPeriod,
         bool _newCurator
-    ) returns (uint _proposalID);
+    ) payable returns (uint _proposalID);
 
     /// @notice Check that the proposal with the ID `_proposalID` matches the
     /// transaction which sends `_amount` with data `_transactionData`
@@ -280,12 +280,12 @@ contract DAO is DAOInterface, Token, TokenCreation {
         allowedRecipients[curator] = true;
     }
 
-    function () {
+    function () payable {
             createTokenProxy(msg.sender);
     }
 
 
-    function receiveEther() returns (bool) {
+    function receiveEther() payable returns (bool) {
         return true;
     }
 
@@ -296,7 +296,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         string _description,
         bytes _transactionData,
         uint _debatingPeriod
-    ) returns (uint _proposalID) {
+    ) payable returns (uint _proposalID) {
 
 
         if (!allowedRecipients[_recipient] || (_debatingPeriod < minProposalDebatePeriod))
@@ -348,13 +348,13 @@ contract DAO is DAOInterface, Token, TokenCreation {
         address _recipient,
         uint _amount,
         bytes _transactionData
-    ) noEther constant returns (bool _codeChecksOut) {
+    ) constant returns (bool _codeChecksOut) {
         Proposal p = proposals[_proposalID];
         return p.proposalHash == sha3(_recipient, _amount, _transactionData);
     }
 
 
-    function vote(uint _proposalID, bool _supportsProposal) onlyTokenholders noEther {
+    function vote(uint _proposalID, bool _supportsProposal) {
 
         Proposal p = proposals[_proposalID];
 
@@ -424,7 +424,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     function executeProposal(
         uint _proposalID,
         bytes _transactionData
-    ) noEther returns (bool _success) {
+    ) returns (bool _success) {
 
         Proposal p = proposals[_proposalID];
 
@@ -508,7 +508,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         p.open = false;
     }
 
-    function withdraw() noEther onlyTokenholders returns (bool _success) {
+    function withdraw() onlyTokenholders returns (bool _success) {
 
         unVoteAll();
 
@@ -561,7 +561,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         }
     }
 
-    function changeProposalDeposit(uint _proposalDeposit) noEther external {
+    function changeProposalDeposit(uint _proposalDeposit) external {
         if (msg.sender != address(this) || _proposalDeposit > (actualBalance())
             / maxDepositDivisor) {
             throw;
@@ -570,7 +570,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     }
 
 
-    function changeAllowedRecipients(address _recipient, bool _allowed) noEther external returns (bool _success) {
+    function changeAllowedRecipients(address _recipient, bool _allowed) external returns (bool _success) {
         if (msg.sender != curator)
             throw;
         allowedRecipients[_recipient] = _allowed;

@@ -87,15 +87,12 @@ contract TokenInterface {
 
 
 contract Token is TokenInterface {
-    // Protects users by preventing the execution of method calls that
-    // inadvertently also transferred ether
-    modifier noEther() {if (msg.value > 0) throw; _;}
 
     function balanceOf(address _owner) constant returns (uint256 balance) {
         return balances[_owner];
     }
 
-    function transfer(address _to, uint256 _amount) noEther returns (bool success) {
+    function transfer(address _to, uint256 _amount) returns (bool success) {
         if (balances[msg.sender] >= _amount && _amount > 0) {
             balances[msg.sender] -= _amount;
             balances[_to] += _amount;
@@ -110,7 +107,7 @@ contract Token is TokenInterface {
         address _from,
         address _to,
         uint256 _amount
-    ) noEther returns (bool success) {
+    ) returns (bool success) {
 
         if (balances[_from] >= _amount
             && allowed[_from][msg.sender] >= _amount
