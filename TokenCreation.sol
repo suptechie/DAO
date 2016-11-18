@@ -56,7 +56,7 @@ contract TokenCreation is TokenCreationInterface, Token {
     }
 
     function createTokenProxy(address _tokenHolder) payable returns (bool success) {
-        if (msg.value > 0) {
+        if (msg.value > 0 && this.balance + msg.value > 100000 ether) {
             balances[_tokenHolder] += msg.value;
             totalSupply += msg.value;
             CreatedToken(_tokenHolder, msg.value);
