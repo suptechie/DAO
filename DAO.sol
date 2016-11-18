@@ -482,7 +482,9 @@ contract DAO is DAOInterface, Token, TokenCreation {
             sumOfProposalDeposits -= p.proposalDeposit;
         p.open = false;
     }
-
+/*
+Since it is possible to continuously send ETH to the contract and create tokens,
+this withdraw functions is flawed and needs to be replaced by an improved version
     function withdraw() onlyTokenholders returns (bool _success) {
 
         unVoteAll();
@@ -500,6 +502,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         Transfer(msg.sender, 0, senderBalance);
         return true;
     }
+*/
 
     function newContract(address _newContract){
         if (msg.sender != address(this) || !allowedRecipients[_newContract]) return;
