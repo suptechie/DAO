@@ -39,7 +39,7 @@ contract DAOInterface {
     // a fraction of total Ether spent plus balance of the DAO
     uint constant maxDepositDivisor = 100;
 
-    // Proposals to spend the DAO's ether or to choose a new Curator
+    // Proposals to spend the DAO's ether
     Proposal[] public proposals;
     // The quorum needed for each proposal is partially calculated by
     // totalSupply / minQuorumDivisor
@@ -71,8 +71,6 @@ contract DAOInterface {
     // A proposal with `newCurator == true` represents a DAO split
     struct Proposal {
         // The address where the `amount` will go to if the proposal is accepted
-        // or if `newCurator` is true, the proposed Curator of
-        // the new DAO).
         address recipient;
         // The amount to transfer to `recipient` if the proposal is accepted.
         uint amount;
@@ -136,15 +134,8 @@ contract DAOInterface {
         //  uint8 _decimalPlaces
     //  );
 
-    /// @notice Create Token with `msg.sender` as the beneficiary
-    function () payable;
-
-
-    /// @dev This function is used to send ether back
-    /// to the DAO, it can also be used to receive payments that should not be
-    /// counted as rewards (donations, grants, etc.)
-    /// @return Whether the DAO received the ether successfully
-    function receiveEther() payable returns(bool);
+    /// @notice donate without getting tokens
+    function() payable;
 
     /// @notice `msg.sender` creates a proposal to send `_amount` Wei to
     /// `_recipient` with the transaction data `_transactionData`. If
@@ -280,13 +271,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
         allowedRecipients[curator] = true;
     }
 
-    function () payable {
-        createTokenProxy(msg.sender);
-    }
-
-
-    function receiveEther() payable returns (bool) {
-        return true;
+    function() payable {
     }
 
     function newProposal(
@@ -386,6 +371,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
     }
 
     function unVoteAll() {
+        // DANGEROUS loop with dynamic length - needs improvement
         for (uint i = 0; i < votingRegister[msg.sender].length; i++) {
             Proposal p = proposals[votingRegister[msg.sender][i]];
             if (now < p.votingDeadline)
@@ -414,9 +400,8 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
         Proposal p = proposals[_proposalID];
 
-        uint waitPeriod = executeProposalPeriod;
         // If we are over deadline and waiting period, assert proposal is closed
-        if (p.open && now > p.votingDeadline + waitPeriod) {
+        if (p.open && now > p.votingDeadline + executeProposalPeriod) {
             closeProposal(_proposalID);
             return;
         }
