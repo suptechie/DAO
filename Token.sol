@@ -30,7 +30,11 @@ https://github.com/ethereum/wiki/wiki/Standardized_Contract_APIs
 
 /// @title Standard Token Contract.
 
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.6;
+
+contract Plutocracy {
+    function getOrModifyBlocked(address _account) returns (bool);
+}
 
 contract TokenInterface {
     mapping (address => uint256) balances;
@@ -42,6 +46,9 @@ contract TokenInterface {
 
     /// Total amount of tokens
     uint256 public totalSupply;
+
+    /// Governance contract
+    Plutocracy plutocracy;
 
     /// @param _owner The address from which the balance will be retrieved
     /// @return The balance
@@ -88,12 +95,19 @@ contract TokenInterface {
 
 contract Token is TokenInterface {
 
+    function Token (Plutocracy _plutocracy) {
+        plutocracy = _plutocracy;
+    }
+
     function balanceOf(address _owner) constant returns (uint256 balance) {
         return balances[_owner];
     }
 
     function transfer(address _to, uint256 _amount) returns (bool success) {
-        if (balances[msg.sender] >= _amount && _amount > 0) {
+        if (balances[msg.sender] >= _amount
+            && _amount > 0
+            && plutocracy.getOrModifyBlocked(_to)) {
+
             balances[msg.sender] -= _amount;
             balances[_to] += _amount;
             Transfer(msg.sender, _to, _amount);
@@ -111,7 +125,9 @@ contract Token is TokenInterface {
 
         if (balances[_from] >= _amount
             && allowed[_from][msg.sender] >= _amount
-            && _amount > 0) {
+            && _amount > 0
+            && plutocracy.getOrModifyBlocked(_to)
+            && plutocracy.getOrModifyBlocked(_from)) {
 
             balances[_to] += _amount;
             balances[_from] -= _amount;

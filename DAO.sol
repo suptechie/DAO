@@ -39,6 +39,9 @@ contract DAOInterface {
     // a fraction of total Ether spent plus balance of the DAO
     uint constant maxDepositDivisor = 100;
 
+    //Token contract
+    Token token;
+
     // Proposals to spend the DAO's ether
     Proposal[] public proposals;
     // The quorum needed for each proposal is partially calculated by
@@ -237,30 +240,24 @@ contract DAOInterface {
     );
     event Voted(uint indexed proposalID, bool position, address indexed voter);
     event ProposalTallied(uint indexed proposalID, bool result, uint quorum);
-    event NewCurator(address indexed _newCurator);
     event AllowedRecipientChanged(address indexed _recipient, bool _allowed);
 }
 
 // The DAO contract itself
-contract DAO is DAOInterface, Token, TokenCreation {
+contract DAO is DAOInterface{
 
     // Modifier that allows only shareholders to vote and create new proposals
     modifier onlyTokenholders {
-        if (balanceOf(msg.sender) == 0) throw;
+        if (token.balanceOf(msg.sender) == 0) throw;
             _;
     }
 
     function DAO(
         address _curator,
         uint _proposalDeposit,
-        string _tokenName, 
-        string _tokenSymbol,
-        uint _decimalPlaces
-    ) TokenCreation(
-        _tokenName, 
-        _tokenSymbol,
-        _decimalPlaces) {
-
+        Token _token
+    )  {
+        token = _token;
         curator = _curator;
         proposalDeposit = _proposalDeposit;
         lastTimeMinQuorumMet = now;
@@ -333,10 +330,10 @@ contract DAO is DAOInterface, Token, TokenCreation {
         unVote(_proposalID);
 
         if (_supportsProposal) {
-            p.yea += balances[msg.sender];
+            p.yea += token.balanceOf(msg.sender);
             p.votedYes[msg.sender] = true;
         } else {
-            p.nay += balances[msg.sender];
+            p.nay += token.balanceOf(msg.sender);
             p.votedNo[msg.sender] = true;
         }
 
@@ -360,12 +357,12 @@ contract DAO is DAOInterface, Token, TokenCreation {
         }
 
         if (p.votedYes[msg.sender]) {
-            p.yea -= balances[msg.sender];
+            p.yea -= token.balanceOf(msg.sender);
             p.votedYes[msg.sender] = false;
         }
 
         if (p.votedNo[msg.sender]) {
-            p.nay -= balances[msg.sender];
+            p.nay -= token.balanceOf(msg.sender);
             p.votedNo[msg.sender] = false;
         }
     }
@@ -447,7 +444,7 @@ contract DAO is DAOInterface, Token, TokenCreation {
 
             lastTimeMinQuorumMet = now;
             // set the minQuorum to 14.3% again, in the case it has been reached
-            if (quorum > totalSupply / 7)
+            if (quorum > token.totalSupply() / 7)
                 minQuorumDivisor = 7;
         }
 
@@ -512,31 +509,6 @@ this withdraw functions is flawed and needs to be replaced by an improved versio
         }
     }
 
-    function transfer(address _to, uint256 _value) returns (bool success) {
-        unVoteAll();
-        if (!getOrModifyBlocked(_to)
-            && _to != address(this)
-            && super.transfer(_to, _value)) {
-
-            return true;
-        } else {
-            throw;
-        }
-    }
-
-
-    function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
-        if (!getOrModifyBlocked(_from)
-            && !getOrModifyBlocked(_to)
-            && _to != address(this)
-            && super.transferFrom(_from, _to, _value)) {
-
-            return true;
-        } else {
-            throw;
-        }
-    }
-
     function changeProposalDeposit(uint _proposalDeposit) external {
         if (msg.sender != address(this) || _proposalDeposit > (actualBalance())
             / maxDepositDivisor) {
@@ -562,8 +534,8 @@ this withdraw functions is flawed and needs to be replaced by an improved versio
 
     function minQuorum(uint _value) internal constant returns (uint _minQuorum) {
         // minimum of 14.3% and maximum of 47.6%
-        return totalSupply / minQuorumDivisor +
-            (_value * totalSupply) / (3 * (actualBalance()));
+        return token.totalSupply() / minQuorumDivisor +
+            (_value * token.totalSupply()) / (3 * (actualBalance()));
     }
 
 
