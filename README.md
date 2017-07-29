@@ -1,4 +1,4 @@
-# The Decentralized Autonomous Organization (DAO) Framework
+# Decentralized Autonomous Organization (DAO) Framework
 
 [![Build Status](https://travis-ci.org/slockit/DAO.png)](https://travis-ci.org/slockit/DAO)
 
