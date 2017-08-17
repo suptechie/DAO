@@ -3,6 +3,9 @@
 [![Build Status](https://travis-ci.org/slockit/DAO.png)](https://travis-ci.org/slockit/DAO)
 
 ## What is it?
+
+Note: this is currently not maintained - do not use it as is.
+
 A Standard Decentralized Autonomous Organization (DAO) framework written in Solidity to run on the Ethereum blockchain. 
 
 Feel free to reuse this framework to create your own Decentralized Autonomous Organization.
