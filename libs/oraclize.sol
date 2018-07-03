@@ -259,6 +259,5 @@ contract usingOraclize {
         return mint;
     }
 
-
 }
 // </ORACLIZE_API>
